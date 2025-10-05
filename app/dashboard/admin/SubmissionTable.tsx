@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 // Impor tipe data dari Prisma agar konsisten
 import type { ThesisSubmission, StudentProfile, User } from '@prisma/client';
 
@@ -90,7 +91,9 @@ export default function SubmissionTable({ initialSubmissions }: { initialSubmiss
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   {sub.status === 'TERKIRIM' ? (
                     <div className="flex items-center space-x-2">
-                      <button onClick={() => handleAction(sub.id, 'VERIFY')} className="text-indigo-600 hover:text-indigo-900">Verifikasi</button>
+                      <Link href={`/admin/verifikasi/${sub.id}`}>
+                        <a className="text-indigo-600 hover:text-indigo-900">Verifikasi</a>
+                      </Link>
                       <button onClick={() => handleAction(sub.id, 'REJECT')} className="text-red-600 hover:text-red-900">Tolak</button>
                     </div>
                   ) : (
