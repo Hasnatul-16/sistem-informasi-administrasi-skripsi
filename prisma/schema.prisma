@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  MAHASISWA
+  ADMIN
+  KAPRODI
+}
+
+enum SubmissionStatus {
+  TERKIRIM
+  DIPERIKSA_ADMIN
+  DITOLAK_ADMIN
+  DIPROSES_KAPRODI
+  DISETUJUI
+}
+
+enum Jurusan {
+  MATEMATIKA
+  SISTEM_INFORMASI
+}
+
+model User {
+  id             String          @id @default(cuid())
+  email          String          @unique
+  password       String
+  role           Role
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  studentProfile StudentProfile?
+}
+
+model StudentProfile {
+  id          String             @id @default(cuid())
+  userId      String             @unique
+  user        User               @relation(fields: [userId], references: [id])
+  nim         String             @unique
+  fullName    String
+  jurusan     Jurusan
+  submissions ThesisSubmission[]
+}
+
+model ThesisSubmission {
+  id                String           @id @default(cuid())
+  studentId         String
+  student           StudentProfile   @relation(fields: [studentId], references: [id])
+  topik             String
+  judul             String
+  status            SubmissionStatus @default(TERKIRIM)
+  catatanAdmin      String?          @db.Text
+  transkripUrl      String?
+  uktUrl            String?
+  konsultasiUrl     String?
+  usulanPembimbing1 String
+  usulanPembimbing2 String
+  usulanPembimbing3 String?
+  pembimbing1       String?
+  pembimbing2       String?
+  skPembimbingUrl   String?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+}
+
+model Dosen {
+  id      String  @id @default(cuid())
+  nama    String
+  jurusan Jurusan
+}
+// ... (model User, StudentProfile, ThesisSubmission masih ada di atas)
+
