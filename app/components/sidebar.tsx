@@ -29,12 +29,12 @@ export function AppSidebar({ role, userName, userRole }: AppSidebarProps) {
     // Gunakan komponen <Sidebar> sebagai pembungkus utama
     <Sidebar>
       {/* Gunakan <SidebarContent> untuk mengisi kontennya */}
-      <SidebarContent className="flex h-full flex-col px-5 py-8">
+      <SidebarContent className="flex h-full flex-col px-0.1 py-0.2">
         
         {/* 1. Header Sidebar */}
-        <SidebarHeader>
-          <Link href="#" className="flex items-center text-2xl font-bold text-blue-600">
-            <BookOpen className="h-8 w-8 mr-2" />
+        <SidebarHeader className="p-0">
+          <Link href="#" className="flex items-center text-1.9xl font-bold bg-blue-500 text-white h-25 w-full rounded-lg px-5 py-2">
+            <BookOpen className="h-10 w-8 mr-2" />
             <span>SisAdmin Skripsi</span>
           </Link>
         </SidebarHeader>
