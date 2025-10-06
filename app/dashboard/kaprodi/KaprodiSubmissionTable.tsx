@@ -3,12 +3,12 @@
 import { useState } from 'react';
 import type { ThesisSubmission, StudentProfile, User, Dosen } from '@prisma/client';
 
-// Definisikan tipe data gabungan
+// Tipe data gabungan
 type SubmissionWithStudent = ThesisSubmission & {
   student: StudentProfile & { user: User };
 };
 
-// Tipe props untuk komponen
+// Tipe props
 interface KaprodiTableProps {
   initialSubmissions: SubmissionWithStudent[];
   lecturers: Dosen[];
@@ -22,7 +22,9 @@ export default function KaprodiSubmissionTable({ initialSubmissions, lecturers }
 
   const openModal = (submission: SubmissionWithStudent) => {
     setSelectedSubmission(submission);
-    setPembimbing({ p1: '', p2: '' });
+    const p1_usulan = lecturers.find(d => d.nama === submission.usulanPembimbing1) ? submission.usulanPembimbing1 : '';
+    const p2_usulan = lecturers.find(d => d.nama === submission.usulanPembimbing2) ? submission.usulanPembimbing2 : '';
+    setPembimbing({ p1: p1_usulan, p2: p2_usulan });
     setIsModalOpen(true);
   };
 
@@ -34,6 +36,10 @@ export default function KaprodiSubmissionTable({ initialSubmissions, lecturers }
   const handleAssign = async () => {
     if (!selectedSubmission || !pembimbing.p1 || !pembimbing.p2) {
       alert("Harap pilih Pembimbing 1 dan Pembimbing 2.");
+      return;
+    }
+    if (pembimbing.p1 === pembimbing.p2) {
+      alert("Pembimbing 1 dan 2 tidak boleh orang yang sama.");
       return;
     }
 
@@ -50,7 +56,7 @@ export default function KaprodiSubmissionTable({ initialSubmissions, lecturers }
       }
 
       const updated = await response.json();
-      setSubmissions(prev => prev.map(s => (s.id === updated.id ? updated : s)));
+      setSubmissions(prev => prev.filter(s => s.id !== updated.id));
       alert('Dosen Pembimbing berhasil ditetapkan!');
       closeModal();
 
@@ -62,35 +68,46 @@ export default function KaprodiSubmissionTable({ initialSubmissions, lecturers }
 
   return (
     <>
-      {/* Tabel Utama */}
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white border">
-          {/* ... thead sama seperti tabel admin ... */}
           <thead className="bg-gray-50">
             <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mahasiswa</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Judul</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">Mahasiswa</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-2/5">Judul Skripsi</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">Topik</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/5">Usulan Pembimbing</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
             {submissions.length === 0 ? (
-              <tr><td colSpan={4} className="py-4 text-center text-gray-500">Tidak ada pengajuan untuk diproses.</td></tr>
+              <tr><td colSpan={5} className="py-4 text-center text-gray-500">Tidak ada pengajuan untuk diproses.</td></tr>
             ) : (
               submissions.map(sub => (
                 <tr key={sub.id}>
-                  <td className="px-6 py-4">{sub.student.fullName}</td>
-                  <td className="px-6 py-4 max-w-sm">{sub.judul}</td>
-                  <td className="px-6 py-4">{sub.status.replace('_', ' ')}</td>
-                  <td className="px-6 py-4">
-                    {sub.status === 'DIPROSES_KAPRODI' ? (
-                      <button onClick={() => openModal(sub)} className="text-indigo-600 hover:text-indigo-900 font-medium">
-                        Tetapkan Pembimbing
-                      </button>
-                    ) : (
-                      <span className="text-green-600 font-semibold">Selesai</span>
-                    )}
+                  <td className="px-4 py-4 whitespace-nowrap">
+                    <div className="text-sm font-medium text-gray-900">{sub.student.fullName}</div>
+                    <div className="text-sm text-gray-500">{sub.student.nim}</div>
+                  </td>
+                  <td className="px-4 py-4">
+                    <p className="text-sm text-gray-800 whitespace-normal">{sub.judul}</p>
+                  </td>
+                  <td className="px-4 py-4 text-sm text-gray-700 whitespace-nowrap">{sub.topik}</td>
+                  <td className="px-4 py-4 whitespace-nowrap">
+                    {/* === PERBAIKAN DI SINI === */}
+                    <ul className="text-xs text-gray-600 space-y-1">
+                      <li>1. {sub.usulanPembimbing1}</li>
+                      <li>2. {sub.usulanPembimbing2}</li>
+                      {/* Tampilkan usulan ke-3 jika ada (tidak kosong) */}
+                      {sub.usulanPembimbing3 && (
+                        <li>3. {sub.usulanPembimbing3}</li>
+                      )}
+                    </ul>
+                  </td>
+                  <td className="px-4 py-4">
+                    <button onClick={() => openModal(sub)} className="px-3 py-1.5 text-sm bg-blue-600 text-white font-semibold rounded-md shadow-sm hover:bg-blue-700">
+                      Tetapkan
+                    </button>
                   </td>
                 </tr>
               ))
@@ -99,32 +116,42 @@ export default function KaprodiSubmissionTable({ initialSubmissions, lecturers }
         </table>
       </div>
 
-      {/* Modal untuk Menetapkan Pembimbing */}
+      {/* Modal tidak ada perubahan, usulan ke-3 sudah otomatis tampil di sini */}
       {isModalOpen && selectedSubmission && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-lg">
-            <h2 className="text-2xl font-bold mb-4">Tetapkan Pembimbing</h2>
-            <p className="mb-2"><strong>Mahasiswa:</strong> {selectedSubmission.student.fullName}</p>
-            <p className="mb-6"><strong>Judul:</strong> {selectedSubmission.judul}</p>
-            <div className="space-y-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
+          <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-2xl">
+            <h2 className="text-2xl font-bold mb-2">Tetapkan Dosen Pembimbing</h2>
+            <p className="text-gray-600 mb-6">Untuk: <strong>{selectedSubmission.student.fullName}</strong></p>
+            
+            <div className="mb-6 p-4 bg-gray-50 rounded-lg border">
+              <h4 className="text-sm font-semibold text-gray-800 mb-2">Usulan dari Mahasiswa:</h4>
+              <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
+                <li>{selectedSubmission.usulanPembimbing1}</li>
+                <li>{selectedSubmission.usulanPembimbing2}</li>
+                {selectedSubmission.usulanPembimbing3 && <li>{selectedSubmission.usulanPembimbing3}</li>}
+              </ul>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Pembimbing 1</label>
-                <select value={pembimbing.p1} onChange={e => setPembimbing({...pembimbing, p1: e.target.value})} className="mt-1 block w-full input-style">
-                  <option value="">-- Pilih Dosen --</option>
-                  {lecturers.map(d => <option key={d.id} value={d.nama}>{d.nama}</option>)}
+                <label className="block text-sm font-medium text-gray-700 mb-1">Pilih Pembimbing 1</label>
+                <select value={pembimbing.p1} onChange={e => setPembimbing({...pembimbing, p1: e.target.value})} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white" required>
+                  <option value="" disabled>-- Pilih Dosen --</option>
+                  {lecturers.map(dosen => <option key={dosen.id} value={dosen.nama}>{dosen.nama}</option>)}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Pembimbing 2</label>
-                <select value={pembimbing.p2} onChange={e => setPembimbing({...pembimbing, p2: e.target.value})} className="mt-1 block w-full input-style">
-                  <option value="">-- Pilih Dosen --</option>
-                  {lecturers.map(d => <option key={d.id} value={d.nama}>{d.nama}</option>)}
+                <label className="block text-sm font-medium text-gray-700 mb-1">Pilih Pembimbing 2</label>
+                <select value={pembimbing.p2} onChange={e => setPembimbing({...pembimbing, p2: e.target.value})} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white" required>
+                  <option value="" disabled>-- Pilih Dosen --</option>
+                  {lecturers.map(dosen => <option key={dosen.id} value={dosen.nama}>{dosen.nama}</option>)}
                 </select>
               </div>
             </div>
+            
             <div className="mt-8 flex justify-end space-x-3">
-              <button onClick={closeModal} className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300">Batal</button>
-              <button onClick={handleAssign} className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Simpan</button>
+              <button onClick={closeModal} className="px-4 py-2 bg-gray-200 text-gray-800 font-medium rounded-md hover:bg-gray-300">Batal</button>
+              <button onClick={handleAssign} className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700">Simpan & Tetapkan</button>
             </div>
           </div>
         </div>

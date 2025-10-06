@@ -20,6 +20,7 @@ export default function SubmissionTable({ initialSubmissions }: { initialSubmiss
           <tr>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mahasiswa</th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Judul</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Topik</th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jurusan</th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
@@ -36,6 +37,7 @@ export default function SubmissionTable({ initialSubmissions }: { initialSubmiss
                   <div className="text-sm text-gray-500">{sub.student.nim}</div>
                 </td>
                 <td className="px-6 py-4 max-w-sm"><div className="text-sm text-gray-900 truncate">{sub.judul}</div></td>
+                <td className="px-6 py-4 max-w-sm"><div className="text-sm text-gray-900 truncate">{sub.topik}</div></td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${sub.student.jurusan === 'SISTEM_INFORMASI' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'}`}>
                     {sub.student.jurusan.replace('_', ' ')}
