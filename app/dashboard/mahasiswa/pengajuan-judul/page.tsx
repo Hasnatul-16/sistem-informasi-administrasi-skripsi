@@ -3,8 +3,6 @@
 import { useState } from 'react';
 import { FiUpload, FiSend, FiFileText } from 'react-icons/fi';
 
-// --- Komponen dan Tipe Data (Tidak ada perubahan di sini) ---
-
 type FileUploadBoxProps = {
   id: string;
   name: keyof FilesState;
@@ -47,14 +45,12 @@ const FileUploadBox = ({ id, name, label, file, onChange }: FileUploadBoxProps) 
           type="file" 
           className="hidden" 
           onChange={onChange} 
-          accept=".pdf,.doc,.docx"
+          accept=".pdf"
         />
       </label>
     </div>
   );
 };
-
-// --- Komponen Utama Halaman ---
 
 export default function PengajuanJudulPage() {
   const [formData, setFormData] = useState({
@@ -84,6 +80,7 @@ export default function PengajuanJudulPage() {
     }
   };
 
+  // --- PERUBAHAN UTAMA ADA DI FUNGSI INI ---
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!formData.judul || !formData.topik || !formData.usulanPembimbing1 || !formData.usulanPembimbing2 || !files.transkrip || !files.ukt || !files.konsultasi) {
@@ -103,11 +100,29 @@ export default function PengajuanJudulPage() {
     if (files.ukt) submissionData.append('ukt', files.ukt);
     if (files.konsultasi) submissionData.append('konsultasi', files.konsultasi);
 
-    console.log('Data yang akan dikirim:', Object.fromEntries(submissionData.entries()));
-    alert('Pengajuan berhasil! Lihat data pada console log.');
+    // Mengganti console.log dengan logika pengiriman data ke API
+    try {
+      const response = await fetch('/api/submission', {
+        method: 'POST',
+        body: submissionData,
+      });
+
+      if (response.ok) {
+        alert('Pengajuan berhasil dikirim ke server!');
+        // Refresh halaman untuk mereset form dan melihat status baru jika ada
+        window.location.reload(); 
+      } else {
+        // Menampilkan pesan error dari server jika ada
+        const errorData = await response.json();
+        alert(`Gagal mengirim pengajuan: ${errorData.message}`);
+      }
+    } catch (error) {
+      // Menangani error jaringan atau error tak terduga lainnya
+      console.error('Error submitting form:', error);
+      alert('Terjadi kesalahan pada sistem. Periksa koneksi Anda.');
+    }
   };
 
-  // Daftar dosen untuk dropdown (Anda bisa mengganti ini dengan data dari API)
   const dosenList = [
     { id: 'dosen_a', nama: 'Prof. Dr. Budi Santoso' },
     { id: 'dosen_b', nama: 'Dr. Anisa Putri, M.Kom.' },
@@ -124,102 +139,47 @@ export default function PengajuanJudulPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* ... Sisa dari JSX (tampilan form) tidak ada perubahan ... */}
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <h2 className="text-xl font-semibold text-gray-800 mb-5">Informasi Judul</h2>
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="jurusan" className="block text-sm font-medium text-gray-700 mb-1">
-                    Jurusan <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    id="jurusan"
-                    name="jurusan"
-                    value={formData.jurusan}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
-                    required
-                  >
+                  <label htmlFor="jurusan" className="block text-sm font-medium text-gray-700 mb-1">Jurusan <span className="text-red-500">*</span></label>
+                  <select id="jurusan" name="jurusan" value={formData.jurusan} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white" required>
                     <option value="SISTEM_INFORMASI">Sistem Informasi</option>
                     <option value="MATEMATIKA">Matematika</option>
-                   
                   </select>
                 </div>
                 <div>
-                  <label htmlFor="topik" className="block text-sm font-medium text-gray-700 mb-1">
-                    Topik <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    id="topik"
-                    name="topik"
-                    value={formData.topik}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
-                    required
-                  >
-                    <option value="" disabled>Pilih Topik</option>
-                    <option value="machine_learning">Machine Learning</option>
-                    <option value="data_science">Data Science</option>
-                    <option value="web_development">Web Development</option>
-                    <option value="mobile_computing">Mobile Computing</option>
-                  </select>
+                  <label htmlFor="topik" className="block text-sm font-medium text-gray-700 mb-1">Topik <span className="text-red-500">*</span></label>
+                  <input id="topik" name="topik" type="text" value={formData.topik} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" required placeholder="Contoh: Machine Learning"/>
                 </div>
               </div>
-              
               <div>
-                <label htmlFor="judul" className="block text-sm font-medium text-gray-700 mb-1">
-                  Judul Skripsi <span className="text-red-500">*</span>
-                </label>
-                <textarea
-                  id="judul"
-                  name="judul"
-                  rows={4}
-                  value={formData.judul}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Masukkan judul skripsi Anda..."
-                  required
-                />
+                <label htmlFor="judul" className="block text-sm font-medium text-gray-700 mb-1">Judul Skripsi <span className="text-red-500">*</span></label>
+                <textarea id="judul" name="judul" rows={4} value={formData.judul} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="Masukkan judul skripsi Anda..." required />
               </div>
-
-              {/* --- BAGIAN YANG DIPERBARUI --- */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Dropdown Pembimbing 1 */}
                 <div>
-                  <label htmlFor="usulanPembimbing1" className="block text-sm font-medium text-gray-700 mb-1">
-                    Usulan Calon Pembimbing 1 <span className="text-red-500">*</span>
-                  </label>
+                  <label htmlFor="usulanPembimbing1" className="block text-sm font-medium text-gray-700 mb-1">Usulan Calon Pembimbing 1 <span className="text-red-500">*</span></label>
                   <select id="usulanPembimbing1" name="usulanPembimbing1" value={formData.usulanPembimbing1} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white" required>
                     <option value="" disabled>Pilih Dosen</option>
-                    {dosenList.map(dosen => (
-                      <option key={dosen.id} value={dosen.nama}>{dosen.nama}</option>
-                    ))}
+                    {dosenList.map(dosen => (<option key={dosen.id} value={dosen.nama}>{dosen.nama}</option>))}
                   </select>
                 </div>
-                
-                {/* Dropdown Pembimbing 2 */}
                 <div>
-                  <label htmlFor="usulanPembimbing2" className="block text-sm font-medium text-gray-700 mb-1">
-                    Usulan Calon Pembimbing 2 <span className="text-red-500">*</span>
-                  </label>
+                  <label htmlFor="usulanPembimbing2" className="block text-sm font-medium text-gray-700 mb-1">Usulan Calon Pembimbing 2 <span className="text-red-500">*</span></label>
                   <select id="usulanPembimbing2" name="usulanPembimbing2" value={formData.usulanPembimbing2} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white" required>
                     <option value="" disabled>Pilih Dosen</option>
-                    {dosenList.map(dosen => (
-                      <option key={dosen.id} value={dosen.nama}>{dosen.nama}</option>
-                    ))}
+                    {dosenList.map(dosen => (<option key={dosen.id} value={dosen.nama}>{dosen.nama}</option>))}
                   </select>
                 </div>
-                
-                {/* Dropdown Pembimbing 3 */}
                 <div>
-                  <label htmlFor="usulanPembimbing3" className="block text-sm font-medium text-gray-700 mb-1">
-                    Usulan Calon Pembimbing 3 <span className="text-gray-500">(Opsional)</span>
-                  </label>
+                  <label htmlFor="usulanPembimbing3" className="block text-sm font-medium text-gray-700 mb-1">Usulan Calon Pembimbing 3 <span className="text-gray-500">(Opsional)</span></label>
                   <select id="usulanPembimbing3" name="usulanPembimbing3" value={formData.usulanPembimbing3} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white">
                     <option value="" disabled>Pilih Dosen</option>
-                    {dosenList.map(dosen => (
-                      <option key={dosen.id} value={dosen.nama}>{dosen.nama}</option>
-                    ))}
+                    {dosenList.map(dosen => (<option key={dosen.id} value={dosen.nama}>{dosen.nama}</option>))}
                   </select>
                 </div>
               </div>
@@ -235,19 +195,9 @@ export default function PengajuanJudulPage() {
             </div>
           </div>
 
-          <div className="flex justify-end items-center gap-4 pt-4">
-            <button
-              type="button"
-              className="py-2 px-5 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-800 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400"
-            >
-              Simpan Draft
-            </button>
-            <button
-              type="submit"
-              className="inline-flex items-center gap-2 py-2 px-5 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              <FiSend />
-              Kirim Pengajuan
+          <div className="flex justify-end pt-4">
+            <button type="submit" className="inline-flex items-center gap-2 py-2 px-5 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+              <FiSend /> Kirim Pengajuan
             </button>
           </div>
         </form>
