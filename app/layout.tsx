@@ -1,10 +1,10 @@
 // src/app/layout.tsx
 
 import type { Metadata } from "next";
-import { Geist } from "next/font/google"; // Menggunakan satu font saja untuk simplisitas
+import { Geist } from "next/font/google";
 import "./globals.css";
+import AuthProvider from "./AuthProvider"; // Impor provider sesi
 
-// Mengganti nama variabel agar lebih jelas
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -23,9 +23,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} antialiased`}>
-        {/* 'children' akan merender semua halaman Anda, baik itu homepage atau dasbor */}
-        
-        {children}
+        {/* AuthProvider membungkus seluruh aplikasi */}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );
