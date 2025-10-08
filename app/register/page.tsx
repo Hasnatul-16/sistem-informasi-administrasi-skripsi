@@ -22,6 +22,7 @@ export default function RegisterPage() {
     setError('');
 
     try {
+      // Kita tidak lagi mengirim role, API akan menanganinya
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -34,8 +35,7 @@ export default function RegisterPage() {
       }
 
       alert('Registrasi berhasil! Anda akan diarahkan ke halaman login.');
-      // === PERUBAHAN DI SINI ===
-      router.push('/'); // Mengarahkan ke halaman utama
+      router.push('/login');
 
     } catch (err: any) {
       setError(err.message);
@@ -56,7 +56,9 @@ export default function RegisterPage() {
           <input name="fullName" type="text" required placeholder="Nama Lengkap" onChange={(e) => setFormData({...formData, fullName: e.target.value})} className="w-full px-3 py-2 border rounded-md" />
           <input name="nim" type="text" required placeholder="NIM" onChange={(e) => setFormData({...formData, nim: e.target.value})} className="w-full px-3 py-2 border rounded-md" />
           <input name="email" type="email" required placeholder="Email" onChange={(e) => setFormData({...formData, email: e.target.value})} className="w-full px-3 py-2 border rounded-md" />
-          <input name="password" type="password" required placeholder="Password" onChange={(e) => setFormData({...formData, password: e.g. target.value})} className="w-full px-3 py-2 border rounded-md" />
+          <input name="password" type="password" required placeholder="Password" onChange={(e) => setFormData({...formData, password: e.target.value})} className="w-full px-3 py-2 border rounded-md" />
+          
+          {/* Dropdown role sudah dihapus */}
           
           {error && <p className="text-sm text-center text-red-600">{error}</p>}
 
@@ -66,8 +68,7 @@ export default function RegisterPage() {
         </form>
         <p className="text-sm text-center text-gray-500">
           Sudah punya akun?{' '}
-          {/* === DAN PERUBAHAN DI SINI === */}
-          <Link href="/" className="font-medium text-blue-600 hover:text-blue-500">
+          <Link href="/login" className="font-medium text-blue-600 hover:text-blue-500">
             Masuk di sini
           </Link>
         </p>
