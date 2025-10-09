@@ -1,11 +1,6 @@
-// src/app/dashboard/admin/layout.tsx
-
-import {
-  SidebarProvider,
-  SidebarTrigger,
-  SidebarInset,
-} from "@/components/ui/sidebar"; // Sesuaikan path jika perlu
-import { AppSidebar } from "@/app/components/sidebar"; // Sesuaikan path jika perlu
+import { AppSidebar } from "@/app/components/sidebar";
+import { Header } from "@/app/components/Header";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 
 export default function AdminDashboardLayout({
   children,
@@ -13,36 +8,19 @@ export default function AdminDashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    // SidebarProvider membungkus seluruh layout dasbor
+    // SidebarProvider sudah membuat container flex-nya sendiri.
     <SidebarProvider>
-      {/* AppSidebar dipanggil di sini dengan role yang spesifik */}
-      <AppSidebar role="admin" userName="Admin" userRole="admin" />
+       
+        <AppSidebar role="admin" />
 
-      {/* SidebarInset membungkus konten utama halaman */}
-      <SidebarInset>
-        <header className="p-4 bg-blue-500 border-b mb-4">
-            
-          <div className="max-w-7xl mx-auto flex items-center">
-            {/* Tombol untuk membuka/menutup sidebar di mobile */}
-            
-              <SidebarTrigger className="bg-white"/>
-           
-
-            {/* Judul Halaman */}
-            <div className="flex-1 text-center">
-              <h1 className="text-xl font-bold text-white" >Dasbor Admin</h1>
-            </div>
-
-            {/* Placeholder untuk menyeimbangkan layout */}
-            <div className="flex-none w-8 lg:hidden" />
-          </div>
-        </header>
-
-        {/* 'children' adalah konten dari setiap halaman admin */}
-        <div className="p-6">
+        
+        <SidebarInset>
+          <Header  title="Dasbor admin" />
+          <main className="flex-1 p-4 sm:p-6 ">
             {children}
-        </div>
-      </SidebarInset>
+          </main>
+        </SidebarInset>
+        
     </SidebarProvider>
   );
 }

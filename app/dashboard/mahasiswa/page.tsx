@@ -1,4 +1,4 @@
-// src/app/dashboard/mahasiswa/page.tsx
+
 
 import Link from 'next/link';
 import prisma from '@/lib/prisma';
@@ -15,8 +15,7 @@ import { SubmissionStatus } from '@prisma/client';
 
 // Fungsi untuk mengambil data mahasiswa dan pengajuan terakhirnya
 async function getMahasiswaData() {
-  // PENTING: Di aplikasi nyata, Anda akan mendapatkan ID mahasiswa dari sesi login.
-  // Untuk sekarang, kita ambil data mahasiswa pertama yang ada di database sebagai contoh.
+ 
   const studentProfile = await prisma.studentProfile.findFirst({
     include: {
       user: true, // Ambil data user untuk nama, email, dll.
