@@ -1,10 +1,3 @@
-// src/app/dashboard/admin/layout.tsx
-
-import {
-  SidebarProvider,
-  SidebarTrigger,
-  SidebarInset,
-} from "@/components/ui/sidebar";
 import { AppSidebar } from "@/app/components/sidebar";
 
 export default function MahasiswaDashboardLayout({
@@ -13,7 +6,6 @@ export default function MahasiswaDashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    // SidebarProvider membungkus seluruh layout dasbor
     <SidebarProvider>
       {/* AppSidebar dipanggil di sini dengan role yang spesifik */}
       <AppSidebar role="mahasiswa" userName="Mahasiswa" userRole="mahasiswa" />
@@ -46,5 +38,3 @@ export default function MahasiswaDashboardLayout({
     </SidebarProvider>
   );
 }
-
-
