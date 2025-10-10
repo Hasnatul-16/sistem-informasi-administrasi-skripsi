@@ -3,8 +3,12 @@ import SKDocument from './SKDocument'; // Komponen yang akan kita buat
 
 // Fungsi untuk mengambil data spesifik untuk SK
 async function getSubmissionForSK(id: string) {
+  const submissionId = Number(id);
+  if (isNaN(submissionId)) {
+    throw new Error('ID pengajuan tidak valid.');
+  }
   const submission = await prisma.thesisSubmission.findUnique({
-    where: { id, status: 'DISETUJUI' }, // Pastikan hanya yang disetujui
+    where: { id: submissionId, status: 'DISETUJUI' }, // Pastikan hanya yang disetujui
     include: {
       student: true, // Ambil data mahasiswa
     },

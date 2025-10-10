@@ -1,15 +1,17 @@
 // src/app/dashboard/admin/verifikasi/[id]/page.tsx
 
-import { PrismaClient } from '@prisma/client';
+import prisma from '@/lib/prisma';
 import Link from 'next/link';
 import { FiFileText, FiDownload } from 'react-icons/fi';
 import VerificationActions from './VerificationActions';
 
-const prisma = new PrismaClient();
-
 async function getSubmission(id: string) {
+  const submissionId = Number(id);
+  if (isNaN(submissionId)) {
+    throw new Error('ID pengajuan tidak valid.');
+  }
   const submission = await prisma.thesisSubmission.findUnique({
-    where: { id },
+    where: { id: submissionId },
     include: { student: { include: { user: true } } },
   });
   if (!submission) throw new Error('Pengajuan tidak ditemukan');
@@ -78,7 +80,7 @@ export default async function VerificationDetailPage({ params }: { params: { id:
           </div>
         </div>
         
-        <VerificationActions submissionId={submission.id} />
+        <VerificationActions submissionId={submission.id.toString()} />
       </div>
     </main>
   );

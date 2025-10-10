@@ -27,7 +27,7 @@ enum Jurusan {
 }
 
 model User {
-  id             String          @id @default(cuid())
+  id             Int             @id @default(autoincrement())
   email          String          @unique
   password       String
   role           Role
@@ -37,8 +37,8 @@ model User {
 }
 
 model StudentProfile {
-  id          String             @id @default(cuid())
-  userId      String             @unique
+  id          Int                @id @default(autoincrement())
+  userId      Int                @unique
   user        User               @relation(fields: [userId], references: [id])
   nim         String             @unique
   fullName    String
@@ -47,9 +47,10 @@ model StudentProfile {
 }
 
 model ThesisSubmission {
-  id                String           @id @default(cuid())
-  studentId         String
+  id                Int              @id @default(autoincrement())
+  studentId         Int
   student           StudentProfile   @relation(fields: [studentId], references: [id])
+  jurusan           Jurusan // Kolom ini penting untuk filtering
   topik             String
   judul             String
   status            SubmissionStatus @default(TERKIRIM)
@@ -68,9 +69,7 @@ model ThesisSubmission {
 }
 
 model Dosen {
-  id      String  @id @default(cuid())
+  id      Int     @id @default(autoincrement())
   nama    String
   jurusan Jurusan
 }
-// ... (model User, StudentProfile, ThesisSubmission masih ada di atas)
-

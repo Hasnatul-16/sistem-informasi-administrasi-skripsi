@@ -1,6 +1,6 @@
 -- CreateTable
 CREATE TABLE `User` (
-    `id` VARCHAR(191) NOT NULL,
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
     `email` VARCHAR(191) NOT NULL,
     `password` VARCHAR(191) NOT NULL,
     `role` ENUM('MAHASISWA', 'ADMIN', 'KAPRODI') NOT NULL,
@@ -13,8 +13,8 @@ CREATE TABLE `User` (
 
 -- CreateTable
 CREATE TABLE `StudentProfile` (
-    `id` VARCHAR(191) NOT NULL,
-    `userId` VARCHAR(191) NOT NULL,
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `userId` INTEGER NOT NULL,
     `nim` VARCHAR(191) NOT NULL,
     `fullName` VARCHAR(191) NOT NULL,
     `jurusan` ENUM('MATEMATIKA', 'SISTEM_INFORMASI') NOT NULL,
@@ -26,8 +26,9 @@ CREATE TABLE `StudentProfile` (
 
 -- CreateTable
 CREATE TABLE `ThesisSubmission` (
-    `id` VARCHAR(191) NOT NULL,
-    `studentId` VARCHAR(191) NOT NULL,
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `studentId` INTEGER NOT NULL,
+    `jurusan` ENUM('MATEMATIKA', 'SISTEM_INFORMASI') NOT NULL,
     `topik` VARCHAR(191) NOT NULL,
     `judul` VARCHAR(191) NOT NULL,
     `status` ENUM('TERKIRIM', 'DIPERIKSA_ADMIN', 'DITOLAK_ADMIN', 'DIPROSES_KAPRODI', 'DISETUJUI') NOT NULL DEFAULT 'TERKIRIM',
@@ -49,7 +50,7 @@ CREATE TABLE `ThesisSubmission` (
 
 -- CreateTable
 CREATE TABLE `Dosen` (
-    `id` VARCHAR(191) NOT NULL,
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
     `nama` VARCHAR(191) NOT NULL,
     `jurusan` ENUM('MATEMATIKA', 'SISTEM_INFORMASI') NOT NULL,
 

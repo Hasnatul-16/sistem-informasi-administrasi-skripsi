@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from '@/lib/prisma';
 
 // Fungsi ini menangani update (PATCH) untuk sebuah submission
 export async function PATCH(
@@ -9,11 +7,15 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
-    const submissionId = params.id;
+    const submissionId = Number(params.id);
+    if (isNaN(submissionId)) {
+      return NextResponse.json({ message: 'ID pengajuan tidak valid' }, { status: 400 });
+    }
+
     const { action, catatanAdmin } = await request.json(); // action bisa 'VERIFY' or 'REJECT'
 
-    if (!submissionId || !action) {
-      return NextResponse.json({ message: 'ID pengajuan dan aksi diperlukan' }, { status: 400 });
+    if (!action) {
+      return NextResponse.json({ message: 'Aksi diperlukan' }, { status: 400 });
     }
 
     let updatedSubmission;

@@ -7,19 +7,24 @@ import { JWT, DefaultJWT } from 'next-auth/jwt';
 declare module 'next-auth' {
   interface Session {
     user: {
-      id: string;
+      id: number;
       role: Role;
-    } & DefaultSession['user'];
+      name?: string | null;
+      email?: string | null;
+      image?: string | null;
+    };
+    expires: string;
   }
 
   interface User extends DefaultUser {
+    id: number;
     role: Role;
   }
 }
 
 declare module 'next-auth/jwt' {
   interface JWT extends DefaultJWT {
+    id: number; // <-- UBAH DARI string MENJADI number
     role: Role;
-    id: string;
   }
 }

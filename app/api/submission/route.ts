@@ -1,62 +1,71 @@
-// src/app/api/submission/route.ts
+// app/api/submission/route.ts
 
 import { NextResponse } from 'next/server';
-import { Jurusan } from '@prisma/client'; // Mengimpor 'Jurusan' dengan huruf besar
-import prisma from '@/lib/prisma'; // <-- PERUBAHAN 1: Impor dari file terpusat
+import prisma from '@/lib/prisma';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '../auth/[...nextauth]/route'; // Pastikan path ini benar
 import { writeFile } from 'fs/promises';
 import path from 'path';
 
-// const prisma = new PrismaClient(); // <-- PERUBAHAN 2: Baris ini sudah dihapus
-
 export async function POST(request: Request) {
-  try {
-    const data = await request.formData();
-    
-    // --- (Kode untuk upload file tetap sama) ---
-    const transkripFile = data.get('transkrip') as File | null;
-    const uktFile = data.get('ukt') as File | null;
-    const konsultasiFile = data.get('konsultasi') as File | null;
+  // 1. Dapatkan sesi pengguna yang sedang login untuk keamanan
+  const session = await getServerSession(authOptions);
 
-    if (!transkripFile || !uktFile || !konsultasiFile) {
-      return NextResponse.json({ message: 'Semua file persyaratan wajib diunggah.' }, { status: 400 });
+  if (!session || !session.user || session.user.role !== 'MAHASISWA') {
+    return NextResponse.json({ message: 'Akses ditolak. Anda harus login sebagai mahasiswa.' }, { status: 403 });
+  }
+
+  try {
+    // 2. Cari profil mahasiswa BERDASARKAN ID DARI SESI (bukan findFirst)
+    const studentProfile = await prisma.studentProfile.findUnique({
+      where: { userId: session.user.id },
+    });
+
+    if (!studentProfile) {
+      return NextResponse.json({ message: 'Profil mahasiswa tidak ditemukan.' }, { status: 404 });
     }
 
-    const saveFile = async (file: File) => {
-      const bytes = await file.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-      const fileName = `${Date.now()}_${file.name.replace(/\s/g, '_')}`;
-      const filePath = path.join(process.cwd(), 'public/uploads', fileName);
-      await writeFile(filePath, buffer);
-      return `/uploads/${fileName}`;
-    };
+    // 3. Ambil data dari form (tanpa perlu mengambil jurusan)
+    const formData = await request.formData();
+    const judul = formData.get('judul') as string;
+    const topik = formData.get('topik') as string;
+    const usulanPembimbing1 = formData.get('usulanPembimbing1') as string;
+    const usulanPembimbing2 = formData.get('usulanPembimbing2') as string;
+    const usulanPembimbing3 = formData.get('usulanPembimbing3') as string | null;
 
+    const transkripFile = formData.get('transkrip') as File | null;
+    const uktFile = formData.get('ukt') as File | null;
+    const konsultasiFile = formData.get('konsultasi') as File | null;
+
+    // Validasi input dasar
+    if (!judul || !topik || !usulanPembimbing1 || !usulanPembimbing2 || !transkripFile || !uktFile || !konsultasiFile) {
+        return NextResponse.json({ message: 'Semua field wajib diisi.' }, { status: 400 });
+    }
+    
+    // Fungsi untuk menyimpan file dan mendapatkan URL
+    const saveFile = async (file: File) => {
+        const bytes = await file.arrayBuffer();
+        const buffer = Buffer.from(bytes);
+        const fileName = `${Date.now()}_${file.name.replace(/\s/g, '_')}`;
+        const filePath = path.join(process.cwd(), 'public/uploads', fileName);
+        await writeFile(filePath, buffer);
+        return `/uploads/${fileName}`;
+    };
+    
     const transkripUrl = await saveFile(transkripFile);
     const uktUrl = await saveFile(uktFile);
     const konsultasiUrl = await saveFile(konsultasiFile);
-    
-    const studentProfile = await prisma.studentProfile.findFirst(); 
-    if (!studentProfile) {
-        return NextResponse.json({ message: 'Tidak ada data mahasiswa untuk dihubungkan. Harap buat data dummy mahasiswa terlebih dahulu.' }, { status: 404 });
-    }
 
-    const jurusanValue = data.get('jurusan') as string;
-
-    // Validasi apakah nilai jurusan yang diterima valid
-    if (!Object.values(Jurusan).includes(jurusanValue as Jurusan)) {
-        return NextResponse.json({ message: 'Nilai jurusan tidak valid.' }, { status: 400 });
-    }
-
+    // 4. Simpan pengajuan baru ke database DENGAN JURUSAN DARI PROFIL
     const newSubmission = await prisma.thesisSubmission.create({
       data: {
         studentId: studentProfile.id,
-        // Di Prisma Schema Anda tidak ada kolom jurusan di ThesisSubmission, jadi ini dihapus
-        // Jika ada, pastikan untuk menambahkannya lagi di schema.prisma
-        // jurusan: jurusanValue as Jurusan, 
-        topik: data.get('topik') as string,
-        judul: data.get('judul') as string,
-        usulanPembimbing1: data.get('usulanPembimbing1') as string,
-        usulanPembimbing2: data.get('usulanPembimbing2') as string,
-        usulanPembimbing3: data.get('usulanPembimbing3') as string,
+        jurusan: studentProfile.jurusan, // <-- JURUSAN DIAMBIL OTOMATIS DARI PROFIL!
+        topik,
+        judul,
+        usulanPembimbing1,
+        usulanPembimbing2,
+        usulanPembimbing3: usulanPembimbing3 || undefined,
         transkripUrl,
         uktUrl,
         konsultasiUrl,
@@ -68,6 +77,6 @@ export async function POST(request: Request) {
 
   } catch (error) {
     console.error("Gagal membuat pengajuan:", error);
-    return NextResponse.json({ message: 'Terjadi kesalahan pada server' }, { status: 500 });
+    return NextResponse.json({ message: 'Terjadi kesalahan pada server.', error: (error as Error).message }, { status: 500 });
   }
 }

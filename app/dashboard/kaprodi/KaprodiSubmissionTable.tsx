@@ -51,8 +51,9 @@ export default function KaprodiSubmissionTable({ initialSubmissions, lecturers }
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Gagal menyimpan data');
+        const errorResponse = await response.json();
+        const errorMessage = errorResponse?.message || 'Gagal menyimpan data';
+        throw new Error(errorMessage);
       }
 
       const updated = await response.json();

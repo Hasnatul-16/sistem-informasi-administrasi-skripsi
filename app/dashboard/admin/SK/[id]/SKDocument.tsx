@@ -18,12 +18,10 @@ export default function SKDocument({ submission, dekan }: SKProps) {
 
   // 2. Gunakan hook react-to-print
   const handlePrint = useReactToPrint({
-    // Editor Anda mungkin menandai 'content' sebagai error, ini adalah masalah tipe data yang bisa diabaikan.
-    // Kode ini secara fungsional sudah benar.
     content: () => componentRef.current,
     documentTitle: `SK Pembimbing - ${submission.student.fullName}`,
     onAfterPrint: () => alert('Dokumen SK siap dicetak/disimpan!'),
-  });
+  } as any);
 
   // Fungsi untuk memformat tanggal
   const formatDate = (date: Date) => {

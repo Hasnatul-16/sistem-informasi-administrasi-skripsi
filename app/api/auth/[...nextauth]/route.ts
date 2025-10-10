@@ -4,6 +4,7 @@ import NextAuth, { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import prisma from '@/lib/prisma';
 import { compare } from 'bcryptjs';
+import { JWT } from 'next-auth/jwt';
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -32,7 +33,6 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        // Tipe User di sini sudah otomatis diperbarui oleh file next-auth.d.ts
         return {
           id: user.id,
           email: user.email,
@@ -42,25 +42,26 @@ export const authOptions: NextAuthOptions = {
     })
   ],
   pages: {
-    signIn: '/login',
+    signIn: '/', // Ubah ke halaman utama jika halaman login Anda di sana
   },
   session: {
     strategy: 'jwt',
   },
   callbacks: {
-    // Tipe 'user' dan 'token' sekarang sudah benar secara otomatis
     async jwt({ token, user }) {
+      // Saat login, objek 'user' dari authorize akan ada di sini
       if (user) {
-        token.id = user.id;
+        token.id = user.id as number;
         token.role = user.role;
       }
       return token;
     },
-    // Tipe 'session' dan 'token' juga sudah benar
     async session({ session, token }) {
+      // Setiap kali sesi diakses, data dari token akan ditambahkan ke sesi
       if (session?.user) {
-        session.user.id = token.id;
-        session.user.role = token.role;
+        const tokenTyped = token as JWT;
+        session.user.id = typeof tokenTyped.id === 'string' ? Number(tokenTyped.id) : tokenTyped.id;
+        session.user.role = tokenTyped.role;
       }
       return session;
     }
