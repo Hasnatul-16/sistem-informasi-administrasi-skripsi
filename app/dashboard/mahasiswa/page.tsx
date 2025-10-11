@@ -1,5 +1,3 @@
-
-
 import Link from 'next/link';
 import prisma from '@/lib/prisma';
 import { 
@@ -12,13 +10,27 @@ import {
   FiAlertCircle 
 } from 'react-icons/fi';
 import { SubmissionStatus } from '@prisma/client';
+import { getServerSession } from 'next-auth'; // <-- 1. Impor untuk mengambil sesi
+import { authOptions } from '@/app/api/auth/[...nextauth]/route'; // <-- Sesuaikan path jika perlu
+import { redirect } from 'next/navigation';
+
+// 2. Tambahkan ini untuk mematikan caching dan memastikan data selalu baru
+export const dynamic = 'force-dynamic';
 
 // Fungsi untuk mengambil data mahasiswa dan pengajuan terakhirnya
 async function getMahasiswaData() {
- 
-  const studentProfile = await prisma.studentProfile.findFirst({
+  // 3. Dapatkan sesi pengguna yang sedang login
+  const session = await getServerSession(authOptions);
+  if (!session?.user) {
+    // Jika tidak ada sesi, lempar ke halaman login
+    redirect('/');
+  }
+
+  // Ambil profil mahasiswa berdasarkan ID pengguna dari sesi
+  const studentProfile = await prisma.studentProfile.findUnique({
+    where: { userId: session.user.id },
     include: {
-      user: true, // Ambil data user untuk nama, email, dll.
+      user: true,
     },
   });
 
@@ -26,7 +38,7 @@ async function getMahasiswaData() {
     return { studentProfile: null, latestSubmission: null };
   }
 
-  // Ambil pengajuan terbaru dari mahasiswa ini
+  // 4. Ambil pengajuan terbaru HANYA dari mahasiswa ini
   const latestSubmission = await prisma.thesisSubmission.findFirst({
     where: {
       studentId: studentProfile.id,
@@ -39,7 +51,7 @@ async function getMahasiswaData() {
   return { studentProfile, latestSubmission };
 }
 
-// Komponen untuk menampilkan status dengan warna dan ikon yang sesuai
+// Komponen untuk menampilkan status dengan warna dan ikon yang sesuai (TIDAK BERUBAH)
 const StatusBadge = ({ status }: { status: SubmissionStatus }) => {
   const statusConfig = {
     TERKIRIM: { text: "Terkirim", icon: FiClock, color: "bg-blue-100 text-blue-800" },
@@ -60,25 +72,24 @@ const StatusBadge = ({ status }: { status: SubmissionStatus }) => {
   );
 };
 
-// --- Komponen Utama Halaman Dasbor ---
+// --- Komponen Utama Halaman Dasbor --- (TIDAK BERUBAH)
 export default async function MahasiswaDashboardPage() {
   const { studentProfile, latestSubmission } = await getMahasiswaData();
 
   if (!studentProfile) {
+    // Penanganan jika profil mahasiswa tidak ditemukan setelah login (kasus langka)
     return (
       <div className="text-center p-10">
-        <h1 className="text-2xl font-bold text-red-600">Data Mahasiswa Tidak Ditemukan</h1>
-        <p className="text-gray-500 mt-2">Pastikan Anda sudah membuat data dummy untuk User dan StudentProfile.</p>
+        <h1 className="text-2xl font-bold text-red-600">Profil Mahasiswa Tidak Ditemukan</h1>
+        <p className="text-gray-500 mt-2">Terjadi kesalahan saat memuat data profil Anda.</p>
       </div>
     );
   }
 
   const steps = ['Pengajuan Judul', 'Seminar Proposal', 'Sidang Skripsi', 'Lulus'];
-  // Logika untuk menentukan step aktif
   let currentStepIndex = 0;
   if (latestSubmission) {
-    if (latestSubmission.status === 'DISETUJUI') currentStepIndex = 1; // Jika judul disetujui, lanjut ke step Sempro
-    // Tambahkan logika lain di sini untuk status Seminar dan Sidang
+    if (latestSubmission.status === 'DISETUJUI') currentStepIndex = 1;
   }
 
   return (
@@ -152,12 +163,12 @@ export default async function MahasiswaDashboardPage() {
           <div className="p-4 bg-green-50 border-l-4 border-green-400 rounded-r-lg">
              <h3 className="text-md font-bold text-green-800">Selamat, Judul Anda Telah Disetujui!</h3>
              <div className="mt-4 text-sm text-green-900">
-                <p className="font-semibold">Dosen Pembimbing Anda:</p>
-                <ul className="list-disc list-inside mt-2 space-y-1">
-                  <li><strong>Pembimbing 1:</strong> {latestSubmission.pembimbing1}</li>
-                  <li><strong>Pembimbing 2:</strong> {latestSubmission.pembimbing2}</li>
-                </ul>
-                <p className="mt-4">Silakan hubungi dosen pembimbing untuk memulai proses bimbingan.</p>
+               <p className="font-semibold">Dosen Pembimbing Anda:</p>
+               <ul className="list-disc list-inside mt-2 space-y-1">
+                 <li><strong>Pembimbing 1:</strong> {latestSubmission.pembimbing1}</li>
+                 <li><strong>Pembimbing 2:</strong> {latestSubmission.pembimbing2}</li>
+               </ul>
+               <p className="mt-4">Silakan hubungi dosen pembimbing untuk memulai proses bimbingan.</p>
              </div>
           </div>
         ) : (

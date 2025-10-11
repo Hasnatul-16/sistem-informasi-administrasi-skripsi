@@ -2,6 +2,11 @@
 
 import { useState } from 'react';
 import type { ThesisSubmission, StudentProfile, User, Dosen } from '@prisma/client';
+// --- 1. Impor SweetAlert2 ---
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+
+const MySwal = withReactContent(Swal);
 
 // Tipe data gabungan
 type SubmissionWithStudent = ThesisSubmission & {
@@ -19,6 +24,7 @@ export default function KaprodiSubmissionTable({ initialSubmissions, lecturers }
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSubmission, setSelectedSubmission] = useState<SubmissionWithStudent | null>(null);
   const [pembimbing, setPembimbing] = useState({ p1: '', p2: '' });
+  const [isLoading, setIsLoading] = useState(false); // Tambahkan state loading
 
   const openModal = (submission: SubmissionWithStudent) => {
     setSelectedSubmission(submission);
@@ -33,18 +39,21 @@ export default function KaprodiSubmissionTable({ initialSubmissions, lecturers }
     setSelectedSubmission(null);
   };
 
+  // --- 2. Perbarui fungsi handleAssign ---
   const handleAssign = async () => {
     if (!selectedSubmission || !pembimbing.p1 || !pembimbing.p2) {
-      alert("Harap pilih Pembimbing 1 dan Pembimbing 2.");
+      MySwal.fire({ icon: 'warning', title: 'Belum Lengkap', text: 'Harap pilih Pembimbing 1 dan Pembimbing 2.' });
       return;
     }
     if (pembimbing.p1 === pembimbing.p2) {
-      alert("Pembimbing 1 dan 2 tidak boleh orang yang sama.");
+      MySwal.fire({ icon: 'warning', title: 'Pilihan Tidak Valid', text: 'Pembimbing 1 dan 2 tidak boleh orang yang sama.' });
       return;
     }
 
+    setIsLoading(true);
+
     try {
-      const response = await fetch(`/api/submission/${selectedSubmission.id}/assign`, {
+      const response = await fetch(`/api/submission/${selectedSubmission.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ pembimbing1: pembimbing.p1, pembimbing2: pembimbing.p2 }),
@@ -52,18 +61,30 @@ export default function KaprodiSubmissionTable({ initialSubmissions, lecturers }
 
       if (!response.ok) {
         const errorResponse = await response.json();
-        const errorMessage = errorResponse?.message || 'Gagal menyimpan data';
-        throw new Error(errorMessage);
+        throw new Error(errorResponse?.message || 'Gagal menyimpan data');
       }
 
       const updated = await response.json();
+      
+      MySwal.fire({
+        icon: 'success',
+        title: 'Berhasil!',
+        text: 'Dosen Pembimbing berhasil ditetapkan.',
+        timer: 2000,
+        showConfirmButton: false
+      });
+      
       setSubmissions(prev => prev.filter(s => s.id !== updated.id));
-      alert('Dosen Pembimbing berhasil ditetapkan!');
       closeModal();
 
     } catch (error: any) {
-      console.error(error);
-      alert(`Error: ${error.message}`);
+      MySwal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: error.message || 'Terjadi kesalahan pada server.',
+      });
+    } finally {
+        setIsLoading(false);
     }
   };
 
@@ -95,11 +116,9 @@ export default function KaprodiSubmissionTable({ initialSubmissions, lecturers }
                   </td>
                   <td className="px-4 py-4 text-sm text-gray-700 whitespace-nowrap">{sub.topik}</td>
                   <td className="px-4 py-4 whitespace-nowrap">
-                    {/* === PERBAIKAN DI SINI === */}
                     <ul className="text-xs text-gray-600 space-y-1">
                       <li>1. {sub.usulanPembimbing1}</li>
                       <li>2. {sub.usulanPembimbing2}</li>
-                      {/* Tampilkan usulan ke-3 jika ada (tidak kosong) */}
                       {sub.usulanPembimbing3 && (
                         <li>3. {sub.usulanPembimbing3}</li>
                       )}
@@ -117,7 +136,6 @@ export default function KaprodiSubmissionTable({ initialSubmissions, lecturers }
         </table>
       </div>
 
-      {/* Modal tidak ada perubahan, usulan ke-3 sudah otomatis tampil di sini */}
       {isModalOpen && selectedSubmission && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
           <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-2xl">
@@ -152,7 +170,9 @@ export default function KaprodiSubmissionTable({ initialSubmissions, lecturers }
             
             <div className="mt-8 flex justify-end space-x-3">
               <button onClick={closeModal} className="px-4 py-2 bg-gray-200 text-gray-800 font-medium rounded-md hover:bg-gray-300">Batal</button>
-              <button onClick={handleAssign} className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700">Simpan & Tetapkan</button>
+              <button onClick={handleAssign} disabled={isLoading} className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 disabled:opacity-50">
+                {isLoading ? 'Menyimpan...' : 'Simpan & Tetapkan'}
+              </button>
             </div>
           </div>
         </div>

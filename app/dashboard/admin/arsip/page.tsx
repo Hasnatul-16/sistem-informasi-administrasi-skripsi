@@ -1,16 +1,25 @@
 // src/app/dashboard/admin/arsip/page.tsx
 
 import prisma from '@/lib/prisma';
-import ArsipTable from './ArsipTable'; // Impor komponen baru
+import ArsipTable from './ArsipTable';
 
-// Ambil semua data pengajuan untuk diarsipkan
+// Gunakan 'force-dynamic' untuk memastikan data selalu baru
+export const dynamic = 'force-dynamic';
+
 async function getAllSubmissions() {
   const submissions = await prisma.thesisSubmission.findMany({
+    // --- PERUBAHAN UTAMA ADA DI SINI ---
+    where: {
+      // Filter ini memberitahu database untuk hanya mengambil
+      // data yang statusnya 'DISETUJUI'.
+      status: 'DISETUJUI',
+    },
     include: {
       student: true,
     },
     orderBy: {
-      createdAt: 'desc',
+      // Mengurutkan berdasarkan tanggal kapan status diubah menjadi 'DISETUJUI'
+      updatedAt: 'desc',
     },
   });
   return submissions;
@@ -23,10 +32,8 @@ export default async function ArsipSKPage() {
     <div>
       <h1 className="text-3xl font-bold text-gray-900 mb-6">Arsip Skripsi Mahasiswa</h1>
       
-      {/* Panggil komponen ArsipTable dan kirimkan semua data ke dalamnya */}
+      {/* Komponen ArsipTable akan menerima data yang sudah difilter */}
       <ArsipTable initialSubmissions={submissions} />
     </div>
   );
 }
-
-export const revalidate = 0;
