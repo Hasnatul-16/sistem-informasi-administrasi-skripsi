@@ -3,13 +3,13 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import type { ThesisSubmission, StudentProfile, User, SubmissionStatus } from '@prisma/client';
-import { FiClock, FiCheckCircle, FiXCircle, FiFileText, FiDownload, FiEdit } from 'react-icons/fi';
+import { FiClock, FiCheckCircle, FiXCircle, FiFileText, FiDownload, FiEdit, FiArrowRight } from 'react-icons/fi';
 
 type SubmissionWithStudent = ThesisSubmission & {
   student: StudentProfile & { user: User };
 };
 
-// Komponen Badge Status
+// Komponen Badge Status (tidak ada perubahan)
 const StatusBadge = ({ status }: { status: SubmissionStatus }) => {
     const statusConfig = {
       TERKIRIM: { text: "Terkirim", icon: FiClock, color: "bg-blue-100 text-blue-800" },
@@ -33,18 +33,26 @@ export default function SubmissionTable({ initialSubmissions }: { initialSubmiss
 
   return (
     <div className="overflow-x-auto">
-      <table className="min-w-full bg-white border divide-y divide-gray-200">
+      {/* Menggunakan table-fixed agar lebar kolom lebih terkontrol */}
+      <table className="min-w-full w-full bg-white border divide-y divide-gray-200 table-fixed">
         <thead className="bg-gray-50">
           <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mahasiswa</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Judul</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+            {/* --- PERBAIKAN 1: Menyesuaikan lebar kolom --- */}
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[20%]">Mahasiswa</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[15%]">Topik</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[35%]">Judul</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[15%]">Status</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[15%]">Aksi</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200">
           {submissions.length === 0 ? (
-            <tr><td colSpan={4} className="px-6 py-4 text-center text-gray-500">Tidak ada pengajuan.</td></tr>
+            <tr>
+              {/* --- PERBAIKAN 2: Sesuaikan colspan menjadi 5 --- */}
+              <td colSpan={5} className="px-6 py-10 text-center text-gray-500">
+                Tidak ada pengajuan yang perlu diverifikasi saat ini.
+              </td>
+            </tr>
           ) : (
             submissions.map(sub => (
               <tr key={sub.id}>
@@ -52,21 +60,31 @@ export default function SubmissionTable({ initialSubmissions }: { initialSubmiss
                   <div className="text-sm font-medium text-gray-900">{sub.student.fullName}</div>
                   <div className="text-sm text-gray-500">{sub.student.nim}</div>
                 </td>
-                <td className="px-6 py-4 max-w-md">
-                    <div className="text-sm text-gray-800 truncate" title={sub.judul}>{sub.judul}</div>
+
+                {/* --- PERBAIKAN 3: Tambahkan kolom "Topik" --- */}
+                <td className="px-6 py-4 text-sm text-gray-600">
+                  {sub.topik}
                 </td>
+
+                {/* --- PERBAIKAN 4: Atur kolom "Judul" agar bisa wrap --- */}
+                <td className="px-6 py-4">
+                  <p className="text-sm text-gray-800 whitespace-normal break-words" title={sub.judul}>
+                    {sub.judul}
+                  </p>
+                </td>
+
                 <td className="px-6 py-4 whitespace-nowrap">
                     <StatusBadge status={sub.status}/>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   {sub.status === 'TERKIRIM' && (
-                    <Link href={`/dashboard/admin/verifikasi/${sub.id}`} className="text-indigo-600 hover:text-indigo-900 font-semibold">
-                      Verifikasi Berkas
+                    <Link href={`/dashboard/admin/verifikasi/${sub.id}`} className="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-900 font-semibold">
+                      Verifikasi <FiArrowRight className="h-4 w-4"/>
                     </Link>
                   )}
                   {sub.status === 'DISETUJUI' && (
-                    <Link href={`/dashboard/admin/SK/${sub.id}`} className="inline-flex items-center gap-2 text-green-600 hover:text-green-900 font-semibold">
-                      <FiDownload/> Buat & Unduh SK
+                    <Link href={`/dashboard/admin/sk/${sub.id}`} className="inline-flex items-center gap-2 text-green-600 hover:text-green-900 font-semibold">
+                      <FiDownload/> Lihat SK
                     </Link>
                   )}
                   {sub.status !== 'TERKIRIM' && sub.status !== 'DISETUJUI' && (
