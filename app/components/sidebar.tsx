@@ -40,13 +40,13 @@ export function AppSidebar({ role }: AppSidebarProps) {
       <SidebarContent className="flex h-full flex-col">
         
         <SidebarHeader className="bg-blue-600 p-4">
-          <Link href="#" className="flex items-center text-2xl font-bold text-white">
-            <BookOpen className="h-8 w-8 mr-2" />
+          <Link href="#" className="flex items-center text-2x1 font-bold text-white">
+            <BookOpen className="h-15 w-10 mr-3" />
             <span>SisAdmin Skripsi</span>
           </Link>
         </SidebarHeader>
         
-        <SidebarMenu className="mt-4 flex-1">
+        <SidebarMenu className="mt-3 flex-1">
           {menuItems.map((item) => {
             const isParentActive = item.subItems?.some(sub => pathname.startsWith(sub.url));
 

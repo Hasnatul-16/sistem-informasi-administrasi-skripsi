@@ -5,6 +5,7 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import prisma from '@/lib/prisma';
 import { compare } from 'bcryptjs';
 import { JWT } from 'next-auth/jwt';
+import { User } from '@prisma/client'; // Impor tipe User dari Prisma
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -33,10 +34,12 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
+        // --- PERUBAHAN 1: Sertakan 'jurusan' saat user berhasil login ---
         return {
           id: user.id,
           email: user.email,
           role: user.role,
+          jurusan: user.jurusan, // Menambahkan jurusan ke objek user
         };
       }
     })
@@ -49,19 +52,21 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async jwt({ token, user }) {
-      // Saat login, objek 'user' dari authorize akan ada di sini
       if (user) {
-        token.id = user.id as number;
+        // --- PERUBAHAN 2: Simpan 'jurusan' ke dalam token JWT ---
+        token.id = user.id as any;
         token.role = user.role;
+        token.jurusan = user.jurusan; // Menambahkan jurusan ke token
       }
       return token;
     },
     async session({ session, token }) {
-      // Setiap kali sesi diakses, data dari token akan ditambahkan ke sesi
       if (session?.user) {
+        // --- PERUBAHAN 3: Teruskan 'jurusan' dari token ke sesi ---
         const tokenTyped = token as JWT;
-        session.user.id = typeof tokenTyped.id === 'string' ? Number(tokenTyped.id) : tokenTyped.id;
+        session.user.id = tokenTyped.id as number;
         session.user.role = tokenTyped.role;
+        session.user.jurusan = tokenTyped.jurusan; // Menambahkan jurusan ke sesi
       }
       return session;
     }

@@ -1,6 +1,4 @@
-
-
-import { Home, Edit, Layers, User, BarChart2, Archive } from "lucide-react";
+import { Home, Edit, Layers, User, BarChart2, Archive, ClipboardCheck } from "lucide-react"; // <-- 1. Impor ikon baru
 
 // Tipe untuk item di dalam sub-menu
 export type SubMenuItem = {
@@ -19,7 +17,6 @@ export type MenuItem = {
 
 export const menuItemsByRole: { [key: string]: MenuItem[] } = {
   
-  
   mahasiswa: [
     { title: "Dashboard", url: "/dashboard/mahasiswa", icon: Home },
     { title: "Pengajuan Judul", url: "/dashboard/mahasiswa/pengajuan-judul", icon: Edit },
@@ -27,22 +24,26 @@ export const menuItemsByRole: { [key: string]: MenuItem[] } = {
     { title: "Sidang Skripsi", url: "/dashboard/mahasiswa/sidang-skripsi", icon: User },
   ],
 
- 
+  
   admin: [
     { title: "Dashboard", url: "/dashboard/admin", icon: Home },
+    
+    // --- PERUBAHAN UTAMA DI BLOK INI ---
     { 
-      title: "Pengajuan Judul", 
-      icon: Edit,
+      title: "Verifikasi Pengajuan", // <-- 2. Nama menu diubah
+      icon: ClipboardCheck,          // <-- 3. Ikon diubah agar lebih sesuai
       
+      // URL sub-menu sudah benar sesuai struktur folder yang kita buat
       subItems: [
         { title: "Sistem Informasi", url: "/dashboard/admin/verifikasi/SISTEM_INFORMASI" },
         { title: "Matematika", url: "/dashboard/admin/verifikasi/MATEMATIKA" },
       ],
     },
+    // ------------------------------------
+
     { 
       title: "Seminar Proposal", 
-      icon: Layers, // Menggunakan ikon yang sesuai
-      // Anda bisa membuat halaman dinamis untuk ini juga nanti
+      icon: Layers,
       subItems: [
         { title: "Sistem Informasi", url: "/dashboard/admin/sempro/SISTEM_INFORMASI" },
         { title: "Matematika", url: "/dashboard/admin/sempro/MATEMATIKA" },
@@ -50,8 +51,7 @@ export const menuItemsByRole: { [key: string]: MenuItem[] } = {
     },
     { 
       title: "Seminar Hasil", 
-      icon: User, // Menggunakan ikon yang sesuai
-      // Anda bisa membuat halaman dinamis untuk ini juga nanti
+      icon: User,
       subItems: [
         { title: "Sistem Informasi", url: "/dashboard/admin/semhas/SISTEM_INFORMASI" },
         { title: "Matematika", url: "/dashboard/admin/semhas/MATEMATIKA" },

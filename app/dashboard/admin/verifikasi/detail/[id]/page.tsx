@@ -4,8 +4,13 @@ import prisma from '@/lib/prisma';
 import Link from 'next/link';
 import { FiFileText, FiDownload } from 'react-icons/fi';
 import VerificationActions from './VerificationActions';
+import type { ThesisSubmission, StudentProfile, User } from '@prisma/client';
 
-async function getSubmission(id: string) {
+type SubmissionWithStudent = ThesisSubmission & {
+  student: StudentProfile & { user: User };
+};
+
+async function getSubmission(id: string): Promise<SubmissionWithStudent> {
   const submissionId = Number(id);
   if (isNaN(submissionId)) {
     throw new Error('ID pengajuan tidak valid.');
@@ -80,7 +85,7 @@ export default async function VerificationDetailPage({ params }: { params: { id:
           </div>
         </div>
         
-        <VerificationActions submissionId={submission.id.toString()} />
+        <VerificationActions submission={submission} />
       </div>
     </main>
   );

@@ -1,9 +1,14 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import type { ThesisSubmission, StudentProfile, User, SubmissionStatus } from '@prisma/client';
-import { FiClock, FiCheckCircle, FiXCircle, FiFileText, FiDownload, FiEdit, FiArrowRight } from 'react-icons/fi';
+// --- PERUBAHAN 1: Impor ikon baru untuk info mahasiswa ---
+import { 
+    FiClock, FiCheckCircle, FiXCircle, FiFileText, FiDownload, FiArrowRight, 
+    FiUsers, FiCalendar, FiTag, FiActivity, FiSettings,
+    FiUser, FiHash // Ikon untuk Nama dan NIM
+} from 'react-icons/fi';
 
 type SubmissionWithStudent = ThesisSubmission & {
   student: StudentProfile & { user: User };
@@ -30,66 +35,68 @@ const StatusBadge = ({ status }: { status: SubmissionStatus }) => {
 
 export default function SubmissionTable({ initialSubmissions }: { initialSubmissions: SubmissionWithStudent[] }) {
   const [submissions, setSubmissions] = useState(initialSubmissions);
+  
+  useEffect(() => {
+    setSubmissions(initialSubmissions);
+  }, [initialSubmissions]);
 
   return (
     <div className="overflow-x-auto">
-      {/* Menggunakan table-fixed agar lebar kolom lebih terkontrol */}
       <table className="min-w-full w-full bg-white border divide-y divide-gray-200 table-fixed">
-        <thead className="bg-gray-50">
+        <thead className="bg-slate-50">
           <tr>
-            {/* --- PERBAIKAN 1: Menyesuaikan lebar kolom --- */}
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[20%]">Mahasiswa</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[15%]">Topik</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[35%]">Judul</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[15%]">Status</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[15%]">Aksi</th>
+            <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[20%]"><div className="flex items-center gap-2"><FiUsers size={16} className="text-blue-600"/> <span>Mahasiswa</span></div></th>
+            <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[15%]"><div className="flex items-center gap-2"><FiCalendar size={16} className="text-blue-600"/> <span>Tanggal Pengajuan</span></div></th>
+            <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[15%]"><div className="flex items-center gap-2"><FiTag size={16} className="text-blue-600"/> <span>Topik</span></div></th>
+            <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[25%]"><div className="flex items-center gap-2"><FiFileText size={16} className="text-blue-600"/> <span>Judul</span></div></th>
+            <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[15%]"><div className="flex items-center gap-2"><FiActivity size={16} className="text-blue-600"/> <span>Status</span></div></th>
+            <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[10%]"><div className="flex items-center gap-2"><FiSettings size={16} className="text-blue-600"/> <span>Aksi</span></div></th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200">
           {submissions.length === 0 ? (
-            <tr>
-              {/* --- PERBAIKAN 2: Sesuaikan colspan menjadi 5 --- */}
-              <td colSpan={5} className="px-6 py-10 text-center text-gray-500">
-                Tidak ada pengajuan yang perlu diverifikasi saat ini.
-              </td>
-            </tr>
+            <tr><td colSpan={6} className="px-6 py-10 text-center text-gray-500">Tidak ada pengajuan pada periode yang dipilih.</td></tr>
           ) : (
             submissions.map(sub => (
-              <tr key={sub.id}>
+              <tr key={sub.id} className="hover:bg-gray-50">
+                
+                {/* --- PERUBAHAN 2: Desain ulang sel Mahasiswa dengan label --- */}
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900">{sub.student.fullName}</div>
-                  <div className="text-sm text-gray-500">{sub.student.nim}</div>
+                  <div className="flex flex-col gap-1.5">
+                    <div className="flex items-center gap-2">
+                        <FiUser size={14} className="text-blue-600"/>
+                        <span className="text-sm text-gray-700">
+                            <span className="font-semibold">Nama: </span>
+                            {sub.student.fullName}
+                        </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <FiHash size={14} className="text-blue-600"/>
+                        <span className="text-sm text-gray-700">
+                            <span className="font-semibold">NIM: </span>
+                            {sub.student.nim}
+                        </span>
+                    </div>
+                  </div>
                 </td>
 
-                {/* --- PERBAIKAN 3: Tambahkan kolom "Topik" --- */}
-                <td className="px-6 py-4 text-sm text-gray-600">
-                  {sub.topik}
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                  {new Date(sub.createdAt).toLocaleDateString('id-ID', {
+                    day: '2-digit', month: 'long', year: 'numeric'
+                  })}
                 </td>
-
-                {/* --- PERBAIKAN 4: Atur kolom "Judul" agar bisa wrap --- */}
-                <td className="px-6 py-4">
-                  <p className="text-sm text-gray-800 whitespace-normal break-words" title={sub.judul}>
-                    {sub.judul}
-                  </p>
-                </td>
-
+                <td className="px-6 py-4 text-sm text-gray-600">{sub.topik}</td>
+                <td className="px-6 py-4"><p className="text-sm text-gray-800 whitespace-normal break-words" title={sub.judul}>{sub.judul}</p></td>
+                
+                {/* --- PERUBAHAN 3: Kembalikan kolom Status yang hilang --- */}
                 <td className="px-6 py-4 whitespace-nowrap">
                     <StatusBadge status={sub.status}/>
                 </td>
+
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  {sub.status === 'TERKIRIM' && (
-                    <Link href={`/dashboard/admin/verifikasi/${sub.id}`} className="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-900 font-semibold">
-                      Verifikasi <FiArrowRight className="h-4 w-4"/>
-                    </Link>
-                  )}
-                  {sub.status === 'DISETUJUI' && (
-                    <Link href={`/dashboard/admin/sk/${sub.id}`} className="inline-flex items-center gap-2 text-green-600 hover:text-green-900 font-semibold">
-                      <FiDownload/> Lihat SK
-                    </Link>
-                  )}
-                  {sub.status !== 'TERKIRIM' && sub.status !== 'DISETUJUI' && (
-                     <span className="text-gray-400">Dalam Proses</span>
-                  )}
+                  {sub.status === 'TERKIRIM' && (<Link href={`/dashboard/admin/verifikasi/detail/${sub.id}`} className="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-900 font-semibold">Verifikasi <FiArrowRight className="h-4 w-4"/></Link>)}
+                  {sub.status === 'DISETUJUI' && (<Link href={`/dashboard/admin/sk/${sub.id}`} className="inline-flex items-center gap-2 text-green-600 hover:text-green-900 font-semibold"><FiDownload/> Lihat SK</Link>)}
+                  {sub.status !== 'TERKIRIM' && sub.status !== 'DISETUJUI' && (<span className="text-gray-400">Dalam Proses</span>)}
                 </td>
               </tr>
             ))

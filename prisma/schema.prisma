@@ -7,6 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Enum yang sudah ada (tidak berubah)
 enum Role {
   MAHASISWA
   ADMIN
@@ -26,11 +27,16 @@ enum Jurusan {
   SISTEM_INFORMASI
 }
 
+// Model User yang diperbarui
 model User {
   id             Int             @id @default(autoincrement())
   email          String          @unique
   password       String
   role           Role
+  
+  // --- PERUBAHAN UTAMA HANYA DI SINI ---
+  jurusan        Jurusan?        // Jurusan bersifat opsional, penting untuk Kaprodi
+
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
   studentProfile StudentProfile?
@@ -47,25 +53,61 @@ model StudentProfile {
 }
 
 model ThesisSubmission {
-  id                Int              @id @default(autoincrement())
-  studentId         Int
-  student           StudentProfile   @relation(fields: [studentId], references: [id])
-  jurusan           Jurusan // Kolom ini penting untuk filtering
-  topik             String
-  judul             String
-  status            SubmissionStatus @default(TERKIRIM)
-  catatanAdmin      String?          @db.Text
-  transkripUrl      String?
-  uktUrl            String?
-  konsultasiUrl     String?
-  usulanPembimbing1 String
-  usulanPembimbing2 String
-  usulanPembimbing3 String?
-  pembimbing1       String?
-  pembimbing2       String?
-  skPembimbingUrl   String?
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
+  id                  Int      @id @default(autoincrement())
+  studentId           Int
+  jurusan             Jurusan
+  topik               String
+  judul               String
+  status              SubmissionStatus @default(TERKIRIM)
+  catatanAdmin        String?          @db.Text
+  transkripUrl        String?
+  uktUrl              String?
+  konsultasiUrl       String?
+  usulanPembimbing1   String
+  usulanPembimbing2   String
+  usulanPembimbing3   String?
+  pembimbing1         String?
+  pembimbing2         String?
+  skPembimbingUrl     String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  student             StudentProfile  @relation(fields: [studentId], references: [id])
+  
+  proposalSeminar     ProposalSeminar?
+  hasilSeminar        HasilSeminar?
+}
+
+model ProposalSeminar {
+  id                   Int      @id @default(autoincrement())
+  submissionId         Int      @unique 
+  
+  proposalFileUrl      String
+  lembarPersetujuanUrl String
+  status               String
+  jadwalSidang         DateTime?
+  nilai                String?
+
+  submission           ThesisSubmission @relation(fields: [submissionId], references: [id])
+
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+}
+
+model HasilSeminar {
+  id                   Int      @id @default(autoincrement())
+  submissionId         Int      @unique
+  
+  skripsiFullUrl       String
+  artikelJurnalUrl     String
+  status               String
+  jadwalSidang         DateTime?
+  nilai                String?
+
+  submission           ThesisSubmission @relation(fields: [submissionId], references: [id])
+
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
 }
 
 model Dosen {

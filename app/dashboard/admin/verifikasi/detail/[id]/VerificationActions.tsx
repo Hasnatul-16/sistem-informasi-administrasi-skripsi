@@ -1,31 +1,33 @@
-// src/app/dashboard/admin/verifikasi/[id]/VerificationActions.tsx
 "use client";
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { FiCheckCircle, FiXCircle } from 'react-icons/fi';
-// --- 1. Impor SweetAlert2 ---
+// --- PERUBAHAN: Tambahkan tipe data yang dibutuhkan ---
+import type { ThesisSubmission, StudentProfile, User } from '@prisma/client';
+import { FiCheckCircle, FiXCircle, FiArrowLeft } from 'react-icons/fi';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 
 const MySwal = withReactContent(Swal);
 
-export default function VerificationActions({ submissionId }: { submissionId: string }) {
+// --- PERUBAHAN 1: Definisikan tipe data lengkap untuk 'submission' ---
+type SubmissionWithStudent = ThesisSubmission & {
+  student: StudentProfile & { user: User };
+};
+
+// --- PERUBAHAN 2: Terima seluruh objek submission, bukan hanya ID ---
+export default function VerificationActions({ submission }: { submission: SubmissionWithStudent }) {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false); // Tambahkan state loading
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleAction = async (action: 'VERIFY' | 'REJECT') => {
-
-    // --- 2. Ganti prompt() dengan SweetAlert2 ---
     if (action === 'REJECT') {
       const { value: catatanAdmin } = await MySwal.fire({
         title: "Tolak Pengajuan",
         input: "textarea",
         inputLabel: "Alasan Penolakan",
         inputPlaceholder: "Masukkan alasan mengapa pengajuan ini ditolak...",
-        inputAttributes: {
-          "aria-label": "Masukkan alasan penolakan"
-        },
+        inputAttributes: { "aria-label": "Masukkan alasan penolakan" },
         showCancelButton: true,
         confirmButtonText: 'Tolak & Kirim',
         confirmButtonColor: '#d33',
@@ -36,17 +38,9 @@ export default function VerificationActions({ submissionId }: { submissionId: st
           }
         }
       });
-
-      // Jika pengguna menekan "Batal" atau input kosong, hentikan proses
-      if (!catatanAdmin) {
-        return;
-      }
-
-      // Lanjutkan proses penolakan dengan catatan dari SweetAlert
+      if (!catatanAdmin) return;
       processSubmission(action, catatanAdmin);
-
     } else {
-      // --- 3. Konfirmasi untuk aksi VERIFY ---
       MySwal.fire({
         title: "Teruskan ke Kaprodi?",
         text: "Anda yakin data dan dokumen pengajuan ini sudah lengkap?",
@@ -63,11 +57,10 @@ export default function VerificationActions({ submissionId }: { submissionId: st
     }
   };
 
-  // --- 4. Buat fungsi terpisah untuk memproses data ---
   const processSubmission = async (action: 'VERIFY' | 'REJECT', catatanAdmin = '') => {
     setIsLoading(true);
     try {
-      const response = await fetch(`/api/submission/${submissionId}`, {
+      const response = await fetch(`/api/submission/${submission.id}`, { // Menggunakan submission.id
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action, catatanAdmin }),
@@ -78,7 +71,6 @@ export default function VerificationActions({ submissionId }: { submissionId: st
         throw new Error(errorData.message || 'Gagal memproses aksi.');
       }
 
-      // Tampilkan notifikasi sukses
       await MySwal.fire({
         icon: 'success',
         title: 'Aksi Berhasil!',
@@ -87,11 +79,11 @@ export default function VerificationActions({ submissionId }: { submissionId: st
         showConfirmButton: false,
       });
 
-      router.push('/dashboard/admin/verifikasi/SISTEM_INFORMASI'); // Arahkan ke halaman daftar verifikasi
+      // --- PERUBAHAN 3: Arahkan ke halaman jurusan yang benar (dinamis) ---
+      router.push(`/dashboard/admin/verifikasi/${submission.jurusan}`);
       router.refresh();
 
     } catch (error: any) {
-      // Tampilkan notifikasi error
       MySwal.fire({
         icon: 'error',
         title: 'Oops...',
@@ -103,21 +95,33 @@ export default function VerificationActions({ submissionId }: { submissionId: st
   };
 
   return (
-    <div className="flex justify-end items-center gap-4 pt-6 mt-6 border-t">
+    // --- PERUBAHAN 4: Ubah layout untuk menampung tombol Kembali ---
+    <div className="flex justify-between items-center gap-4 pt-6 mt-6 border-t">
+      {/* Tombol Kembali */}
       <button
-        onClick={() => handleAction('REJECT')}
-        disabled={isLoading}
-        className="inline-flex items-center gap-2 py-2 px-5 border border-red-500 text-red-500 rounded-md font-semibold hover:bg-red-50 transition-colors disabled:opacity-50"
+        onClick={() => router.back()} // Menggunakan router.back() untuk kembali
+        className="inline-flex items-center gap-2 py-2 px-5 bg-gray-200 text-gray-800 rounded-md font-semibold hover:bg-gray-300 transition-colors"
       >
-        <FiXCircle /> Tolak & Kembalikan
+        <FiArrowLeft /> Kembali
       </button>
-      <button
-        onClick={() => handleAction('VERIFY')}
-        disabled={isLoading}
-        className="inline-flex items-center gap-2 py-2 px-5 bg-blue-600 text-white rounded-md font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50"
-      >
-        {isLoading ? 'Memproses...' : <><FiCheckCircle /> Lengkap & Teruskan</>}
-      </button>
+
+      {/* Grup Tombol Aksi */}
+      <div className="flex items-center gap-4">
+        <button
+          onClick={() => handleAction('REJECT')}
+          disabled={isLoading}
+          className="inline-flex items-center gap-2 py-2 px-5 border border-red-500 text-red-500 rounded-md font-semibold hover:bg-red-50 transition-colors disabled:opacity-50"
+        >
+          <FiXCircle /> Tolak & Kembalikan
+        </button>
+        <button
+          onClick={() => handleAction('VERIFY')}
+          disabled={isLoading}
+          className="inline-flex items-center gap-2 py-2 px-5 bg-blue-600 text-white rounded-md font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50"
+        >
+          {isLoading ? 'Memproses...' : <><FiCheckCircle /> Lengkap & Teruskan</>}
+        </button>
+      </div>
     </div>
   );
 }
