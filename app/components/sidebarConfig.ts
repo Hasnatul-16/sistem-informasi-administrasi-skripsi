@@ -1,4 +1,4 @@
-import { Home, Edit, Layers, User, BarChart2, Archive, ClipboardCheck } from "lucide-react"; // <-- 1. Impor ikon baru
+import { Home, Edit, Layers, User, BarChart2, Archive, ClipboardCheck, Layers2Icon } from "lucide-react"; // <-- 1. Impor ikon baru
 
 // Tipe untuk item di dalam sub-menu
 export type SubMenuItem = {
@@ -35,8 +35,9 @@ export const menuItemsByRole: { [key: string]: MenuItem[] } = {
       
       // URL sub-menu sudah benar sesuai struktur folder yang kita buat
       subItems: [
-        { title: "Sistem Informasi", url: "/dashboard/admin/verifikasi/SISTEM_INFORMASI" },
         { title: "Matematika", url: "/dashboard/admin/verifikasi/MATEMATIKA" },
+        { title: "Sistem Informasi", url: "/dashboard/admin/verifikasi/SISTEM_INFORMASI" },
+        
       ],
     },
     // ------------------------------------
@@ -45,16 +46,18 @@ export const menuItemsByRole: { [key: string]: MenuItem[] } = {
       title: "Seminar Proposal", 
       icon: Layers,
       subItems: [
-        { title: "Sistem Informasi", url: "/dashboard/admin/sempro/SISTEM_INFORMASI" },
         { title: "Matematika", url: "/dashboard/admin/sempro/MATEMATIKA" },
+        { title: "Sistem Informasi", url: "/dashboard/admin/sempro/SISTEM_INFORMASI" },
+        
       ],
     },
     { 
       title: "Seminar Hasil", 
       icon: User,
       subItems: [
-        { title: "Sistem Informasi", url: "/dashboard/admin/semhas/SISTEM_INFORMASI" },
         { title: "Matematika", url: "/dashboard/admin/semhas/MATEMATIKA" },
+        { title: "Sistem Informasi", url: "/dashboard/admin/semhas/SISTEM_INFORMASI" },
+
       ],
     },
     { title: "Monitoring", url: "/dashboard/admin/monitoring", icon: BarChart2 },
@@ -64,7 +67,9 @@ export const menuItemsByRole: { [key: string]: MenuItem[] } = {
   
   kaprodi: [
     { title: "Dashboard", url: "/dashboard/kaprodi", icon: Home },
-    { title: "Persetujuan Judul", url: "/dashboard/kaprodi/persetujuan-judul", icon: Edit },
-    { title: "Jadwal Seminar", url: "/dashboard/kaprodi/jadwal-seminar", icon: Layers },
+    { title: "Pengajuan Judul", url: "/dashboard/kaprodi/pengajuan_judul", icon: Edit },
+    { title: "Seminar Proposal", url: "/dashboard/kaprodi/jadwal-seminar", icon:  Layers2Icon },
+    { title: "Seminar hasil", url: "/dashboard/kaprodi/jadwal-seminar", icon: Layers },
+    { title: "Profile", url: "/dashboard/kaprodi/jadwal-seminar", icon: User },
   ],
 };

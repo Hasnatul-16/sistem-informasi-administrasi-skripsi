@@ -1,31 +1,66 @@
 "use client";
 
-import { useState } from 'react';
-import type { ThesisSubmission, StudentProfile, User, Dosen } from '@prisma/client';
+import { useState, useEffect, useMemo } from 'react';
+import type { ThesisSubmission, StudentProfile, User, Dosen, SubmissionStatus } from '@prisma/client';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
-import { FiX } from 'react-icons/fi'; // Impor ikon X untuk tombol close
+import { FiX, FiClock, FiCheckCircle, FiFileText, FiFilter, FiXCircle, FiUsers, FiBook, FiTag, FiSettings, FiCalendar, FiUser, FiHash } from 'react-icons/fi';
 
 const MySwal = withReactContent(Swal);
 
-// Tipe data gabungan
 type SubmissionWithStudent = ThesisSubmission & {
   student: StudentProfile & { user: User };
 };
 
-// Tipe props
 interface KaprodiTableProps {
   initialSubmissions: SubmissionWithStudent[];
   lecturers: Dosen[];
 }
 
 export default function KaprodiSubmissionTable({ initialSubmissions, lecturers }: KaprodiTableProps) {
-  const [submissions, setSubmissions] = useState(initialSubmissions);
+  const [submissions, setSubmissions] = useState(initialSubmissions ?? []);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSubmission, setSelectedSubmission] = useState<SubmissionWithStudent | null>(null);
   const [pembimbing, setPembimbing] = useState({ p1: '', p2: '' });
   const [isLoading, setIsLoading] = useState(false);
 
+  // --- State dan logika untuk Filter (tidak berubah) ---
+  const today = new Date();
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(today.getDate() - 7);
+  
+  const [dateInputs, setDateInputs] = useState({
+    startDate: sevenDaysAgo.toISOString().split('T')[0],
+    endDate: today.toISOString().split('T')[0],
+  });
+  const [appliedFilters, setAppliedFilters] = useState(dateInputs);
+  const [displayData, setDisplayData] = useState<SubmissionWithStudent[]>([]);
+
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setDateInputs(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const applyFilter = () => {
+    setAppliedFilters(dateInputs);
+  };
+
+  useEffect(() => {
+    const start = new Date(appliedFilters.startDate);
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(appliedFilters.endDate);
+    end.setHours(23, 59, 59, 999);
+    const filtered = submissions.filter(sub => {
+      const subDate = new Date(sub.updatedAt);
+      return subDate >= start && subDate <= end;
+    });
+    setDisplayData(filtered);
+  }, [submissions, appliedFilters]);
+  
+  useEffect(() => {
+    setSubmissions(initialSubmissions ?? []);
+  }, [initialSubmissions]);
+
+  // --- Fungsi Modal dan Aksi (tidak berubah) ---
   const openModal = (submission: SubmissionWithStudent) => {
     setSelectedSubmission(submission);
     const p1_usulan = lecturers.find(d => d.nama === submission.usulanPembimbing1) ? submission.usulanPembimbing1 : '';
@@ -50,79 +85,99 @@ export default function KaprodiSubmissionTable({ initialSubmissions, lecturers }
     }
 
     setIsLoading(true);
-
     try {
       const response = await fetch(`/api/submission/${selectedSubmission.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ pembimbing1: pembimbing.p1, pembimbing2: pembimbing.p2 }),
       });
-
       if (!response.ok) {
         const errorResponse = await response.json();
         throw new Error(errorResponse?.message || 'Gagal menyimpan data');
       }
-
       const updated = await response.json();
       
-      MySwal.fire({
-        icon: 'success',
-        title: 'Berhasil!',
-        text: 'Dosen Pembimbing berhasil ditetapkan.',
-        timer: 2000,
-        showConfirmButton: false
-      });
+      MySwal.fire({ icon: 'success', title: 'Berhasil!', text: 'Dosen Pembimbing berhasil ditetapkan.', timer: 2000, showConfirmButton: false });
       
-      setSubmissions(prev => prev.filter(s => s.id !== updated.id));
+      setSubmissions(prev => 
+        prev.map(s => s.id === updated.id ? { ...s, ...updated } : s)
+      );
+      
       closeModal();
-
     } catch (error: any) {
-      MySwal.fire({
-        icon: 'error',
-        title: 'Oops...',
-        text: error.message || 'Terjadi kesalahan pada server.',
-      });
+      MySwal.fire({ icon: 'error', title: 'Oops...', text: error.message || 'Terjadi kesalahan pada server.' });
     } finally {
-        setIsLoading(false);
+      setIsLoading(false);
     }
   };
 
   return (
     <>
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border">
-          <thead className="bg-gray-50">
+      <div className="bg-gradient-to-r from-blue-600 to-cyan-500 p-4 rounded-lg shadow-md flex items-center justify-between gap-4 mb-6">
+        <div className="flex items-center gap-4">
+            <div>
+                <label htmlFor="startDate" className="text-white font-semibold text-sm">Tanggal Mulai</label>
+                <input type="date" id="startDate" name="startDate" value={dateInputs.startDate} onChange={handleDateChange} className="w-full mt-1 p-2 border border-white/30 rounded-md bg-white/20 text-white focus:ring-2 focus:ring-white/50" />
+            </div>
+            <div>
+                <label htmlFor="endDate" className="text-white font-semibold text-sm">Tanggal Akhir</label>
+                <input type="date" id="endDate" name="endDate" value={dateInputs.endDate} onChange={handleDateChange} className="w-full mt-1 p-2 border border-white/30 rounded-md bg-white/20 text-white focus:ring-2 focus:ring-white/50" />
+            </div>
+        </div>
+        <div className="self-end">
+            <button 
+                onClick={applyFilter}
+                className="bg-white text-blue-600 font-bold py-2 px-4 rounded-md hover:bg-gray-100 transition-colors flex items-center gap-2"
+            >
+                <FiFilter size={16}/> Terapkan Filter
+            </button>
+        </div>
+      </div>
+
+      <div className="overflow-x-auto bg-white rounded-lg shadow-md border">
+        <table className="min-w-full">
+          <thead className="border-b-2 border-gray-200 bg-gray-50">
             <tr>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">Mahasiswa</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-2/5">Judul Skripsi</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">Topik</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/5">Usulan Pembimbing</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+              <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[20%]"><div className="flex items-center gap-2"><FiUsers size={16} className="text-blue-600"/> <span>Mahasiswa</span></div></th>
+              <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[15%]"><div className="flex items-center gap-2"><FiCalendar size={16} className="text-blue-600"/> <span>Tgl Diteruskan</span></div></th>
+              <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[25%]"><div className="flex items-center gap-2"><FiBook size={16} className="text-blue-600"/> <span>Judul Skripsi</span></div></th>
+              <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[15%]"><div className="flex items-center gap-2"><FiTag size={16} className="text-blue-600"/> <span>Topik</span></div></th>
+              <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[15%]"><div className="flex items-center gap-2"><FiUsers size={16} className="text-blue-600"/> <span>Usulan Pemb.</span></div></th>
+              <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[10%]"><div className="flex items-center gap-2"><FiSettings size={16} className="text-blue-600"/> <span>Aksi</span></div></th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
-            {submissions.length === 0 ? (
-              <tr><td colSpan={5} className="py-4 text-center text-gray-500">Tidak ada pengajuan untuk diproses.</td></tr>
+          <tbody className="divide-y divide-gray-100">
+            {displayData.length === 0 ? (
+              <tr><td colSpan={6} className="py-10 text-center text-gray-500">Tidak ada pengajuan pada rentang tanggal yang dipilih.</td></tr>
             ) : (
-              submissions.map(sub => (
+              displayData.map(sub => (
                 <tr key={sub.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-4 whitespace-nowrap">
+                  <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">{sub.student.fullName}</div>
                     <div className="text-sm text-gray-500">{sub.student.nim}</div>
                   </td>
-                  <td className="px-4 py-4"><p className="text-sm text-gray-800 whitespace-normal">{sub.judul}</p></td>
-                  <td className="px-4 py-4 text-sm text-gray-700 whitespace-nowrap">{sub.topik}</td>
-                  <td className="px-4 py-4 whitespace-nowrap">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                    {new Date(sub.updatedAt).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}
+                  </td>
+                  <td className="px-6 py-4"><p className="text-sm text-gray-800 whitespace-normal">{sub.judul}</p></td>
+                  <td className="px-6 py-4 text-sm text-gray-600">{sub.topik}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">
                     <ul className="text-xs text-gray-600 space-y-1">
                       <li>1. {sub.usulanPembimbing1}</li>
                       <li>2. {sub.usulanPembimbing2}</li>
                       {sub.usulanPembimbing3 && (<li>3. {sub.usulanPembimbing3}</li>)}
                     </ul>
                   </td>
-                  <td className="px-4 py-4">
-                    <button onClick={() => openModal(sub)} className="px-3 py-1.5 text-sm bg-blue-600 text-white font-semibold rounded-md shadow-sm hover:bg-blue-700">
-                      Tetapkan
-                    </button>
+                  <td className="px-6 py-4">
+                    {sub.status === 'DIPROSES_KAPRODI' ? (
+                        <button onClick={() => openModal(sub)} className="px-3 py-1.5 text-sm bg-blue-600 text-white font-semibold rounded-md shadow-sm hover:bg-blue-700">
+                            Tetapkan
+                        </button>
+                    ) : (
+                        <span className="inline-flex items-center gap-2 px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                            <FiCheckCircle className="h-3 w-3" /> Selesai
+                        </span>
+                    )}
                   </td>
                 </tr>
               ))
@@ -131,53 +186,88 @@ export default function KaprodiSubmissionTable({ initialSubmissions, lecturers }
         </table>
       </div>
 
-      {/* --- PERUBAHAN UTAMA: Mendesain ulang Modal --- */}
       {isModalOpen && selectedSubmission && (
-        <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm flex justify-center items-center z-50 p-4 transition-opacity duration-300">
-          <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-2xl transform transition-all duration-300 scale-95 opacity-0 animate-fade-in-scale">
-            <div className="flex justify-between items-start mb-4">
-                <div>
-                    <h2 className="text-2xl font-bold text-gray-800">Tetapkan Dosen Pembimbing</h2>
-                    <p className="text-gray-500 mt-1">Untuk: <strong>{selectedSubmission.student.fullName}</strong></p>
+        <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm flex justify-center items-center z-50 p-4">
+            <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-3xl animate-fade-in-scale">
+                <div className="flex justify-between items-start mb-4 pb-4 border-b">
+                    <div>
+                        <h2 className="text-2xl font-bold text-gray-800">Tetapkan Dosen Pembimbing</h2>
+                        <p className="text-gray-500 mt-1">Review detail pengajuan sebelum menetapkan pembimbing.</p>
+                    </div>
+                    <button onClick={closeModal} className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full">
+                        <FiX size={20} />
+                    </button>
                 </div>
-                <button onClick={closeModal} className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full">
-                    <FiX size={20} />
-                </button>
-            </div>
-            
-            <div className="mb-6 p-4 bg-slate-50 rounded-lg border border-slate-200">
-              <h4 className="text-sm font-semibold text-gray-800 mb-2">Usulan dari Mahasiswa:</h4>
-              <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
-                <li>{selectedSubmission.usulanPembimbing1}</li>
-                <li>{selectedSubmission.usulanPembimbing2}</li>
-                {selectedSubmission.usulanPembimbing3 && <li>{selectedSubmission.usulanPembimbing3}</li>}
-              </ul>
-            </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 mb-6">
+                    <div className="col-span-1 md:col-span-2">
+                        <h3 className="text-lg font-semibold text-gray-700 mb-2">Detail Pengajuan</h3>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <FiUser className="text-gray-400"/>
+                        <div>
+                            <p className="text-xs text-gray-500">Nama Mahasiswa</p>
+                            <p className="font-semibold">{selectedSubmission.student.fullName}</p>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <FiHash className="text-gray-400"/>
+                        <div>
+                            <p className="text-xs text-gray-500">NIM</p>
+                            <p className="font-semibold">{selectedSubmission.student.nim}</p>
+                        </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                        <FiTag className="text-gray-400 mt-0.5"/>
+                        <div>
+                            <p className="text-xs text-gray-500">Topik</p>
+                            <p className="font-semibold">{selectedSubmission.topik}</p>
+                        </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                        <FiBook className="text-gray-400 mt-0.5"/>
+                        <div>
+                            <p className="text-xs text-gray-500">Judul Skripsi</p>
+                            <p className="font-semibold leading-relaxed">{selectedSubmission.judul}</p>
+                        </div>
+                    </div>
+                </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Pilih Pembimbing 1</label>
-                <select value={pembimbing.p1} onChange={e => setPembimbing({...pembimbing, p1: e.target.value})} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white" required>
-                  <option value="" disabled>-- Pilih Dosen --</option>
-                  {lecturers.map(dosen => <option key={dosen.id} value={dosen.nama}>{dosen.nama}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Pilih Pembimbing 2</label>
-                <select value={pembimbing.p2} onChange={e => setPembimbing({...pembimbing, p2: e.target.value})} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white" required>
-                  <option value="" disabled>-- Pilih Dosen --</option>
-                  {lecturers.map(dosen => <option key={dosen.id} value={dosen.nama}>{dosen.nama}</option>)}
-                </select>
-              </div>
+                <div className="border-t pt-6">
+                    <div className="bg-slate-50 p-4 rounded-lg border mb-6">
+                        <h4 className="text-sm font-semibold text-gray-800 mb-3">Usulan dari Mahasiswa:</h4>
+                        <ul className="text-sm text-gray-600 space-y-2">
+                            <li>1. {selectedSubmission.usulanPembimbing1}</li>
+                            <li>2. {selectedSubmission.usulanPembimbing2}</li>
+                            {selectedSubmission.usulanPembimbing3 && <li>3. {selectedSubmission.usulanPembimbing3}</li>}
+                        </ul>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Pilih Pembimbing 1</label>
+                            <select value={pembimbing.p1} onChange={e => setPembimbing({...pembimbing, p1: e.target.value})} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" required>
+                                <option value="" disabled>-- Pilih Dosen --</option>
+                                {lecturers.map(dosen => <option key={dosen.id} value={dosen.nama}>{dosen.nama}</option>)}
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Pilih Pembimbing 2</label>
+                            <select value={pembimbing.p2} onChange={e => setPembimbing({...pembimbing, p2: e.target.value})} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" required>
+                                <option value="" disabled>-- Pilih Dosen --</option>
+                                {lecturers.map(dosen => <option key={dosen.id} value={dosen.nama}>{dosen.nama}</option>)}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div className="mt-8 flex justify-end space-x-3">
+                    <button onClick={closeModal} className="px-4 py-2 bg-gray-100 text-gray-700 font-semibold rounded-md hover:bg-gray-200 transition-colors">Batal</button>
+                    <button onClick={handleAssign} disabled={isLoading} className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                        {isLoading ? 'Menyimpan...' : 'Simpan & Tetapkan'}
+                    </button>
+                </div>
             </div>
-            
-            <div className="mt-8 flex justify-end space-x-3">
-              <button onClick={closeModal} className="px-4 py-2 bg-gray-100 text-gray-700 font-semibold rounded-md hover:bg-gray-200 transition-colors">Batal</button>
-              <button onClick={handleAssign} disabled={isLoading} className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">
-                {isLoading ? 'Menyimpan...' : 'Simpan & Tetapkan'}
-              </button>
-            </div>
-          </div>
         </div>
       )}
     </>

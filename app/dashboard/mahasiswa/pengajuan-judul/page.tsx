@@ -1,219 +1,50 @@
-"use client";
+// app/dashboard/mahasiswa/pengajuan-judul/page.tsx
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { FiUpload, FiSend, FiFileText } from 'react-icons/fi';
-import Swal from 'sweetalert2';
-import withReactContent from 'sweetalert2-react-content';
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import prisma from "@/lib/prisma";
+import { Jurusan, Dosen } from "@prisma/client";
+import PengajuanJudulForm from "./PengajuanJudulForm"; // Kita akan buat komponen ini
 
-const MySwal = withReactContent(Swal);
+// Fungsi untuk mengambil data dosen dari server
+async function getDosenByJurusan(jurusan: Jurusan): Promise<Dosen[]> {
+  if (!jurusan) return [];
 
-type FileUploadBoxProps = {
-  id: string;
-  name: keyof FilesState;
-  label: string;
-  file: File | null;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-};
+  const dosen = await prisma.dosen.findMany({
+    where: {
+      jurusan: jurusan,
+    },
+    orderBy: {
+      nama: 'asc', // Urutkan berdasarkan nama
+    },
+  });
+  return dosen;
+}
 
-type FilesState = {
-  transkrip: File | null;
-  ukt: File | null;
-  konsultasi: File | null;
-};
+export default async function PengajuanJudulPage() {
+  // 1. Dapatkan sesi pengguna di server
+  const session = await getServerSession(authOptions);
+  const userJurusan = session?.user?.jurusan as Jurusan | undefined;
 
-const FileUploadBox = ({ id, name, label, file, onChange }: FileUploadBoxProps) => {
+  // Jika tidak ada jurusan, tampilkan pesan error
+  if (!userJurusan) {
     return (
-        <div>
-          <label 
-            htmlFor={id} 
-            className="flex flex-col items-center justify-center w-full h-40 px-4 text-center border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors"
-          >
-            <div className="flex flex-col items-center justify-center">
-              {file ? (
-                <>
-                  <FiFileText className="w-10 h-10 mb-2 text-green-500" />
-                  <p className="text-sm font-medium text-gray-800 break-all">{file.name}</p>
-                  <p className="text-xs text-gray-500 mt-1">Klik untuk mengganti file</p>
-                </>
-              ) : (
-                <>
-                  <FiUpload className="w-10 h-10 mb-2 text-gray-400" />
-                  <p className="font-semibold text-gray-700">{label} <span className="text-red-500">*</span></p>
-                  <p className="text-xs text-gray-500">Klik untuk upload</p>
-                </>
-              )}
-            </div>
-            <input 
-              id={id} 
-              name={name} 
-              type="file" 
-              className="hidden" 
-              onChange={onChange} 
-              accept=".pdf"
-            />
-          </label>
-        </div>
-      );
-};
+      <main className="min-h-screen bg-gray-100 p-8 text-center">
+        <h1 className="text-2xl font-bold text-red-600">Gagal Memuat Data</h1>
+        <p className="text-gray-700 mt-2">
+          Informasi jurusan tidak ditemukan untuk akun Anda.
+        </p>
+      </main>
+    );
+  }
 
-
-export default function PengajuanJudulPage() {
-  const initialFormData = { judul: '', topik: '', usulanPembimbing1: '', usulanPembimbing2: '', usulanPembimbing3: '' };
-  const initialFilesState = { transkrip: null, ukt: null, konsultasi: null };
-
-  const [formData, setFormData] = useState(initialFormData);
-  const [files, setFiles] = useState<FilesState>(initialFilesState);
-  const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLSelectElement | HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, files: inputFiles } = e.target as HTMLInputElement & { name: keyof FilesState };
-    if (inputFiles && inputFiles.length > 0) {
-      setFiles(prev => ({ ...prev, [name]: inputFiles[0] }));
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    
-    if (!formData.judul || !formData.topik || !formData.usulanPembimbing1 || !formData.usulanPembimbing2 || !files.transkrip || !files.ukt || !files.konsultasi) {
-      MySwal.fire({
-        icon: 'warning',
-        title: 'Form Belum Lengkap',
-        text: 'Harap lengkapi semua field yang ditandai dengan *',
-      });
-      return;
-    }
-
-    setIsLoading(true);
-
-    const submissionData = new FormData();
-    Object.entries(formData).forEach(([key, value]) => submissionData.append(key, value));
-    Object.entries(files).forEach(([key, value]) => { if (value) submissionData.append(key, value); });
-
-    try {
-      const response = await fetch('/api/submission', {
-        method: 'POST',
-        body: submissionData,
-      });
-
-      const result = await response.json();
-      if (!response.ok) {
-        throw new Error(result.message || 'Gagal mengirim pengajuan.');
-      }
-
-      await MySwal.fire({
-        icon: 'success',
-        title: 'Pengajuan Terkirim!',
-        text: 'Data Anda telah berhasil dikirim dan akan segera diproses.',
-      });
-
-      // Arahkan ke dasbor setelah sukses
-      router.push('/dashboard/mahasiswa');
-
-    } catch (error: any) {
-      // =======================================================
-      // ====          PERUBAHAN UTAMA ADA DI SINI          ====
-      // =======================================================
-      MySwal.fire({
-        icon: 'error',
-        title: 'Gagal Mengirim',
-        text: error.message,
-      }).then(() => {
-        // Setelah pengguna menekan "OK" pada notifikasi error,
-        // reset form ke kondisi awal (kosong).
-        setFormData(initialFormData);
-        setFiles(initialFilesState);
-      });
-      // =======================================================
-      // ====              AKHIR DARI PERUBAHAN             ====
-      // =======================================================
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const dosenList = [
-    { id: 1, nama: 'Prof. Dr. Budi Santoso' },
-    { id: 2, nama: 'Dr. Anisa Putri, M.Kom.' },
-    { id: 3, nama: 'Ahmad Hidayat, S.Kom., M.T.' },
-    { id: 4, nama: 'Dr. Rina Marlina, M.Sc.' },
-  ];
+  // 2. Ambil daftar dosen berdasarkan jurusan mahasiswa
+  const dosenList = await getDosenByJurusan(userJurusan);
 
   return (
-    <main className="min-h-screen bg-gray-100 p-4 sm:p-6 lg:p-8">
-      <div className="max-w-5xl mx-auto">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">Pengajuan Judul Skripsi</h1>
-          <p className="text-gray-600 mt-1">Lengkapi form berikut untuk mengajukan judul skripsi</p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-            <h2 className="text-xl font-semibold text-gray-800 mb-5">Informasi Judul</h2>
-            <div className="space-y-6">
-              <div>
-                <label htmlFor="topik" className="block text-sm font-medium text-gray-700 mb-1">Topik <span className="text-red-500">*</span></label>
-                <input id="topik" name="topik" type="text" value={formData.topik} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" required placeholder="Contoh: Machine Learning"/>
-              </div>
-
-              <div>
-                <label htmlFor="judul" className="block text-sm font-medium text-gray-700 mb-1">Judul Skripsi <span className="text-red-500">*</span></label>
-                <textarea id="judul" name="judul" rows={4} value={formData.judul} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="Masukkan judul skripsi Anda..." required />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                  <label htmlFor="usulanPembimbing1" className="block text-sm font-medium text-gray-700 mb-1">Usulan Calon Pembimbing 1 <span className="text-red-500">*</span></label>
-                  <select id="usulanPembimbing1" name="usulanPembimbing1" value={formData.usulanPembimbing1} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white" required>
-                    <option value="" disabled>Pilih Dosen</option>
-                    {dosenList.map(dosen => (<option key={dosen.id} value={dosen.nama}>{dosen.nama}</option>))}
-                  </select>
-                </div>
-                <div>
-                  <label htmlFor="usulanPembimbing2" className="block text-sm font-medium text-gray-700 mb-1">Usulan Calon Pembimbing 2 <span className="text-red-500">*</span></label>
-                  <select id="usulanPembimbing2" name="usulanPembimbing2" value={formData.usulanPembimbing2} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white" required>
-                    <option value="" disabled>Pilih Dosen</option>
-                    {dosenList.map(dosen => (<option key={dosen.id} value={dosen.nama}>{dosen.nama}</option>))}
-                  </select>
-                </div>
-                <div>
-                  <label htmlFor="usulanPembimbing3" className="block text-sm font-medium text-gray-700 mb-1">Usulan Calon Pembimbing 3 <span className="text-gray-500">(Opsional)</span></label>
-                  <select id="usulanPembimbing3" name="usulanPembimbing3" value={formData.usulanPembimbing3} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white">
-                    <option value="" disabled>Pilih Dosen</option>
-                    {dosenList.map(dosen => (<option key={dosen.id} value={dosen.nama}>{dosen.nama}</option>))}
-                  </select>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-            <h2 className="text-xl font-semibold text-gray-800 mb-5">Dokumen Persyaratan</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              <FileUploadBox id="transkrip" name="transkrip" label="Transkrip Nilai" file={files.transkrip} onChange={handleFileChange} />
-              <FileUploadBox id="ukt" name="ukt" label="Bukti Pembayaran UKT" file={files.ukt} onChange={handleFileChange} />
-              <FileUploadBox id="konsultasi" name="konsultasi" label="Lembar Konsultasi" file={files.konsultasi} onChange={handleFileChange} />
-            </div>
-          </div>
-
-          <div className="flex justify-end pt-4">
-            <button 
-              type="submit" 
-              disabled={isLoading}
-              className="inline-flex items-center gap-2 py-2 px-5 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-300"
-            >
-              {isLoading ? 'Mengirim...' : <><FiSend /> Kirim Pengajuan</>}
-            </button>
-          </div>
-        </form>
-      </div>
-    </main>
+    // 3. Render komponen Form (Client Component) dan kirim daftar dosen sebagai props
+    <PengajuanJudulForm dosenList={dosenList} />
   );
 }
+
+export const revalidate = 0; // Pastikan data dosen selalu terbaru
