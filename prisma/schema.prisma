@@ -1,3 +1,5 @@
+// File: prisma/schema.prisma
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,14 +9,14 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Enum yang sudah ada (tidak berubah)
+// --- ENUM DIPERBARUI ---
 enum Role {
   MAHASISWA
   ADMIN
   KAPRODI
 }
 
-enum SubmissionStatus {
+enum Status {
   TERKIRIM
   DIPERIKSA_ADMIN
   DITOLAK_ADMIN
@@ -27,91 +29,110 @@ enum Jurusan {
   SISTEM_INFORMASI
 }
 
-// Model User yang diperbarui
+// --- MODEL DIPERBARUI ---
 model User {
-  id             Int             @id @default(autoincrement())
-  email          String          @unique
-  password       String
-  role           Role
+  id      Int    @id @default(autoincrement())
+  nama    String?
+  email   String @unique
+  password String
+  role    Role
+  jurusan Jurusan
+
+  mahasiswa Mahasiswa?
+
+  @@map("user")
+}
+
+model Mahasiswa {
+  id      Int    @id @default(autoincrement())
+  id_user Int    @unique @map("id_user")
+  nama    String
+  nim     String @unique
+  jurusan Jurusan
+
+  user  User    @relation(fields: [id_user], references: [id])
+  judul Judul[]
+
+  @@map("mahasiswa")
+}
+
+model Judul {
+  id                 Int      @id @default(autoincrement())
+  id_mahasiswa       Int      @map("id_mahasiswa")
+  tanggal            DateTime @default(now())
+  jurusan            Jurusan
+  topik              String
+  judul              String   @db.Text
+  status             Status   @default(TERKIRIM)
+  catatan            String?  @db.Text
+  transkrip          String?
+  ukt                String?
+  konsultasi         String?
+  usulan_pembimbing1 String   @map("usulan_pembimbing1")
+  usulan_pembimbing2 String   @map("usulan_pembimbing2")
+  usulan_pembimbing3 String?  @map("usulan_pembimbing3")
+  skPembimbing       String?  @map("sk_pembimbing")
   
-  // --- PERUBAHAN UTAMA HANYA DI SINI ---
-  jurusan        Jurusan?        // Jurusan bersifat opsional, penting untuk Kaprodi
-
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
-  studentProfile StudentProfile?
-}
-
-model StudentProfile {
-  id          Int                @id @default(autoincrement())
-  userId      Int                @unique
-  user        User               @relation(fields: [userId], references: [id])
-  nim         String             @unique
-  fullName    String
-  jurusan     Jurusan
-  submissions ThesisSubmission[]
-}
-
-model ThesisSubmission {
-  id                  Int      @id @default(autoincrement())
-  studentId           Int
-  jurusan             Jurusan
-  topik               String
-  judul               String
-  status              SubmissionStatus @default(TERKIRIM)
-  catatanAdmin        String?          @db.Text
-  transkripUrl        String?
-  uktUrl              String?
-  konsultasiUrl       String?
-  usulanPembimbing1   String
-  usulanPembimbing2   String
-  usulanPembimbing3   String?
-  pembimbing1         String?
-  pembimbing2         String?
-  skPembimbingUrl     String?
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
-
-  student             StudentProfile  @relation(fields: [studentId], references: [id])
+  // --- Kolom Pembimbing dikembalikan menjadi String ---
+  pembimbing1        String?  @map("pembimbing1")
+  pembimbing2        String?  @map("pembimbing2")
   
-  proposalSeminar     ProposalSeminar?
-  hasilSeminar        HasilSeminar?
+  mahasiswa Mahasiswa @relation(fields: [id_mahasiswa], references: [id])
+
+  proposal      Proposal?
+  seminar_hasil SeminarHasil?
+
+  @@map("judul")
 }
 
-model ProposalSeminar {
-  id                   Int      @id @default(autoincrement())
-  submissionId         Int      @unique 
-  
-  proposalFileUrl      String
-  lembarPersetujuanUrl String
-  status               String
-  jadwalSidang         DateTime?
-  nilai                String?
+model Proposal {
+  id               Int       @id @default(autoincrement())
+  id_judul         Int       @unique @map("id_judul")
+  tanggal          DateTime  @default(now())
+  proposal         String
+  persetujuan      String
+  status           Status
+  jadwal_sidang    DateTime? @map("jadwal_sidang")
+  sk_penguji       String?   @map("sk_penguji")
+  undangan_penguji String?   @map("undangan_penguji")
 
-  submission           ThesisSubmission @relation(fields: [submissionId], references: [id])
+  // --- Kolom Penguji dikembalikan menjadi String ---
+  penguji          String?
 
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
+  judul Judul @relation(fields: [id_judul], references: [id])
+
+  @@map("proposal")
 }
 
-model HasilSeminar {
-  id                   Int      @id @default(autoincrement())
-  submissionId         Int      @unique
-  
-  skripsiFullUrl       String
-  artikelJurnalUrl     String
-  status               String
-  jadwalSidang         DateTime?
-  nilai                String?
+model SeminarHasil {
+  id               Int       @id @default(autoincrement())
+  id_judul         Int       @unique @map("id_judul")
+  tanggal          DateTime  @default(now())
+  bukti_sempro     String    @map("bukti_sempro")
+  draf_skripsi     String    @map("draf_skripsi")
+  bukti_konsultasi String    @map("bukti_konsultasi")
+  sertifikat_toefl String    @map("sertifikat_toefl")
+  bukti_hafalan    String    @map("bukti_hafalan")
+  status           Status
+  jadwal_sidang    DateTime? @map("jadwal_sidang")
+  sk_penguji       String?   @map("sk_penguji")
+  undangan_penguji String?   @map("undangan_penguji")
 
-  submission           ThesisSubmission @relation(fields: [submissionId], references: [id])
+  // --- Kolom Penguji dikembalikan menjadi String ---
+  penguji1         String?   @map("penguji1")
+  penguji2         String?   @map("penguji2")
 
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
+  judul Judul @relation(fields: [id_judul], references: [id])
+
+  @@map("seminar_hasil")
 }
 
+// --- Model Dosen sekarang berdiri sendiri tanpa relasi balik ---
 model Dosen {
   id      Int     @id @default(autoincrement())
-  nama    String
+  nama    String?
+  nip     String  @unique
   jurusan Jurusan
+
+  @@map("dosen")
 }
