@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { SubmissionStatus } from '@prisma/client';
+import { Status } from '@prisma/client';
 
 export async function PATCH(
   request: Request,
@@ -23,7 +23,7 @@ export async function PATCH(
     // 3. JIKA INI AKSI DARI ADMIN (VERIFY / REJECT)
     if (body.action) {
       const { action, catatanAdmin } = body;
-      let newStatus: SubmissionStatus;
+      let newStatus: Status;
 
       if (action === 'VERIFY') {
         newStatus = 'DIPROSES_KAPRODI';
@@ -36,11 +36,11 @@ export async function PATCH(
         return NextResponse.json({ message: 'Aksi admin tidak valid' }, { status: 400 });
       }
 
-      const updatedSubmission = await prisma.thesisSubmission.update({
+      const updatedSubmission = await prisma.judul.update({
         where: { id: submissionId },
         data: {
           status: newStatus,
-          catatanAdmin: catatanAdmin || null,
+          catatan: catatanAdmin || null,
         },
       });
       return NextResponse.json(updatedSubmission, { status: 200 });
@@ -57,7 +57,7 @@ export async function PATCH(
         return NextResponse.json({ message: 'Pembimbing 1 dan 2 tidak boleh orang yang sama' }, { status: 400 });
       }
 
-      const updatedSubmission = await prisma.thesisSubmission.update({
+      const updatedSubmission = await prisma.judul.update({
         where: { id: submissionId },
         data: {
           pembimbing1,

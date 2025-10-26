@@ -3,12 +3,12 @@
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { FiFileText, FiBarChart2, FiBell, FiArrowRight, FiFilter, FiCalendar, FiFilePlus, FiClipboard, FiCheckSquare, FiInfo } from 'react-icons/fi';
-import type { ThesisSubmission, ProposalSeminar, HasilSeminar, StudentProfile } from '@prisma/client';
+import type { Judul, Proposal, SeminarHasil, Mahasiswa } from '@prisma/client';
 
 // Tipe data yang sudah ada (tidak berubah)
-type TitleSubmissionWithStudent = ThesisSubmission & { student: StudentProfile };
-type ProposalWithDetails = ProposalSeminar & { submission: { student: StudentProfile } };
-type HasilWithDetails = HasilSeminar & { submission: { student: StudentProfile } };
+type TitleSubmissionWithStudent = Judul & { mahasiswa: Mahasiswa };
+type ProposalWithDetails = Proposal & { submission: { mahasiswa: Mahasiswa } };
+type HasilWithDetails = SeminarHasil & { submission: { mahasiswa: Mahasiswa } };
 
 interface AdminDashboardProps {
   titleSubmissions: TitleSubmissionWithStudent[];
@@ -51,11 +51,11 @@ const ActionCard = ({ title, icon, iconBgColor, iconColor, notifications, emptyT
     viewLink: string;
 }) => {
     const getNotificationDetails = (item: any) => {
-        const student = item.student || item.submission?.student;
+        const mahasiswa = item.mahasiswa || item.submission?.mahasiswa;
         return {
             id: item.id,
-            fullName: student?.fullName || 'N/A',
-            jurusan: student?.jurusan || 'N/A'
+            nama: mahasiswa?.nama || 'N/A',
+            jurusan: mahasiswa?.jurusan || 'N/A'
         };
     };
 
@@ -80,11 +80,11 @@ const ActionCard = ({ title, icon, iconBgColor, iconColor, notifications, emptyT
                 {notifications.length > 0 ? (
                     <ul className="space-y-3 max-h-48 overflow-y-auto pr-2">
                         {notifications.map(item => {
-                            const { id, fullName, jurusan } = getNotificationDetails(item);
+                            const { id, nama, jurusan } = getNotificationDetails(item);
                             return (
                                 <li key={id} className="flex items-center justify-between">
                                     <div>
-                                        <p className="font-medium text-sm text-gray-800">{fullName}</p>
+                                        <p className="font-medium text-sm text-gray-800">{nama}</p>
                                         <p className="text-xs text-gray-500">{jurusan.replace('_', ' ')}</p>
                                     </div>
                                     <Link href={`${viewLink}/${jurusan}`} className="text-sm font-semibold text-blue-600 hover:underline flex items-center gap-1">
@@ -133,16 +133,16 @@ export default function AdminDashboardClient({ titleSubmissions, proposalSubmiss
   
   const stats = { totalJudul: verifiedTitles.length, totalProposal: periodFilteredProposals.length, totalHasil: periodFilteredHasils.length };
   
-  const chartData = useMemo(() => { const getJurusan = (item: any) => item.student?.jurusan || item.submission?.student?.jurusan; return { si: { judul: verifiedTitles.filter(s => getJurusan(s) === 'SISTEM_INFORMASI').length, proposal: periodFilteredProposals.filter(s => getJurusan(s) === 'SISTEM_INFORMASI').length, hasil: periodFilteredHasils.filter(s => getJurusan(s) === 'SISTEM_INFORMASI').length }, mtk: { judul: verifiedTitles.filter(s => getJurusan(s) === 'MATEMATIKA').length, proposal: periodFilteredProposals.filter(s => getJurusan(s) === 'MATEMATIKA').length, hasil: periodFilteredHasils.filter(s => getJurusan(s) === 'MATEMATIKA').length } }; }, [verifiedTitles, periodFilteredProposals, periodFilteredHasils]);
+  const chartData = useMemo(() => { const getJurusan = (item: any) => item.mahasiswa?.jurusan || item.submission?.mahasiswa?.jurusan; return { si: { judul: verifiedTitles.filter(s => getJurusan(s) === 'SISTEM_INFORMASI').length, proposal: periodFilteredProposals.filter(s => getJurusan(s) === 'SISTEM_INFORMASI').length, hasil: periodFilteredHasils.filter(s => getJurusan(s) === 'SISTEM_INFORMASI').length }, mtk: { judul: verifiedTitles.filter(s => getJurusan(s) === 'MATEMATIKA').length, proposal: periodFilteredProposals.filter(s => getJurusan(s) === 'MATEMATIKA').length, hasil: periodFilteredHasils.filter(s => getJurusan(s) === 'MATEMATIKA').length } }; }, [verifiedTitles, periodFilteredProposals, periodFilteredHasils]);
   const yAxisMax = useMemo(() => { const maxSI = Math.max(chartData.si.judul, chartData.si.proposal, chartData.si.hasil); const maxMTK = Math.max(chartData.mtk.judul, chartData.mtk.proposal, chartData.mtk.hasil); const maxData = Math.max(maxSI, maxMTK); if (maxData < 5) return 5; return Math.ceil(maxData / 5) * 5; }, [chartData]);
   const yAxisLabels = Array.from({ length: 6 }, (_, i) => Math.round(yAxisMax * i / 5));
   const periodeText = useMemo(() => { const year = filters.tahun; switch (filters.periode) { case 'harian': return `Pada ${new Date(filters.tanggal).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })}`; case 'bulanan': const monthName = new Date(0, parseInt(filters.bulan) - 1).toLocaleString('id-ID', { month: 'long' }); return `Dalam periode Bulan ${monthName} ${year}`; case 'tahunan': return `Dalam periode Tahun ${year}`; case 'ajaran': return `Semester ${filters.semester} T.A ${year}/${parseInt(year) + 1}`; default: return "Seluruh Periode"; } }, [filters]);
   const renderFilterInputs = () => { switch (filters.periode) { case 'harian': return (<div className="relative"><input type="date" name="tanggal" value={filters.tanggal} onChange={handleFilterChange} className="w-full mt-1 p-2 pl-10 border border-gray-300 rounded-md bg-white focus:ring-blue-500 focus:border-blue-500 appearance-none"/><FiCalendar className="absolute left-3 top-1/2 -translate-y-1/2 mt-0.5 text-gray-400 pointer-events-none"/></div>); case 'bulanan': return (<select name="bulan" value={filters.bulan} onChange={handleFilterChange} className="w-full mt-1 p-2 border border-gray-300 rounded-md bg-white focus:ring-blue-500 focus:border-blue-500">{Array.from({ length: 12 }, (_, i) => <option key={i+1} value={i+1}>{new Date(0, i).toLocaleString('id-ID', { month: 'long' })}</option>)}</select>); case 'ajaran': return (<select name="semester" value={filters.semester} onChange={handleFilterChange} className="w-full mt-1 p-2 border border-gray-300 rounded-md bg-white focus:ring-blue-500 focus:border-blue-500"><option value="ganjil">Ganjil</option><option value="genap">Genap</option></select>); default: return null; } };
   
   const todayString = new Date().toDateString();
-  const todayTitleNotifications = titleSubmissions.filter(s => s.status === 'TERKIRIM' && new Date(s.createdAt).toDateString() === todayString);
-  const todayProposalNotifications = proposalSubmissions.filter(s => new Date(s.createdAt).toDateString() === todayString);
-  const todayHasilNotifications = hasilSubmissions.filter(s => new Date(s.createdAt).toDateString() === todayString);
+  const todayTitleNotifications = titleSubmissions.filter(s => s.status === 'TERKIRIM' && new Date(s.tanggal).toDateString() === todayString);
+  const todayProposalNotifications = proposalSubmissions.filter(s => new Date(s.tanggal).toDateString() === todayString);
+  const todayHasilNotifications = hasilSubmissions.filter(s => new Date(s.tanggal).toDateString() === todayString);
 
   return (
     <div className="space-y-6">

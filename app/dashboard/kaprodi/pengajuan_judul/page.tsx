@@ -9,7 +9,7 @@ const prisma = new PrismaClient();
 
 async function getDataForKaprodi(jurusanKaprodi: Jurusan) {
   // --- PERBAIKAN LOGIKA UTAMA DI SINI ---
-  const submissions = await prisma.thesisSubmission.findMany({
+  const submissions = await prisma.judul.findMany({
     where: {
       jurusan: jurusanKaprodi,
       // Hanya ambil data dengan status yang relevan untuk Kaprodi
@@ -18,9 +18,9 @@ async function getDataForKaprodi(jurusanKaprodi: Jurusan) {
       }
     },
     include: {
-      student: { include: { user: true } },
+     mahasiswa: { include: { user: true } },
     },
-    orderBy: { updatedAt: 'desc' }, // Urutkan dari yang terbaru diproses
+    orderBy: { tanggal: 'desc' }, // Urutkan dari yang terbaru diproses
   });
 
   const lecturers = await prisma.dosen.findMany({

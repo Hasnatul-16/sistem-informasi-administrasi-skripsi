@@ -3,11 +3,11 @@
 
 import { useState, useMemo } from 'react';
 import SubmissionTable from '../../SubmissionTable'; 
-import type { ThesisSubmission, StudentProfile, User } from '@prisma/client';
+import type { Judul, Mahasiswa, User } from '@prisma/client';
 import { FiFilter, FiSearch } from 'react-icons/fi'; // Impor ikon Search
 
-type SubmissionWithStudent = ThesisSubmission & {
-  student: StudentProfile & { user: User };
+type SubmissionWithStudent = Judul & {
+  student: Mahasiswa & { user: User };
 };
 
 interface VerificationClientPageProps {
@@ -39,7 +39,7 @@ export default function VerificationClientPage({ initialSubmissions, jurusanName
   const filteredSubmissions = useMemo(() => {
     // Filter berdasarkan bulan dan tahun terlebih dahulu
     const dateFiltered = initialSubmissions.filter(sub => {
-      const subDate = new Date(sub.createdAt);
+      const subDate = new Date(sub.tanggal);
       return subDate.getMonth() + 1 === filters.month && subDate.getFullYear() === filters.year;
     });
 
@@ -51,7 +51,7 @@ export default function VerificationClientPage({ initialSubmissions, jurusanName
     // Jika ada query pencarian, filter lebih lanjut
     const lowercasedQuery = searchQuery.toLowerCase();
     return dateFiltered.filter(sub => 
-      sub.student.fullName.toLowerCase().includes(lowercasedQuery) ||
+      sub.student.nama.toLowerCase().includes(lowercasedQuery) ||
       sub.student.nim.toLowerCase().includes(lowercasedQuery) ||
       sub.judul.toLowerCase().includes(lowercasedQuery)
     );

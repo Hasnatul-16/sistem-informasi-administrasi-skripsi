@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 // --- PERUBAHAN: Tambahkan tipe data yang dibutuhkan ---
-import type { ThesisSubmission, StudentProfile, User } from '@prisma/client';
+import type { Judul, Mahasiswa, User } from '@prisma/client';
 import { FiCheckCircle, FiXCircle, FiArrowLeft } from 'react-icons/fi';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
@@ -11,8 +11,8 @@ import withReactContent from 'sweetalert2-react-content';
 const MySwal = withReactContent(Swal);
 
 // --- PERUBAHAN 1: Definisikan tipe data lengkap untuk 'submission' ---
-type SubmissionWithStudent = ThesisSubmission & {
-  student: StudentProfile & { user: User };
+type SubmissionWithStudent = Judul & {
+  student:Mahasiswa & { user: User };
 };
 
 // --- PERUBAHAN 2: Terima seluruh objek submission, bukan hanya ID ---

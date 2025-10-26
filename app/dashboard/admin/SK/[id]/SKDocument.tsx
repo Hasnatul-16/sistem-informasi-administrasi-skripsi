@@ -1,14 +1,14 @@
 "use client";
 
 import { useRef } from 'react';
-import type { ThesisSubmission, StudentProfile } from '@prisma/client';
+import type { Judul, Mahasiswa } from '@prisma/client';
 import { useReactToPrint } from 'react-to-print';
 import Image from 'next/image';
 import { FiPrinter } from 'react-icons/fi';
 
 // Tipe data untuk props komponen
 type SKProps = {
-  submission: ThesisSubmission & { student: StudentProfile };
+  submission: Judul & { student: Mahasiswa };
   dekan: { nama: string; nip: string; };
 };
 
@@ -19,7 +19,7 @@ export default function SKDocument({ submission, dekan }: SKProps) {
   // 2. Gunakan hook react-to-print
   const handlePrint = useReactToPrint({
     content: () => componentRef.current,
-    documentTitle: `SK Pembimbing - ${submission.student.fullName}`,
+    documentTitle: `SK Pembimbing - ${submission.student.nama}`,
     onAfterPrint: () => alert('Dokumen SK siap dicetak/disimpan!'),
   } as any);
 
@@ -81,7 +81,7 @@ export default function SKDocument({ submission, dekan }: SKProps) {
       <div className="bg-white p-8 max-w-4xl mx-auto shadow-lg border">
         <h2 className="text-xl font-bold text-center">Preview SK Pembimbing</h2>
         <div className="mt-8 p-6 bg-gray-50 rounded-lg border">
-            <p className="mb-2"><strong>Mahasiswa:</strong> {submission.student.fullName}</p>
+            <p className="mb-2"><strong>Mahasiswa:</strong> {submission.student.nama}</p>
             <p><strong>Judul:</strong> {submission.judul}</p>
         </div>
       </div>

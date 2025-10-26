@@ -3,10 +3,10 @@
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { FiDownload, FiArchive } from 'react-icons/fi';
-import type { ThesisSubmission, StudentProfile } from '@prisma/client';
+import type { Judul, Mahasiswa } from '@prisma/client';
 
-type SubmissionWithStudent = ThesisSubmission & {
-  student: StudentProfile;
+type SubmissionWithStudent = Judul & {
+  student: Mahasiswa;
 };
 
 interface ArsipTableProps {
@@ -26,7 +26,7 @@ export default function ArsipTable({ initialSubmissions }: ArsipTableProps) {
       return submissions;
     }
     return submissions.filter(sub => {
-      const submissionDate = new Date(sub.createdAt);
+      const submissionDate = new Date(sub.tanggal);
       const yearMatch = filter.year ? submissionDate.getFullYear() === parseInt(filter.year) : true;
       const monthMatch = filter.month ? (submissionDate.getMonth() + 1) === parseInt(filter.month) : true;
       const dayMatch = filter.day ? submissionDate.getDate() === parseInt(filter.day) : true;
@@ -104,10 +104,10 @@ export default function ArsipTable({ initialSubmissions }: ArsipTableProps) {
               filteredSubmissions.map(sub => (
                 <tr key={sub.id}>
                   <td className="px-4 py-4">
-                    <p className="text-sm font-medium text-gray-900">{sub.student.fullName}</p>
+                    <p className="text-sm font-medium text-gray-900">{sub.student.nama}</p>
                     <p className="text-sm text-gray-500">{sub.student.nim}</p>
                   </td>
-                  <td className="px-4 py-4 text-sm text-gray-600">{formatDate(sub.createdAt)}</td>
+                  <td className="px-4 py-4 text-sm text-gray-600">{formatDate(sub.tanggal)}</td>
                   <td className="px-4 py-4">
                     {sub.status === 'DISETUJUI' ? (
                       <Link href={`/dashboard/admin/sk/${sub.id}`} className="inline-flex items-center gap-2 text-sm text-green-600 hover:underline font-semibold">

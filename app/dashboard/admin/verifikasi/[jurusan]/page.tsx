@@ -8,15 +8,15 @@ export const dynamic = 'force-dynamic';
 
 // Fungsi untuk mengambil SEMUA data pengajuan berdasarkan jurusan
 async function getAllSubmissionsByJurusan(jurusan: Jurusan) {
-  const submissions = await prisma.thesisSubmission.findMany({
+  const submissions = await prisma.judul.findMany({
     where: {
       jurusan: jurusan,
       // --- PERBAIKAN: Hapus filter status: 'TERKIRIM' ---
       // Sekarang kita ambil semua status
     },
-    orderBy: { createdAt: 'desc' },
+    orderBy: { tanggal: 'desc' },
     include: {
-      student: { include: { user: true } },
+      mahasiswa: { include: { user: true } },
     },
   });
   return submissions;
@@ -38,7 +38,7 @@ export default async function AdminVerificationPageByJurusan({ params }: { param
   return (
     // Render komponen client dan kirim semua data sebagai props
     <VerificationClientPage 
-      initialSubmissions={allSubmissions} 
+      initialSubmissions={allSubmissions.map(s => ({ ...s, student: s.mahasiswa }))} 
       jurusanName={jurusanName} 
     />
   );

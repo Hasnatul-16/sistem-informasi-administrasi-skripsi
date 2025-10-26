@@ -1,15 +1,17 @@
 "use client";
 
 import { useState, useEffect, useMemo } from 'react';
-import type { ThesisSubmission, StudentProfile, User, Dosen, SubmissionStatus } from '@prisma/client';
+// --- PERBAIKAN: Impor tipe data sesuai skema baru ---
+import type { Judul, Mahasiswa, User, Dosen, Status } from '@prisma/client';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import { FiX, FiClock, FiCheckCircle, FiFileText, FiFilter, FiXCircle, FiUsers, FiBook, FiTag, FiSettings, FiCalendar, FiUser, FiHash } from 'react-icons/fi';
 
 const MySwal = withReactContent(Swal);
 
-type SubmissionWithStudent = ThesisSubmission & {
-  student: StudentProfile & { user: User };
+// --- PERBAIKAN: Tipe data disesuaikan ---
+type SubmissionWithStudent = Judul & {
+  mahasiswa: Mahasiswa & { user: User };
 };
 
 interface KaprodiTableProps {
@@ -17,14 +19,32 @@ interface KaprodiTableProps {
   lecturers: Dosen[];
 }
 
+// Komponen Badge Status (disesuaikan dengan enum Status baru)
+const StatusBadge = ({ status }: { status: Status }) => {
+    const statusConfig: { [key in Status]?: { text: string; icon: any; color: string } } = {
+      DIPROSES_KAPRODI: { text: "Perlu Diproses", icon: FiClock, color: "bg-purple-100 text-purple-800" },
+      DISETUJUI: { text: "Selesai Diproses", icon: FiCheckCircle, color: "bg-green-100 text-green-800" },
+      // Anda bisa tambahkan status lain jika perlu ditampilkan di tabel ini
+    };
+    const config = statusConfig[status] || { text: status.replace('_', ' '), icon: FiFileText, color: "bg-gray-100 text-gray-800" };
+    const Icon = config.icon;
+    return (
+      <span className={`inline-flex items-center gap-2 px-2 py-1 text-xs font-medium rounded-full ${config.color}`}>
+        <Icon className="h-3 w-3" />
+        {config.text}
+      </span>
+    );
+};
+
+
 export default function KaprodiSubmissionTable({ initialSubmissions, lecturers }: KaprodiTableProps) {
   const [submissions, setSubmissions] = useState(initialSubmissions ?? []);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSubmission, setSelectedSubmission] = useState<SubmissionWithStudent | null>(null);
+  // --- PERBAIKAN 1: Inisialisasi state pembimbing dengan string kosong ---
   const [pembimbing, setPembimbing] = useState({ p1: '', p2: '' });
   const [isLoading, setIsLoading] = useState(false);
 
-  // --- State dan logika untuk Filter (tidak berubah) ---
   const today = new Date();
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(today.getDate() - 7);
@@ -50,7 +70,8 @@ export default function KaprodiSubmissionTable({ initialSubmissions, lecturers }
     const end = new Date(appliedFilters.endDate);
     end.setHours(23, 59, 59, 999);
     const filtered = submissions.filter(sub => {
-      const subDate = new Date(sub.updatedAt);
+      // --- PERBAIKAN 2: Gunakan kolom 'tanggal' dari skema baru ---
+      const subDate = new Date(sub.tanggal);
       return subDate >= start && subDate <= end;
     });
     setDisplayData(filtered);
@@ -60,12 +81,13 @@ export default function KaprodiSubmissionTable({ initialSubmissions, lecturers }
     setSubmissions(initialSubmissions ?? []);
   }, [initialSubmissions]);
 
-  // --- Fungsi Modal dan Aksi (tidak berubah) ---
   const openModal = (submission: SubmissionWithStudent) => {
     setSelectedSubmission(submission);
-    const p1_usulan = lecturers.find(d => d.nama === submission.usulanPembimbing1) ? submission.usulanPembimbing1 : '';
-    const p2_usulan = lecturers.find(d => d.nama === submission.usulanPembimbing2) ? submission.usulanPembimbing2 : '';
-    setPembimbing({ p1: p1_usulan, p2: p2_usulan });
+    // --- PERBAIKAN 3: Gunakan nama properti 'usulan_pembimbing' ---
+    const p1_usulan = lecturers.find(d => d.nama === submission.usulan_pembimbing1) ? submission.usulan_pembimbing1 : '';
+    const p2_usulan = lecturers.find(d => d.nama === submission.usulan_pembimbing2) ? submission.usulan_pembimbing2 : '';
+    // Pastikan nilai awal adalah string kosong
+    setPembimbing({ p1: p1_usulan || '', p2: p2_usulan || '' });
     setIsModalOpen(true);
   };
 
@@ -86,6 +108,10 @@ export default function KaprodiSubmissionTable({ initialSubmissions, lecturers }
 
     setIsLoading(true);
     try {
+      // --- PERBAIKAN 4: Sesuaikan endpoint API jika perlu ---
+      // Jika Anda mengubah nama route API, sesuaikan di sini.
+      // Jika tidak, biarkan seperti ini, tapi pastikan API di /api/submission/[id]/route.ts
+      // menangani update kolom pembimbing1 dan pembimbing2 di model Judul.
       const response = await fetch(`/api/submission/${selectedSubmission.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -114,7 +140,8 @@ export default function KaprodiSubmissionTable({ initialSubmissions, lecturers }
   return (
     <>
       <div className="bg-gradient-to-r from-blue-600 to-cyan-500 p-4 rounded-lg shadow-md flex items-center justify-between gap-4 mb-6">
-        <div className="flex items-center gap-4">
+        {/* ... (Filter UI tidak berubah) ... */}
+         <div className="flex items-center gap-4">
             <div>
                 <label htmlFor="startDate" className="text-white font-semibold text-sm">Tanggal Mulai</label>
                 <input type="date" id="startDate" name="startDate" value={dateInputs.startDate} onChange={handleDateChange} className="w-full mt-1 p-2 border border-white/30 rounded-md bg-white/20 text-white focus:ring-2 focus:ring-white/50" />
@@ -125,7 +152,7 @@ export default function KaprodiSubmissionTable({ initialSubmissions, lecturers }
             </div>
         </div>
         <div className="self-end">
-            <button 
+            <button
                 onClick={applyFilter}
                 className="bg-white text-blue-600 font-bold py-2 px-4 rounded-md hover:bg-gray-100 transition-colors flex items-center gap-2"
             >
@@ -139,7 +166,7 @@ export default function KaprodiSubmissionTable({ initialSubmissions, lecturers }
           <thead className="border-b-2 border-gray-200 bg-gray-50">
             <tr>
               <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[20%]"><div className="flex items-center gap-2"><FiUsers size={16} className="text-blue-600"/> <span>Mahasiswa</span></div></th>
-              <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[15%]"><div className="flex items-center gap-2"><FiCalendar size={16} className="text-blue-600"/> <span>Tgl Diteruskan</span></div></th>
+              <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[15%]"><div className="flex items-center gap-2"><FiCalendar size={16} className="text-blue-600"/> <span>Tgl Pengajuan</span></div></th>
               <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[25%]"><div className="flex items-center gap-2"><FiBook size={16} className="text-blue-600"/> <span>Judul Skripsi</span></div></th>
               <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[15%]"><div className="flex items-center gap-2"><FiTag size={16} className="text-blue-600"/> <span>Topik</span></div></th>
               <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[15%]"><div className="flex items-center gap-2"><FiUsers size={16} className="text-blue-600"/> <span>Usulan Pemb.</span></div></th>
@@ -153,19 +180,21 @@ export default function KaprodiSubmissionTable({ initialSubmissions, lecturers }
               displayData.map(sub => (
                 <tr key={sub.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">{sub.student.fullName}</div>
-                    <div className="text-sm text-gray-500">{sub.student.nim}</div>
+                    {/* --- PERBAIKAN 5: Gunakan nama properti baru --- */}
+                    <div className="text-sm font-medium text-gray-900">{sub.mahasiswa.nama}</div>
+                    <div className="text-sm text-gray-500">{sub.mahasiswa.nim}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                    {new Date(sub.updatedAt).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}
+                    {new Date(sub.tanggal).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}
                   </td>
                   <td className="px-6 py-4"><p className="text-sm text-gray-800 whitespace-normal">{sub.judul}</p></td>
                   <td className="px-6 py-4 text-sm text-gray-600">{sub.topik}</td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <ul className="text-xs text-gray-600 space-y-1">
-                      <li>1. {sub.usulanPembimbing1}</li>
-                      <li>2. {sub.usulanPembimbing2}</li>
-                      {sub.usulanPembimbing3 && (<li>3. {sub.usulanPembimbing3}</li>)}
+                      {/* --- PERBAIKAN 5: Gunakan nama properti baru --- */}
+                      <li>1. {sub.usulan_pembimbing1}</li>
+                      <li>2. {sub.usulan_pembimbing2}</li>
+                      {sub.usulan_pembimbing3 && (<li>3. {sub.usulan_pembimbing3}</li>)}
                     </ul>
                   </td>
                   <td className="px-6 py-4">
@@ -174,9 +203,8 @@ export default function KaprodiSubmissionTable({ initialSubmissions, lecturers }
                             Tetapkan
                         </button>
                     ) : (
-                        <span className="inline-flex items-center gap-2 px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
-                            <FiCheckCircle className="h-3 w-3" /> Selesai
-                        </span>
+                        // Menampilkan status jika bukan DIPROSES_KAPRODI
+                        <StatusBadge status={sub.status} />
                     )}
                   </td>
                 </tr>
@@ -207,14 +235,14 @@ export default function KaprodiSubmissionTable({ initialSubmissions, lecturers }
                         <FiUser className="text-gray-400"/>
                         <div>
                             <p className="text-xs text-gray-500">Nama Mahasiswa</p>
-                            <p className="font-semibold">{selectedSubmission.student.fullName}</p>
+                            <p className="font-semibold">{selectedSubmission.mahasiswa.nama}</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
                         <FiHash className="text-gray-400"/>
                         <div>
                             <p className="text-xs text-gray-500">NIM</p>
-                            <p className="font-semibold">{selectedSubmission.student.nim}</p>
+                            <p className="font-semibold">{selectedSubmission.mahasiswa.nim}</p>
                         </div>
                     </div>
                     <div className="flex items-start gap-3">
@@ -237,25 +265,30 @@ export default function KaprodiSubmissionTable({ initialSubmissions, lecturers }
                     <div className="bg-slate-50 p-4 rounded-lg border mb-6">
                         <h4 className="text-sm font-semibold text-gray-800 mb-3">Usulan dari Mahasiswa:</h4>
                         <ul className="text-sm text-gray-600 space-y-2">
-                            <li>1. {selectedSubmission.usulanPembimbing1}</li>
-                            <li>2. {selectedSubmission.usulanPembimbing2}</li>
-                            {selectedSubmission.usulanPembimbing3 && <li>3. {selectedSubmission.usulanPembimbing3}</li>}
+                             {/* --- PERBAIKAN 5: Gunakan nama properti baru --- */}
+                            <li>1. {selectedSubmission.usulan_pembimbing1}</li>
+                            <li>2. {selectedSubmission.usulan_pembimbing2}</li>
+                            {selectedSubmission.usulan_pembimbing3 && <li>3. {selectedSubmission.usulan_pembimbing3}</li>}
                         </ul>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Pilih Pembimbing 1</label>
+                            {/* --- PERBAIKAN 6: Gunakan state pembimbing (string) --- */}
                             <select value={pembimbing.p1} onChange={e => setPembimbing({...pembimbing, p1: e.target.value})} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" required>
                                 <option value="" disabled>-- Pilih Dosen --</option>
-                                {lecturers.map(dosen => <option key={dosen.id} value={dosen.nama}>{dosen.nama}</option>)}
+                                {/* Pastikan value pada option juga tidak null */}
+                                {lecturers.map(dosen => <option key={dosen.id} value={dosen.nama ?? ''}>{dosen.nama}</option>)}
                             </select>
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Pilih Pembimbing 2</label>
+                            {/* --- PERBAIKAN 6: Gunakan state pembimbing (string) --- */}
                             <select value={pembimbing.p2} onChange={e => setPembimbing({...pembimbing, p2: e.target.value})} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" required>
                                 <option value="" disabled>-- Pilih Dosen --</option>
-                                {lecturers.map(dosen => <option key={dosen.id} value={dosen.nama}>{dosen.nama}</option>)}
+                                {/* Pastikan value pada option juga tidak null */}
+                                {lecturers.map(dosen => <option key={dosen.id} value={dosen.nama ?? ''}>{dosen.nama}</option>)}
                             </select>
                         </div>
                     </div>

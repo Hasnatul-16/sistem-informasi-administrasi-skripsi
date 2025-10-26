@@ -9,7 +9,7 @@ import {
   FiArrowRight, 
   FiAlertCircle 
 } from 'react-icons/fi';
-import { SubmissionStatus } from '@prisma/client';
+import { Status } from '@prisma/client';
 import { getServerSession } from 'next-auth'; // <-- 1. Impor untuk mengambil sesi
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'; // <-- Sesuaikan path jika perlu
 import { redirect } from 'next/navigation';
@@ -27,8 +27,8 @@ async function getMahasiswaData() {
   }
 
   // Ambil profil mahasiswa berdasarkan ID pengguna dari sesi
-  const studentProfile = await prisma.studentProfile.findUnique({
-    where: { userId: session.user.id },
+  const studentProfile = await prisma.mahasiswa.findUnique({
+    where: { id_user: session.user.id },
     include: {
       user: true,
     },
@@ -39,12 +39,12 @@ async function getMahasiswaData() {
   }
 
   // 4. Ambil pengajuan terbaru HANYA dari mahasiswa ini
-  const latestSubmission = await prisma.thesisSubmission.findFirst({
+  const latestSubmission = await prisma.judul.findFirst({
     where: {
-      studentId: studentProfile.id,
+     id_mahasiswa: studentProfile.id,
     },
     orderBy: {
-      createdAt: 'desc',
+      tanggal: 'desc',
     },
   });
 
@@ -52,9 +52,10 @@ async function getMahasiswaData() {
 }
 
 // Komponen untuk menampilkan status dengan warna dan ikon yang sesuai (TIDAK BERUBAH)
-const StatusBadge = ({ status }: { status: SubmissionStatus }) => {
+const StatusBadge = ({ status }: { status: Status }) => {
   const statusConfig = {
-    TERKIRIM: { text: "Terkirim", icon: FiClock, color: "bg-blue-100 text-blue-800" },
+    // Tampilkan TERKIRIM kepada mahasiswa sebagai 'Diperiksa oleh Admin' jika belum diverifikasi
+    TERKIRIM: { text: "Diperiksa oleh Admin", icon: FiClock, color: "bg-yellow-100 text-yellow-800" },
     DIPERIKSA_ADMIN: { text: "Diperiksa Admin", icon: FiClock, color: "bg-yellow-100 text-yellow-800" },
     DITOLAK_ADMIN: { text: "Ditolak Admin", icon: FiXCircle, color: "bg-red-100 text-red-800" },
     DIPROSES_KAPRODI: { text: "Diproses Kaprodi", icon: FiClock, color: "bg-purple-100 text-purple-800" },
@@ -96,7 +97,7 @@ export default async function MahasiswaDashboardPage() {
     <div className="space-y-8">
       {/* 1. Header Sambutan */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Selamat Datang, {studentProfile.fullName}!</h1>
+        <h1 className="text-3xl font-bold text-gray-900">Selamat Datang, {studentProfile.nama}!</h1>
         <p className="mt-1 text-gray-600">Pantau progres skripsi Anda dan lihat status pengajuan terbaru di sini.</p>
       </div>
 
@@ -150,7 +151,7 @@ export default async function MahasiswaDashboardPage() {
               <div className="ml-3">
                 <h3 className="text-md font-bold text-red-800">Pengajuan Anda Perlu Direvisi</h3>
                 <div className="mt-2 text-sm text-red-700">
-                  <p><strong>Catatan dari Admin:</strong> {latestSubmission.catatanAdmin}</p>
+                  <p><strong>Catatan dari Admin:</strong> {latestSubmission.catatan}</p>
                 </div>
                 <Link href="/dashboard/mahasiswa/pengajuan-judul" className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700">
                   Ajukan Ulang Judul <FiArrowRight />

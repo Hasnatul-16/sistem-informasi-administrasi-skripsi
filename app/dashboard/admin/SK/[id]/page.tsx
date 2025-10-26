@@ -7,16 +7,18 @@ async function getSubmissionForSK(id: string) {
   if (isNaN(submissionId)) {
     throw new Error('ID pengajuan tidak valid.');
   }
-  const submission = await prisma.thesisSubmission.findUnique({
-    where: { id: submissionId, status: 'DISETUJUI' }, // Pastikan hanya yang disetujui
+  const submission = await prisma.judul.findUnique({
+    where: { id: submissionId },
     include: {
-      student: true, // Ambil data mahasiswa
+      mahasiswa: true, // Ambil data mahasiswa
     },
   });
-  if (!submission) {
+  if (!submission || submission.status !== 'DISETUJUI') {
     throw new Error('Pengajuan yang telah disetujui tidak ditemukan.');
   }
-  return submission;
+
+  // Map `mahasiswa` -> `student` agar komponen client (SKDocument) yang mengharapkan `submission.student` bekerja
+  return { ...submission, student: submission.mahasiswa } as any;
 }
 
 export default async function GenerateSKPage({ params }: { params: { id: string } }) {

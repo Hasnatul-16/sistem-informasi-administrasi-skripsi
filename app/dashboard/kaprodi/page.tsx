@@ -4,13 +4,13 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { FiFileText, FiUsers, FiCheckSquare, FiLayers, FiBell, FiArrowRight, FiUser } from 'react-icons/fi';
 import prisma from '@/lib/prisma';
-import { Jurusan, ThesisSubmission, ProposalSeminar, HasilSeminar } from '@prisma/client';
+import { Jurusan, Judul, Proposal, SeminarHasil } from '@prisma/client';
 import Link from 'next/link';
 
-// Tipe data (tidak berubah)
-type TitleSubmissionWithStudent = ThesisSubmission & { student: { fullName: string; jurusan: Jurusan; } };
-type ProposalWithStudent = ProposalSeminar & { submission: { student: { fullName: string; jurusan: Jurusan; } } };
-type HasilWithStudent = HasilSeminar & { submission: { student: { fullName: string; jurusan: Jurusan; } } };
+// Tipe data disesuaikan dengan schema baru
+type TitleSubmissionWithStudent = Judul & { mahasiswa: { nama: string; jurusan: Jurusan; } };
+type ProposalWithStudent = Proposal & { judul: { mahasiswa: { nama: string; jurusan: Jurusan; } } };
+type HasilWithStudent = SeminarHasil & { judul: { mahasiswa: { nama: string; jurusan: Jurusan; } } };
 
 // --- PERUBAHAN UKURAN PADA STATCARD ---
 const StatCard = ({ title, value, icon, color }: { title: string, value: number, icon: React.ReactNode, color: string }) => (
@@ -28,8 +28,8 @@ const StatCard = ({ title, value, icon, color }: { title: string, value: number,
 );
 
 // --- PERUBAHAN UKURAN PADA ACTIONCARD ---
-const ActionCard = ({ title, linkBase, icon, iconBgColor, submissions }: { 
-    title: string; 
+const ActionCard = ({ title, linkBase, icon, iconBgColor, submissions }: {
+    title: string;
     linkBase: string;
     icon: React.ReactNode;
     iconBgColor: string;
@@ -37,8 +37,8 @@ const ActionCard = ({ title, linkBase, icon, iconBgColor, submissions }: {
 }) => {
     const getStudentDetails = (sub: any) => ({
         id: sub.id,
-        fullName: sub.student?.fullName || sub.submission?.student?.fullName,
-        jurusan: sub.student?.jurusan || sub.submission?.student?.jurusan,
+        fullName: sub.mahasiswa?.nama || sub.judul?.mahasiswa?.nama,
+        jurusan: sub.mahasiswa?.jurusan || sub.judul?.mahasiswa?.jurusan,
     });
 
     return (
@@ -93,10 +93,10 @@ const ActionCard = ({ title, linkBase, icon, iconBgColor, submissions }: {
 
 async function getDashboardData(jurusan: Jurusan) {
     const [titleSubmissions, proposalSubmissions, hasilSubmissions, totalDisetujui, totalDosen] = await Promise.all([
-        prisma.thesisSubmission.findMany({ where: { jurusan: jurusan, status: 'DIPROSES_KAPRODI' }, include: { student: { select: { fullName: true, jurusan: true } } }, orderBy: { createdAt: 'desc' }, take: 5 }),
-        prisma.proposalSeminar.findMany({ where: { submission: { jurusan: jurusan }, status: 'TERDAFTAR' }, include: { submission: { include: { student: { select: { fullName: true, jurusan: true } } } } }, orderBy: { createdAt: 'desc' }, take: 5 }),
-        prisma.hasilSeminar.findMany({ where: { submission: { jurusan: jurusan }, status: 'TERDAFTAR' }, include: { submission: { include: { student: { select: { fullName: true, jurusan: true } } } } }, orderBy: { createdAt: 'desc' }, take: 5 }),
-        prisma.thesisSubmission.count({ where: { jurusan: jurusan, status: 'DISETUJUI' } }),
+        prisma.judul.findMany({ where: { jurusan: jurusan, status: 'DIPROSES_KAPRODI' }, include: { mahasiswa: { select: { nama: true, jurusan: true } } }, orderBy: { tanggal: 'desc' }, take: 5 }),
+        prisma.proposal.findMany({ where: { judul: { jurusan: jurusan }, status: 'DIPROSES_KAPRODI' }, include: { judul: { include: { mahasiswa: { select: { nama: true, jurusan: true } } } } }, orderBy: { tanggal: 'desc' }, take: 5 }),
+        prisma.seminarHasil.findMany({ where: { judul: { jurusan: jurusan }, status: 'DIPROSES_KAPRODI' }, include: { judul: { include: { mahasiswa: { select: { nama: true, jurusan: true } } } } }, orderBy: { tanggal: 'desc' }, take: 5 }),
+        prisma.judul.count({ where: { jurusan: jurusan, status: 'DISETUJUI' } }),
         prisma.dosen.count({ where: { jurusan: jurusan } })
     ]);
     return { titleSubmissions, proposalSubmissions, hasilSubmissions, totalDisetujui, totalDosen };

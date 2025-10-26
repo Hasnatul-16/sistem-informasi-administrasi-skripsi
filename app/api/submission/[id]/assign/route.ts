@@ -7,10 +7,10 @@ export async function PATCH(
 ) {
   try {
     // 1. Konversi ID dari string (URL) menjadi number
-    const submissionId = parseInt(params.id, 10);
+    const id = parseInt(params.id, 10);
     
     // Validasi jika ID tidak valid
-    if (isNaN(submissionId)) {
+    if (isNaN(id)) {
         return NextResponse.json({ message: 'ID pengajuan tidak valid' }, { status: 400 });
     }
 
@@ -25,8 +25,8 @@ export async function PATCH(
     }
 
     // 2. Gunakan ID yang sudah menjadi number untuk update
-    const updatedSubmission = await prisma.thesisSubmission.update({
-      where: { id: submissionId },
+    const updatedSubmission = await prisma.judul.update({
+      where: { id: id },
       data: {
         pembimbing1: pembimbing1,
         pembimbing2: pembimbing2,

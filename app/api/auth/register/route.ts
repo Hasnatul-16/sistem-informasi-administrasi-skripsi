@@ -3,18 +3,16 @@
 import { NextResponse } from 'next/server';
 import { hash } from 'bcryptjs';
 import prisma from '../../../../lib/prisma';
-import { Role, Jurusan } from '@prisma/client'; // <-- Impor tipe Jurusan
+import { Role, Jurusan } from '@prisma/client';
 
 export async function POST(request: Request) {
   try {
-    // --- PERBAIKAN DI SINI: Ambil 'jurusan' dari request ---
-    const { email, password, fullName, nim, jurusan } = await request.json();
+    const { email, password, nama, nim, jurusan } = await request.json();
 
-    if (!email || !password || !fullName || !nim || !jurusan) {
+    if (!email || !password || !nama || !nim || !jurusan) {
       return NextResponse.json({ message: 'Semua field wajib diisi.' }, { status: 400 });
     }
 
-    // (Opsional tapi direkomendasikan) Validasi nilai jurusan
     if (!Object.values(Jurusan).includes(jurusan as Jurusan)) {
         return NextResponse.json({ message: 'Nilai jurusan tidak valid.' }, { status: 400 });
     }
@@ -26,20 +24,27 @@ export async function POST(request: Request) {
 
     const hashedPassword = await hash(password, 10);
 
+    // =======================================================
+    // ====           PERBAIKAN UTAMA ADA DI SINI         ====
+    // =======================================================
     const newUser = await prisma.user.create({
       data: {
         email,
         password: hashedPassword,
         role: Role.MAHASISWA,
+        nama: nama,       // <-- TAMBAHKAN BARIS INI
+        jurusan: jurusan, // <-- TAMBAHKAN BARIS INI
       },
     });
+    // =======================================================
+    // ====             AKHIR DARI PERBAIKAN              ====
+    // =======================================================
 
-    await prisma.studentProfile.create({
+    await prisma.mahasiswa.create({
       data: {
-        userId: newUser.id,
-        fullName,
+        id_user: newUser.id,
+        nama: nama,
         nim,
-        // --- PERBAIKAN DI SINI: Gunakan 'jurusan' dari request ---
         jurusan: jurusan, 
       },
     });

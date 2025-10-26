@@ -10,17 +10,17 @@ export const dynamic = 'force-dynamic';
 
 async function getAllData() {
   const [titleSubmissions, proposalSubmissions, hasilSubmissions] = await prisma.$transaction([
-    prisma.thesisSubmission.findMany({
-      orderBy: { createdAt: 'desc' },
-      include: { student: true },
+    prisma.judul.findMany({
+      orderBy: { tanggal: 'desc' },
+      include: { mahasiswa: true },
     }),
-    prisma.proposalSeminar.findMany({
-      orderBy: { createdAt: 'desc' },
-      include: { submission: { include: { student: true } } },
+    prisma.proposal.findMany({
+      orderBy: { tanggal: 'desc' },
+      include: { judul: { include: { mahasiswa: true } } },
     }),
-    prisma.hasilSeminar.findMany({
-      orderBy: { createdAt: 'desc' },
-      include: { submission: { include: { student: true } } },
+    prisma.seminarHasil.findMany({
+      orderBy: { tanggal: 'desc' },
+      include: { judul: { include: { mahasiswa: true } } },
     }),
   ]);
   return { titleSubmissions, proposalSubmissions, hasilSubmissions };
@@ -54,8 +54,9 @@ export default async function AdminDashboardPage() {
       
       <AdminDashboardClient 
         titleSubmissions={titleSubmissions}
-        proposalSubmissions={proposalSubmissions}
-        hasilSubmissions={hasilSubmissions}
+        // Map shape so client can access `.submission.mahasiswa`
+        proposalSubmissions={proposalSubmissions.map(p => ({ ...p, submission: p.judul }))}
+        hasilSubmissions={hasilSubmissions.map(h => ({ ...h, submission: h.judul }))}
       />
     </main>
   );

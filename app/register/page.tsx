@@ -36,7 +36,7 @@ const FloatingLabelInput = ({ id, name, label, type, value, onChange, icon }: an
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
-    fullName: '',
+    nama: '',
     nim: '',
     email: '',
     password: '',
@@ -103,7 +103,7 @@ export default function RegisterPage() {
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           
           {/* Gunakan 'name' dan 'handleInputChange' untuk semua input */}
-          <FloatingLabelInput id="fullName" name="fullName" label="Nama Lengkap" type="text" value={formData.fullName} onChange={handleInputChange} icon={<FiUser className="h-5 w-5" />} />
+          <FloatingLabelInput id="nama" name="nama" label="Nama Lengkap" type="text" value={formData.nama} onChange={handleInputChange} icon={<FiUser className="h-5 w-5" />} />
           <FloatingLabelInput id="nim" name="nim" label="NIM" type="text" value={formData.nim} onChange={handleInputChange} icon={<FiBookmark className="h-5 w-5" />} />
           <FloatingLabelInput id="email" name="email" label="Alamat Email" type="email" value={formData.email} onChange={handleInputChange} icon={<FiMail className="h-5 w-5" />} />
           <FloatingLabelInput id="password" name="password" label="Password" type="password" value={formData.password} onChange={handleInputChange} icon={<FiLock className="h-5 w-5" />} />

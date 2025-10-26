@@ -7,7 +7,7 @@ import ArsipTable from './ArsipTable';
 export const dynamic = 'force-dynamic';
 
 async function getAllSubmissions() {
-  const submissions = await prisma.thesisSubmission.findMany({
+  const submissions = await prisma.judul.findMany({
     // --- PERUBAHAN UTAMA ADA DI SINI ---
     where: {
       // Filter ini memberitahu database untuk hanya mengambil
@@ -15,11 +15,11 @@ async function getAllSubmissions() {
       status: 'DISETUJUI',
     },
     include: {
-      student: true,
+      mahasiswa: true,
     },
     orderBy: {
       // Mengurutkan berdasarkan tanggal kapan status diubah menjadi 'DISETUJUI'
-      updatedAt: 'desc',
+      tanggal: 'desc',
     },
   });
   return submissions;
@@ -33,7 +33,8 @@ export default async function ArsipSKPage() {
       <h1 className="text-3xl font-bold text-gray-900 mb-6">Arsip Skripsi Mahasiswa</h1>
       
       {/* Komponen ArsipTable akan menerima data yang sudah difilter */}
-      <ArsipTable initialSubmissions={submissions} />
+      {/* Map `mahasiswa` -> `student` agar shape sesuai dengan yang diharapkan oleh `ArsipTable` */}
+      <ArsipTable initialSubmissions={submissions.map(s => ({ ...s, student: s.mahasiswa }))} />
     </div>
   );
 }

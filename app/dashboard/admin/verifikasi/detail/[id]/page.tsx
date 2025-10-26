@@ -4,10 +4,10 @@ import prisma from '@/lib/prisma';
 import Link from 'next/link';
 import { FiFileText, FiDownload } from 'react-icons/fi';
 import VerificationActions from './VerificationActions';
-import type { ThesisSubmission, StudentProfile, User } from '@prisma/client';
+import type { Judul, Mahasiswa, User } from '@prisma/client';
 
-type SubmissionWithStudent = ThesisSubmission & {
-  student: StudentProfile & { user: User };
+type SubmissionWithStudent = Judul & {
+  student: Mahasiswa & { user: User };
 };
 
 async function getSubmission(id: string): Promise<SubmissionWithStudent> {
@@ -15,16 +15,21 @@ async function getSubmission(id: string): Promise<SubmissionWithStudent> {
   if (isNaN(submissionId)) {
     throw new Error('ID pengajuan tidak valid.');
   }
-  const submission = await prisma.thesisSubmission.findUnique({
+  const submission = await prisma.judul.findUnique({
     where: { id: submissionId },
-    include: { student: { include: { user: true } } },
+    include: { mahasiswa: { include: { user: true } } },
   });
   if (!submission) throw new Error('Pengajuan tidak ditemukan');
-  return submission;
+  // Map `mahasiswa` (Prisma) -> `student` (komponen client mengharapkan nama ini)
+  return { ...submission, student: submission.mahasiswa } as unknown as SubmissionWithStudent;
 }
 
 export default async function VerificationDetailPage({ params }: { params: { id: string } }) {
   const submission = await getSubmission(params.id);
+
+  // Jika data dari Prisma memakai properti `mahasiswa`, map ke `student`
+  // sehingga komponen lain yang mengakses `student.*` akan bekerja.
+  const submissionWithStudent = { ...submission, student: (submission as any).mahasiswa } as any;
 
   const detailItem = (label: string, value: string | undefined | null) => (
     <div>
@@ -58,34 +63,34 @@ export default async function VerificationDetailPage({ params }: { params: { id:
         <div className="bg-white p-6 rounded-lg shadow-sm border">
           <h2 className="text-xl font-semibold mb-4 border-b pb-3">Informasi Mahasiswa</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
-            {detailItem("Nama Lengkap", submission.student.fullName)}
-            {detailItem("NIM", submission.student.nim)}
-            {detailItem("Email", submission.student.user.email)}
-            {detailItem("Jurusan", submission.student.jurusan.replace('_', ' '))}
+            {detailItem("Nama Lengkap", submissionWithStudent.student.nama)}
+            {detailItem("NIM", submissionWithStudent.student.nim)}
+            {detailItem("Email", submissionWithStudent.student.user.email)}
+            {detailItem("Jurusan", submissionWithStudent.student.jurusan.replace('_', ' '))}
           </div>
         </div>
         
         <div className="bg-white p-6 rounded-lg shadow-sm border">
           <h2 className="text-xl font-semibold mb-4 border-b pb-3">Detail Pengajuan</h2>
           <div className="space-y-4 pt-4">
-            {detailItem("Topik", submission.topik)}
-            {detailItem("Judul Skripsi", submission.judul)}
-            {detailItem("Usulan Pembimbing 1", submission.usulanPembimbing1)}
-            {detailItem("Usulan Pembimbing 2", submission.usulanPembimbing2)}
-            {detailItem("Usulan Pembimbing 3", submission.usulanPembimbing3)}
+            {detailItem("Topik", submissionWithStudent.topik)}
+            {detailItem("Judul Skripsi", submissionWithStudent.judul)}
+            {detailItem("Usulan Pembimbing 1", submissionWithStudent.usulan_pembimbing1)}
+            {detailItem("Usulan Pembimbing 2", submissionWithStudent.usulan_pembimbing2)}
+            {detailItem("Usulan Pembimbing 3", submissionWithStudent.usulan_pembimbing3)}
           </div>
         </div>
 
         <div className="bg-white p-6 rounded-lg shadow-sm border">
           <h2 className="text-xl font-semibold mb-4 border-b pb-3">Dokumen Persyaratan</h2>
           <div className="space-y-3 pt-4">
-            {fileItem("Transkrip Nilai", submission.transkripUrl)}
-            {fileItem("Bukti UKT", submission.uktUrl)}
-            {fileItem("Lembar Konsultasi", submission.konsultasiUrl)}
+            {fileItem("Transkrip Nilai", submissionWithStudent.transkrip)}
+            {fileItem("Bukti UKT", submissionWithStudent.ukt)}
+            {fileItem("Lembar Konsultasi", submissionWithStudent.konsultasi)}
           </div>
         </div>
         
-        <VerificationActions submission={submission} />
+        <VerificationActions submission={submissionWithStudent} />
       </div>
     </main>
   );

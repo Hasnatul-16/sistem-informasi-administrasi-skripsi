@@ -15,20 +15,20 @@ export async function POST(request: Request) {
   }
 
   try {
-    const studentProfile = await prisma.studentProfile.findUnique({
-      where: { userId: session.user.id },
+    const mahasiswa = await prisma.mahasiswa.findUnique({
+      where: { id_user: session.user.id },
     });
 
-    if (!studentProfile) {
+    if (!mahasiswa) {
       return NextResponse.json({ message: 'Profil mahasiswa tidak ditemukan.' }, { status: 404 });
     }
 
     // =======================================================
     // ====          LOGIKA PENGECEKAN DIMULAI SINI         ====
     // =======================================================
-    const existingSubmission = await prisma.thesisSubmission.findFirst({
+    const existingSubmission = await prisma.judul.findFirst({
         where: {
-            studentId: studentProfile.id,
+            id_mahasiswa: mahasiswa.id,
             // Cek semua status KECUALI yang sudah ditolak oleh admin
             status: {
                 not: 'DITOLAK_ADMIN'
@@ -52,43 +52,43 @@ export async function POST(request: Request) {
     const formData = await request.formData();
     const judul = formData.get('judul') as string;
     const topik = formData.get('topik') as string;
-    const usulanPembimbing1 = formData.get('usulanPembimbing1') as string;
-    const usulanPembimbing2 = formData.get('usulanPembimbing2') as string;
-    const usulanPembimbing3 = formData.get('usulanPembimbing3') as string | null;
+    const usulan_pembimbing1 = formData.get('usulan_pembimbing1') as string;
+    const usulan_pembimbing2 = formData.get('usulan_pembimbing2') as string;
+    const usulan_pembimbing3 = formData.get('usulan_pembimbing3') as string | null;
 
     const transkripFile = formData.get('transkrip') as File | null;
     const uktFile = formData.get('ukt') as File | null;
     const konsultasiFile = formData.get('konsultasi') as File | null;
 
-    if (!judul || !topik || !usulanPembimbing1 || !usulanPembimbing2 || !transkripFile || !uktFile || !konsultasiFile) {
+    if (!judul || !topik || !usulan_pembimbing1 || !usulan_pembimbing2 || !transkripFile || !uktFile || !konsultasiFile) {
         return NextResponse.json({ message: 'Semua field wajib diisi.' }, { status: 400 });
     }
     
     const saveFile = async (file: File) => {
         const bytes = await file.arrayBuffer();
         const buffer = Buffer.from(bytes);
-        const fileName = `${Date.now()}_${file.name.replace(/\s/g, '_')}`;
-        const filePath = path.join(process.cwd(), 'public/uploads', fileName);
+        const nama = `${Date.now()}_${file.name.replace(/\s/g, '_')}`;
+        const filePath = path.join(process.cwd(), 'public/uploads', nama);
         await writeFile(filePath, buffer);
-        return `/uploads/${fileName}`;
+        return `/uploads/${nama}`;
     };
     
-    const transkripUrl = await saveFile(transkripFile);
-    const uktUrl = await saveFile(uktFile);
-    const konsultasiUrl = await saveFile(konsultasiFile);
+    const transkrip = await saveFile(transkripFile);
+    const ukt = await saveFile(uktFile);
+    const konsultasi = await saveFile(konsultasiFile);
 
-    const newSubmission = await prisma.thesisSubmission.create({
+    const newSubmission = await prisma.judul.create({
       data: {
-        studentId: studentProfile.id,
-        jurusan: studentProfile.jurusan,
+        id_mahasiswa: mahasiswa.id,
+        jurusan: mahasiswa.jurusan,
         topik,
         judul,
-        usulanPembimbing1,
-        usulanPembimbing2,
-        usulanPembimbing3: usulanPembimbing3 || undefined,
-        transkripUrl,
-        uktUrl,
-        konsultasiUrl,
+        usulan_pembimbing1,
+        usulan_pembimbing2,
+        usulan_pembimbing3: usulan_pembimbing3 || undefined,
+        transkrip,
+        ukt,
+        konsultasi,
         status: 'TERKIRIM',
       },
     });
