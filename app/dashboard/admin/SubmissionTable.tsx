@@ -3,11 +3,10 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import type { Judul, Mahasiswa, User, Status } from '@prisma/client';
-// --- PERUBAHAN 1: Impor ikon baru untuk info mahasiswa ---
 import { 
     FiClock, FiCheckCircle, FiXCircle, FiFileText, FiDownload, FiArrowRight, 
     FiUsers, FiCalendar, FiTag, FiActivity, FiSettings,
-    FiUser, FiHash // Ikon untuk Nama dan NIM
+    FiUser, FiHash 
 } from 'react-icons/fi';
 
 type SubmissionWithStudent = Judul & {
@@ -17,9 +16,8 @@ type SubmissionWithStudent = Judul & {
 // Komponen Badge Status (tidak ada perubahan)
 const StatusBadge = ({ status }: { status: Status }) => {
     const statusConfig = {
-  // Tampilkan "TERKIRIM" kepada admin sebagai "Diperiksa Admin"
-  TERKIRIM: { text: "Diperiksa Admin", icon: FiClock, color: "bg-yellow-100 text-yellow-800" },
-  DIPERIKSA_ADMIN: { text: "Diperiksa Admin", icon: FiClock, color: "bg-yellow-100 text-yellow-800" },
+      TERKIRIM: { text: "Diperiksa Admin", icon: FiClock, color: "bg-yellow-100 text-yellow-800" },
+      DIPERIKSA_ADMIN: { text: "Diperiksa Admin", icon: FiClock, color: "bg-yellow-100 text-yellow-800" },
       DITOLAK_ADMIN: { text: "Ditolak Admin", icon: FiXCircle, color: "bg-red-100 text-red-800" },
       DIPROSES_KAPRODI: { text: "Diproses Kaprodi", icon: FiClock, color: "bg-purple-100 text-purple-800" },
       DISETUJUI: { text: "Disetujui", icon: FiCheckCircle, color: "bg-green-100 text-green-800" },
@@ -36,10 +34,45 @@ const StatusBadge = ({ status }: { status: Status }) => {
 
 export default function SubmissionTable({ initialSubmissions }: { initialSubmissions: SubmissionWithStudent[] }) {
   const [submissions, setSubmissions] = useState(initialSubmissions);
+  // State untuk melacak ID pengajuan yang sedang di-download
+  const [loadingId, setLoadingId] = useState<number | null>(null);
   
   useEffect(() => {
     setSubmissions(initialSubmissions);
   }, [initialSubmissions]);
+
+  // Fungsi download PDF (langsung panggil API)
+  const handleDownloadSK = async (submissionId: number, nim: string) => {
+    setLoadingId(submissionId); // Set loading untuk baris ini
+    try {
+      // Langsung panggil API route
+      const res = await fetch(`/api/sk/${submissionId}`);
+      
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}));
+        alert('Gagal mengunduh PDF: ' + (json?.error || res.statusText));
+        setLoadingId(null);
+        return;
+      }
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `SK-${nim || submissionId}.pdf`; // Gunakan NIM untuk nama file
+      document.body.appendChild(a);
+      a.click();
+      
+      // Cleanup
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (err: any) {
+      console.error('downloadPdf error', err);
+      alert('Gagal mengunduh PDF. Cek console untuk detail.');
+    } finally {
+      setLoadingId(null); // Selesai loading
+    }
+  };
 
   return (
     <div className="overflow-x-auto">
@@ -47,10 +80,8 @@ export default function SubmissionTable({ initialSubmissions }: { initialSubmiss
         <thead className="bg-slate-50">
           <tr>
             <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[20%]"><div className="flex items-center gap-2"><FiUsers size={16} className="text-blue-600"/> 
-            
             <span>Mahasiswa</span></div></th>
             <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[15%]"><div className="flex items-center gap-2"><FiCalendar size={16} className="text-blue-600"/> 
-
             <span>Tanggal Pengajuan</span></div></th>
             <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[15%]"><div className="flex items-center gap-2"><FiTag size={16} className="text-blue-600"/>
             <span>Topik</span></div></th>
@@ -66,7 +97,6 @@ export default function SubmissionTable({ initialSubmissions }: { initialSubmiss
             submissions.map(sub => (
               <tr key={sub.id} className="hover:bg-gray-50">
                 
-                {/* --- PERUBAHAN 2: Desain ulang sel Mahasiswa dengan label --- */}
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex flex-col gap-1.5">
                     <div className="flex items-center gap-2">
@@ -83,7 +113,6 @@ export default function SubmissionTable({ initialSubmissions }: { initialSubmiss
                             {sub.student.nim}
                         </span>
                     </div>
-                   
                   </div>
                 </td>
 
@@ -95,14 +124,32 @@ export default function SubmissionTable({ initialSubmissions }: { initialSubmiss
                 <td className="px-6 py-4 text-sm text-gray-600">{sub.topik}</td>
                 <td className="px-6 py-4"><p className="text-sm text-gray-800 whitespace-normal break-words" title={sub.judul}>{sub.judul}</p></td>
                 
-                {/* --- PERUBAHAN 3: Kembalikan kolom Status yang hilang --- */}
                 <td className="px-6 py-4 whitespace-nowrap">
                     <StatusBadge status={sub.status}/>
                 </td>
 
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   {sub.status === 'TERKIRIM' && (<Link href={`/dashboard/admin/verifikasi/detail/${sub.id}`} className="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-900 font-semibold">Verifikasi <FiArrowRight className="h-4 w-4"/></Link>)}
-                  {sub.status === 'DISETUJUI' && (<Link href={`/dashboard/admin/sk/${sub.id}`} className="inline-flex items-center gap-2 text-green-600 hover:text-green-900 font-semibold"><FiDownload/> Lihat SK</Link>)}
+                  
+                  {/* INI ADALAH TOMBOL DOWNLOAD LANGSUNG */}
+                  {sub.status === 'DISETUJUI' && (
+                    <button
+                      onClick={() => handleDownloadSK(sub.id, sub.student.nim)}
+                      disabled={loadingId === sub.id} // Nonaktifkan tombol saat mengunduh
+                      className="inline-flex items-center gap-2 text-green-600 hover:text-green-900 font-semibold disabled:text-gray-400 disabled:cursor-wait"
+                    >
+                      {loadingId === sub.id ? (
+                        <>
+                          <FiClock className="animate-spin h-4 w-4"/> Mengunduh...
+                        </>
+                      ) : (
+                        <>
+                          <FiDownload/> Unduh SK
+                        </>
+                      )}
+                    </button>
+                  )}
+                  
                   {sub.status !== 'TERKIRIM' && sub.status !== 'DISETUJUI' && (<span className="text-gray-400">Dalam Proses</span>)}
                 </td>
               </tr>
