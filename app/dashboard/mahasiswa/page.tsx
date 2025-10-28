@@ -9,24 +9,25 @@ import {
   FiArrowRight, 
   FiAlertCircle 
 } from 'react-icons/fi';
+import DownloadSKButton from './DownloadSK';
 import { Status } from '@prisma/client';
-import { getServerSession } from 'next-auth'; // <-- 1. Impor untuk mengambil sesi
-import { authOptions } from '@/app/api/auth/[...nextauth]/route'; // <-- Sesuaikan path jika perlu
+import { getServerSession } from 'next-auth'; 
+import { authOptions } from '@/app/api/auth/[...nextauth]/route'; 
 import { redirect } from 'next/navigation';
 
-// 2. Tambahkan ini untuk mematikan caching dan memastikan data selalu baru
+
 export const dynamic = 'force-dynamic';
 
-// Fungsi untuk mengambil data mahasiswa dan pengajuan terakhirnya
+
 async function getMahasiswaData() {
-  // 3. Dapatkan sesi pengguna yang sedang login
+ 
   const session = await getServerSession(authOptions);
   if (!session?.user) {
-    // Jika tidak ada sesi, lempar ke halaman login
+   
     redirect('/');
   }
 
-  // Ambil profil mahasiswa berdasarkan ID pengguna dari sesi
+
   const studentProfile = await prisma.mahasiswa.findUnique({
     where: { id_user: session.user.id },
     include: {
@@ -38,7 +39,7 @@ async function getMahasiswaData() {
     return { studentProfile: null, latestSubmission: null };
   }
 
-  // 4. Ambil pengajuan terbaru HANYA dari mahasiswa ini
+ 
   const latestSubmission = await prisma.judul.findFirst({
     where: {
      id_mahasiswa: studentProfile.id,
@@ -51,10 +52,10 @@ async function getMahasiswaData() {
   return { studentProfile, latestSubmission };
 }
 
-// Komponen untuk menampilkan status dengan warna dan ikon yang sesuai (TIDAK BERUBAH)
+
 const StatusBadge = ({ status }: { status: Status }) => {
   const statusConfig = {
-    // Tampilkan TERKIRIM kepada mahasiswa sebagai 'Diperiksa oleh Admin' jika belum diverifikasi
+ 
     TERKIRIM: { text: "Diperiksa oleh Admin", icon: FiClock, color: "bg-yellow-100 text-yellow-800" },
     DIPERIKSA_ADMIN: { text: "Diperiksa Admin", icon: FiClock, color: "bg-yellow-100 text-yellow-800" },
     DITOLAK_ADMIN: { text: "Ditolak Admin", icon: FiXCircle, color: "bg-red-100 text-red-800" },
@@ -73,12 +74,12 @@ const StatusBadge = ({ status }: { status: Status }) => {
   );
 };
 
-// --- Komponen Utama Halaman Dasbor --- (TIDAK BERUBAH)
+
 export default async function MahasiswaDashboardPage() {
   const { studentProfile, latestSubmission } = await getMahasiswaData();
 
   if (!studentProfile) {
-    // Penanganan jika profil mahasiswa tidak ditemukan setelah login (kasus langka)
+   
     return (
       <div className="text-center p-10">
         <h1 className="text-2xl font-bold text-red-600">Profil Mahasiswa Tidak Ditemukan</h1>
@@ -95,13 +96,13 @@ export default async function MahasiswaDashboardPage() {
 
   return (
     <div className="space-y-8">
-      {/* 1. Header Sambutan */}
+     
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Selamat Datang, {studentProfile.nama}!</h1>
         <p className="mt-1 text-gray-600">Pantau progres skripsi Anda dan lihat status pengajuan terbaru di sini.</p>
       </div>
 
-      {/* 2. Progress Bar Visual */}
+     
       <div className="bg-white p-6 rounded-lg shadow-sm border">
         <h2 className="text-xl font-semibold mb-5">Progres Skripsi Anda</h2>
         <div className="flex items-center">
@@ -124,7 +125,7 @@ export default async function MahasiswaDashboardPage() {
         </div>
       </div>
 
-      {/* 3. Kartu Status Pengajuan Terbaru */}
+      {/* Kartu Status Pengajuan Terbaru */}
       <div className="bg-white p-6 rounded-lg shadow-sm border">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">Status Pengajuan Judul</h2>
@@ -132,7 +133,7 @@ export default async function MahasiswaDashboardPage() {
         </div>
         
         {!latestSubmission ? (
-          // Jika belum ada pengajuan sama sekali
+          //  belum ada pengajuan sama sekali
           <div className="text-center py-10">
             <FiEdit className="mx-auto h-12 w-12 text-gray-400" />
             <h3 className="mt-2 text-lg font-medium text-gray-900">Anda Belum Mengajukan Judul</h3>
@@ -142,7 +143,7 @@ export default async function MahasiswaDashboardPage() {
             </Link>
           </div>
         ) : latestSubmission.status === 'DITOLAK_ADMIN' ? (
-          // Jika pengajuan ditolak
+          //  pengajuan ditolak
           <div className="p-4 bg-red-50 border-l-4 border-red-400 rounded-r-lg">
             <div className="flex">
               <div className="flex-shrink-0">
@@ -160,7 +161,7 @@ export default async function MahasiswaDashboardPage() {
             </div>
           </div>
         ) : latestSubmission.status === 'DISETUJUI' ? (
-          // Jika pengajuan disetujui
+          //  pengajuan disetujui
           <div className="p-4 bg-green-50 border-l-4 border-green-400 rounded-r-lg">
              <h3 className="text-md font-bold text-green-800">Selamat, Judul Anda Telah Disetujui!</h3>
              <div className="mt-4 text-sm text-green-900">
@@ -170,10 +171,24 @@ export default async function MahasiswaDashboardPage() {
                  <li><strong>Pembimbing 2:</strong> {latestSubmission.pembimbing2}</li>
                </ul>
                <p className="mt-4">Silakan hubungi dosen pembimbing untuk memulai proses bimbingan.</p>
+               
+              
+               <div className="mt-4">
+                
+                 {
+                   (() => {
+                     const rawName = `${studentProfile.nama || 'mahasiswa'}`;
+                     const rawNim = studentProfile.nim || latestSubmission.id;
+                     const sanitized = rawName.replace(/[^a-zA-Z0-9\- _]/g, '_').replace(/\s+/g, '_');
+                     const filename = `SK-${sanitized}-${rawNim}.pdf`;
+                     return <DownloadSKButton submissionId={latestSubmission.id} filename={filename} />;
+                   })()
+                 }
+               </div>
              </div>
           </div>
         ) : (
-          // Jika sedang diproses
+          //  diproses
           <div className="text-center py-10">
             <FiClock className="mx-auto h-12 w-12 text-yellow-500" />
             <h3 className="mt-2 text-lg font-medium text-gray-900">Pengajuan Anda Sedang Dalam Proses</h3>
