@@ -46,8 +46,8 @@ export const menuItemsByRole: { [key: string]: MenuItem[] } = {
       title: "Seminar Proposal", 
       icon: Layers,
       subItems: [
-        { title: "Matematika", url: "/dashboard/admin/sempro/MATEMATIKA" },
-        { title: "Sistem Informasi", url: "/dashboard/admin/sempro/SISTEM_INFORMASI" },
+        { title: "Matematika", url: "/dashboard/admin/proposal/MATEMATIKA" },
+        { title: "Sistem Informasi", url: "/dashboard/admin/proposal/SISTEM_INFORMASI" },
         
       ],
     },
