@@ -31,12 +31,12 @@ enum Jurusan {
 
 // --- MODEL DIPERBARUI ---
 model User {
-  id      Int    @id @default(autoincrement())
-  nama    String?
-  email   String @unique
-  password String
-  role    Role
-  jurusan Jurusan
+  id        Int        @id @default(autoincrement())
+  nama      String?
+  email     String     @unique
+  password  String
+  role      Role
+  jurusan   Jurusan
 
   mahasiswa Mahasiswa?
 
@@ -44,10 +44,10 @@ model User {
 }
 
 model Mahasiswa {
-  id      Int    @id @default(autoincrement())
-  id_user Int    @unique @map("id_user")
+  id      Int     @id @default(autoincrement())
+  id_user Int     @unique @map("id_user")
   nama    String
-  nim     String @unique
+  nim     String  @unique
   jurusan Jurusan
 
   user  User    @relation(fields: [id_user], references: [id])
@@ -57,26 +57,28 @@ model Mahasiswa {
 }
 
 model Judul {
-  id                 Int      @id @default(autoincrement())
-  id_mahasiswa       Int      @map("id_mahasiswa")
-  tanggal            DateTime @default(now())
+  id                 Int       @id @default(autoincrement())
+  id_mahasiswa       Int       @map("id_mahasiswa")
+  tanggal            DateTime  @default(now())
   jurusan            Jurusan
   topik              String
-  judul              String   @db.Text
-  status             Status   @default(TERKIRIM)
-  catatan            String?  @db.Text
+  judul              String    @db.Text
+  status             Status    @default(TERKIRIM)
+  catatan            String?   @db.Text
   transkrip          String?
   ukt                String?
   konsultasi         String?
-  usulan_pembimbing1 String   @map("usulan_pembimbing1")
-  usulan_pembimbing2 String   @map("usulan_pembimbing2")
-  usulan_pembimbing3 String?  @map("usulan_pembimbing3")
-  skPembimbing       String?  @map("sk_pembimbing")
-  
+  usulan_pembimbing1 String    @map("usulan_pembimbing1")
+  usulan_pembimbing2 String    @map("usulan_pembimbing2")
+  usulan_pembimbing3 String?   @map("usulan_pembimbing3")
+  skPembimbing       String?   @map("sk_pembimbing")
+  sk_tanggal         DateTime? @map("sk_tanggal")
+  sk_number          String?   @map("sk_number")
+
   // --- Kolom Pembimbing dikembalikan menjadi String ---
-  pembimbing1        String?  @map("pembimbing1")
-  pembimbing2        String?  @map("pembimbing2")
-  
+  pembimbing1        String?   @map("pembimbing1")
+  pembimbing2        String?   @map("pembimbing2")
+
   mahasiswa Mahasiswa @relation(fields: [id_mahasiswa], references: [id])
 
   proposal      Proposal?
@@ -85,24 +87,33 @@ model Judul {
   @@map("judul")
 }
 
+// ===========================================
+// ==== PERUBAHAN UTAMA ADA DI MODEL INI ====
+// ===========================================
 model Proposal {
   id               Int       @id @default(autoincrement())
   id_judul         Int       @unique @map("id_judul")
   tanggal          DateTime  @default(now())
-  proposal         String
-  persetujuan      String
+  proposal         String    // Path ke file draft proposal
+  persetujuan      String    // Path ke file persetujuan pembimbing
   status           Status
   jadwal_sidang    DateTime? @map("jadwal_sidang")
   sk_penguji       String?   @map("sk_penguji")
   undangan_penguji String?   @map("undangan_penguji")
-
-  // --- Kolom Penguji dikembalikan menjadi String ---
   penguji          String?
+
+  // --- KOLOM BARU DITAMBAHKAN DI SINI ---
+  lampiran_5xseminar String?  // Path file bukti ikut seminar
+  catatan     String?  // Catatan revisi dari admin 
+  transkrip     String?   // Path file transkrip terbaru
 
   judul Judul @relation(fields: [id_judul], references: [id])
 
   @@map("proposal")
 }
+// ===========================================
+// ====       AKHIR DARI PERUBAHAN          ====
+// ===========================================
 
 model SeminarHasil {
   id               Int       @id @default(autoincrement())
