@@ -20,7 +20,7 @@ export const menuItemsByRole: { [key: string]: MenuItem[] } = {
   mahasiswa: [
     { title: "Dashboard", url: "/dashboard/mahasiswa", icon: Home },
     { title: "Pengajuan Judul", url: "/dashboard/mahasiswa/pengajuan-judul", icon: Edit },
-    { title: "Seminar Proposal", url: "/dashboard/mahasiswa/seminar-proposal", icon: Layers },
+    { title: "Seminar Proposal", url: "/dashboard/mahasiswa/proposal", icon: Layers },
     { title: "Sidang Skripsi", url: "/dashboard/mahasiswa/sidang-skripsi", icon: User },
   ],
 
