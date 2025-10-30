@@ -1,12 +1,12 @@
-// app/dashboard/admin/proposal/[jurusan]/ProposalVerificationClientPage.tsx
+
 "use client";
 
 import { useState, useMemo } from 'react';
-import ProposalTable from './ProposalTable'; // Import ProposalTable
+import ProposalTable from './ProposalTable'; 
 import type { Proposal, Judul, Mahasiswa, Status } from '@prisma/client';
 import { FiFilter, FiSearch, FiInbox } from 'react-icons/fi';
 
-// Tipe data gabungan yang sama seperti di ProposalTable
+
 type ProposalWithDetails = Proposal & {
     judul: Judul & {
         mahasiswa: Mahasiswa;
@@ -22,13 +22,13 @@ export default function ProposalVerificationClientPage({ initialProposals, jurus
   const currentMonth = new Date().getMonth() + 1;
   const currentYear = new Date().getFullYear();
 
-  // State Filter Bulan/Tahun
+ 
   const [filters, setFilters] = useState({
     month: currentMonth,
     year: currentYear,
   });
   
-  // State Query Pencarian
+ 
   const [searchQuery, setSearchQuery] = useState('');
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -39,9 +39,8 @@ export default function ProposalVerificationClientPage({ initialProposals, jurus
     setSearchQuery(e.target.value);
   };
 
-  // Logika Filter dan Pencarian
   const filteredProposals = useMemo(() => {
-    // 1. Filter berdasarkan bulan dan tahun
+    
     const dateFiltered = initialProposals.filter(prop => {
       const propDate = new Date(prop.tanggal);
       return propDate.getMonth() + 1 === filters.month && propDate.getFullYear() === filters.year;
@@ -51,7 +50,7 @@ export default function ProposalVerificationClientPage({ initialProposals, jurus
       return dateFiltered;
     }
 
-    // 2. Filter berdasarkan query pencarian (nama, nim, judul)
+    
     const lowercasedQuery = searchQuery.toLowerCase();
     return dateFiltered.filter(prop => 
       prop.judul.mahasiswa.nama.toLowerCase().includes(lowercasedQuery) ||
@@ -65,18 +64,18 @@ export default function ProposalVerificationClientPage({ initialProposals, jurus
 
   return (
     <main className="space-y-6">
-      {/* Header Halaman (diubah agar lebih mirip Judul Verifikasi) */}
+     
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Verifikasi Pengajuan seminar proposal</h1>
         <p className="mt-1 text-gray-600">Jurusan: <strong>{jurusanName}</strong></p>
       </div>
 
-      {/* Filter Bar dengan Desain Gradient */}
+      
       <div className="bg-white p-6 rounded-lg shadow-md border">
         
         <div className="bg-gradient-to-r from-blue-600 to-cyan-500 p-4 rounded-lg shadow-md flex flex-wrap items-center justify-between gap-4 mb-6">
             <div className="flex items-center gap-4">
-                {/* Filter Bulan */}
+               
                 <div className='flex flex-col'>
                     <label htmlFor="month" className="text-white font-semibold text-sm">Bulan</label>
                     <select id="month" name="month" value={filters.month} onChange={handleFilterChange} 
@@ -84,7 +83,7 @@ export default function ProposalVerificationClientPage({ initialProposals, jurus
                         {monthOptions.map(opt => <option key={opt.value} value={opt.value} className="text-black">{opt.label}</option>)}
                     </select>
                 </div>
-                {/* Filter Tahun */}
+                
                 <div className='flex flex-col'>
                     <label htmlFor="year" className="text-white font-semibold text-sm">Tahun</label>
                     <select id="year" name="year" value={filters.year} onChange={handleFilterChange} 
@@ -92,7 +91,7 @@ export default function ProposalVerificationClientPage({ initialProposals, jurus
                         {yearOptions.map(year => <option key={year} value={year} className="text-black">{year}</option>)}
                     </select>
                 </div>
-                {/* Tombol Filter (hanya visual) */}
+                
                 <div className="self-end pt-5">
                     <button className="bg-white text-blue-600 font-bold py-2 px-4 rounded-md hover:bg-gray-100 transition-colors flex items-center gap-2">
                         <FiFilter/> Filter
@@ -100,7 +99,7 @@ export default function ProposalVerificationClientPage({ initialProposals, jurus
                 </div>
             </div>
 
-            {/* Kolom Pencarian */}
+          
             <div className="relative self-end">
                 <input 
                     type="text"
@@ -113,7 +112,7 @@ export default function ProposalVerificationClientPage({ initialProposals, jurus
             </div>
         </div>
         
-        {/* Menggunakan ProposalTable yang dimodifikasi */}
+        
         {filteredProposals.length === 0 ? (
           <div className="flex flex-col items-center justify-center text-center text-gray-500 py-16">
             <FiInbox className="w-16 h-16 text-gray-300 mb-4" />

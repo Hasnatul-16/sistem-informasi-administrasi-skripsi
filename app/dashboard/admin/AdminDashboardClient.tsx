@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { FiFileText, FiBarChart2, FiBell, FiArrowRight, FiFilter, FiCalendar, FiFilePlus, FiClipboard, FiCheckSquare, FiInfo } from 'react-icons/fi';
 import type { Judul, Proposal, SeminarHasil, Mahasiswa } from '@prisma/client';
 
-// Tipe data yang sudah ada (tidak berubah)
+
 type TitleSubmissionWithStudent = Judul & { mahasiswa: Mahasiswa };
 type ProposalWithDetails = Proposal & { submission: { mahasiswa: Mahasiswa } };
 type HasilWithDetails = SeminarHasil & { submission: { mahasiswa: Mahasiswa } };
@@ -16,7 +16,7 @@ interface AdminDashboardProps {
   hasilSubmissions: HasilWithDetails[];
 }
 
-// Komponen StatCard (tidak berubah)
+
 const StatCard = ({ title, value, subtitle, icon, iconBgColor, iconColor }: { 
   title: string, 
   value: number, 
@@ -40,7 +40,7 @@ const StatCard = ({ title, value, subtitle, icon, iconBgColor, iconColor }: {
 );
 
 
-// Komponen Notifikasi
+
 const ActionCard = ({ title, icon, iconBgColor, iconColor, notifications, emptyText, viewLink }: { 
     title: string; 
     icon: React.ReactNode; 
@@ -122,8 +122,7 @@ export default function AdminDashboardClient({ titleSubmissions, proposalSubmiss
   const periodFilteredProposals = useMemo(() => filterByPeriod(proposalSubmissions), [proposalSubmissions, filters]);
   const periodFilteredHasils = useMemo(() => filterByPeriod(hasilSubmissions), [hasilSubmissions, filters]);
 
-  // --- PERBAIKAN LOGIKA UTAMA DI SINI ---
-  // Hanya hitung judul yang statusnya sudah melewati tahap verifikasi admin (Diteruskan ke Kaprodi atau Sudah Disetujui)
+
   const verifiedTitles = useMemo(() => 
     periodFilteredTitles.filter(s => 
         s.status === 'DIPROSES_KAPRODI' || s.status === 'DISETUJUI'
@@ -166,7 +165,7 @@ export default function AdminDashboardClient({ titleSubmissions, proposalSubmiss
             icon={<FiClipboard size={20}/>} 
             notifications={todayProposalNotifications} 
             emptyText="Tidak ada pendaftaran proposal." 
-            viewLink="/dashboard/admin/sempro" 
+            viewLink="/dashboard/admin/proposal" 
             iconBgColor="bg-green-100" 
             iconColor="text-green-600" 
           />

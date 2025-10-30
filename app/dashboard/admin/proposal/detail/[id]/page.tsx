@@ -1,4 +1,4 @@
-// app/dashboard/admin/proposal/detail/[id]/page.tsx
+
 
 import prisma from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
@@ -6,19 +6,19 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { FiAlertCircle, FiFileText, FiDownload, FiArrowLeft } from 'react-icons/fi';
 import Link from 'next/link';
 import type { Proposal, Judul, Mahasiswa } from '@prisma/client';
-// Hapus ProposalDetailClient
-import ProposalActionSempro from './ProposalActionSempro'; // <-- Import komponen aksi baru
+
+import ProposalActionSempro from './ProposalActionSempro'; 
 
 export const dynamic = 'force-dynamic';
 
-// Tipe data gabungan yang lengkap
+
 type ProposalWithDetails = Proposal & {
   judul: Judul & {
     mahasiswa: Mahasiswa;
   };
 };
 
-// Fungsi untuk mengambil detail proposal berdasarkan ID
+
 async function getProposalDetail(proposalId: number): Promise<ProposalWithDetails | null> {
   const proposal = await prisma.proposal.findUnique({
     where: { id: proposalId },
@@ -30,11 +30,11 @@ async function getProposalDetail(proposalId: number): Promise<ProposalWithDetail
       }
     },
   });
-  // Pastikan properti file ditambahkan untuk menghindari error saat akses di render
+  
   return proposal as ProposalWithDetails; 
 }
 
-// Komponen Pembantu untuk menampilkan detail
+
 const DetailItem = (label: string, value: string | undefined | null) => (
   <div>
     <p className="text-sm font-medium text-gray-500">{label}</p>
@@ -42,7 +42,7 @@ const DetailItem = (label: string, value: string | undefined | null) => (
   </div>
 );
 
-// Komponen Pembantu untuk menampilkan file
+
 const FileItem = (label: string, url: string | null | undefined) => (
   <div className="flex items-center justify-between p-3 border rounded-lg bg-gray-50">
     <div className="flex items-center gap-3">
@@ -73,7 +73,7 @@ export default async function ProposalDetailPage({ params }: { params: { id: str
   const proposal = await getProposalDetail(proposalId);
 
   if (!proposal) {
-    // Pesan error jika tidak ditemukan
+    
     return (
       <main className="min-h-screen bg-gray-100 p-8 flex items-center justify-center">
         <div className="bg-white p-8 rounded-lg shadow-md text-center max-w-lg border border-red-300">
@@ -88,7 +88,7 @@ export default async function ProposalDetailPage({ params }: { params: { id: str
     );
   }
 
-  // Menentukan properti file (sesuaikan nama kolom di model Proposal Anda)
+ 
   const buktiSeminarUrl = (proposal as any)['lampiran_5xseminar'] ?? (proposal as any)['bukti_seminar_url'];
   const transkripUrl = (proposal as any)['transkrip'] ?? (proposal as any)['transkrip_url'];
 
@@ -103,7 +103,7 @@ export default async function ProposalDetailPage({ params }: { params: { id: str
 
       <div className="space-y-6">
         
-        {/* Box Informasi Mahasiswa */}
+        
         <div className="bg-white p-6 rounded-lg shadow-sm border">
           <h2 className="text-xl font-semibold mb-4 border-b pb-3">Informasi Mahasiswa</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
@@ -114,7 +114,7 @@ export default async function ProposalDetailPage({ params }: { params: { id: str
           </div>
         </div>
         
-        {/* Box Detail Pengajuan */}
+       
         <div className="bg-white p-6 rounded-lg shadow-sm border">
           <h2 className="text-xl font-semibold mb-4 border-b pb-3">Detail Proposal</h2>
           <div className="space-y-4 pt-4">
@@ -126,7 +126,7 @@ export default async function ProposalDetailPage({ params }: { params: { id: str
           </div>
         </div>
 
-        {/* Box Dokumen Persyaratan */}
+        
         <div className="bg-white p-6 rounded-lg shadow-sm border">
           <h2 className="text-xl font-semibold mb-4 border-b pb-3">Dokumen Persyaratan</h2>
           <div className="space-y-3 pt-4">
@@ -137,8 +137,7 @@ export default async function ProposalDetailPage({ params }: { params: { id: str
           </div>
         </div>
         
-        {/* Komponen Aksi (Client Component) */}
-        {/* Komponen ini akan menampilkan tombol aksi dan tombol kembali */}
+    
         <ProposalActionSempro proposal={proposal} />
         
       </div>

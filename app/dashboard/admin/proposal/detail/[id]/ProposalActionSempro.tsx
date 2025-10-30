@@ -1,4 +1,4 @@
-// app/dashboard/admin/proposal/detail/[id]/ProposalActionSempro.tsx
+
 "use client";
 
 import { useState } from 'react';
@@ -10,14 +10,14 @@ import withReactContent from 'sweetalert2-react-content';
 
 const MySwal = withReactContent(Swal);
 
-// Tipe data gabungan yang relevan dari Server Component
+
 type ProposalWithDetails = Proposal & {
     judul: Judul & {
         mahasiswa: Mahasiswa;
     };
 };
 
-// Pastikan komponen menerima props proposal
+
 export default function ProposalActionSempro({ proposal }: { proposal: ProposalWithDetails }) {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
@@ -26,7 +26,7 @@ export default function ProposalActionSempro({ proposal }: { proposal: ProposalW
         let catatanAdmin = '';
 
         if (action === 'REJECT') {
-            // Tampilkan modal SweetAlert untuk Catatan Penolakan
+            
             const { value: rejectCatatan } = await MySwal.fire({
                 title: "Tolak Pengajuan Proposal",
                 input: "textarea",
@@ -43,10 +43,10 @@ export default function ProposalActionSempro({ proposal }: { proposal: ProposalW
                     }
                 }
             });
-            if (!rejectCatatan) return; // Batal jika user tidak mengisi atau menekan Batal
+            if (!rejectCatatan) return; 
             catatanAdmin = rejectCatatan;
             
-        } else { // APPROVE action
+        } else { 
             const result = await MySwal.fire({
                 title: "Setujui Pengajuan Proposal?",
                 text: "Anda yakin data dan dokumen proposal ini sudah lengkap?",
@@ -59,7 +59,7 @@ export default function ProposalActionSempro({ proposal }: { proposal: ProposalW
             if (!result.isConfirmed) return;
         }
 
-        // Lanjutkan proses API
+       
         setIsLoading(true);
         try {
             const response = await fetch(`/api/proposal/status/${proposal.id}`, { 
@@ -67,7 +67,7 @@ export default function ProposalActionSempro({ proposal }: { proposal: ProposalW
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     action: action,
-                    catatan: catatanAdmin || undefined, // Kirim catatan jika REJECT
+                    catatan: catatanAdmin || undefined, 
                 }),
             });
 
@@ -83,9 +83,9 @@ export default function ProposalActionSempro({ proposal }: { proposal: ProposalW
                 showConfirmButton: false
             });
 
-            // Redirect ke halaman list proposal jurusan terkait
+            
             setTimeout(() => {
-                router.push(`/dashboard/admin/sempro/${proposal.judul.jurusan}`);
+                router.push(`/dashboard/admin/proposal/${proposal.judul.jurusan}`);
                 router.refresh(); 
             }, 1500);
 
@@ -97,7 +97,7 @@ export default function ProposalActionSempro({ proposal }: { proposal: ProposalW
         }
     };
     
-    // Tombol aksi hanya muncul jika status masih 'TERKIRIM'
+  
     if (proposal.status !== 'TERKIRIM') {
         return (
             <div className="mt-6 border-t pt-4">
@@ -111,9 +111,9 @@ export default function ProposalActionSempro({ proposal }: { proposal: ProposalW
                         </p>
                     )}
                 </div>
-                {/* Tombol kembali ke list setelah diproses */}
+                
                 <button
-                    onClick={() => router.push(`/dashboard/admin/sempro/${proposal.judul.jurusan}`)}
+                    onClick={() => router.push(`/dashboard/admin/proposal/${proposal.judul.jurusan}`)}
                     className="inline-flex items-center gap-2 mt-4 py-2 px-5 bg-gray-200 text-gray-800 rounded-md font-semibold hover:bg-gray-300 transition-colors"
                 >
                     <FiArrowLeft /> Kembali ke Daftar
@@ -123,18 +123,18 @@ export default function ProposalActionSempro({ proposal }: { proposal: ProposalW
     }
 
 
-    // Tampilan tombol Aksi (hanya jika status TERKIRIM)
+ 
     return (
         <div className="flex justify-between items-center gap-4 pt-6 mt-6 border-t">
-            {/* Tombol Kembali */}
+            
             <button
-                onClick={() => router.back()} // Menggunakan router.back()
+                onClick={() => router.back()} 
                 className="inline-flex items-center gap-2 py-2 px-5 bg-gray-200 text-gray-800 rounded-md font-semibold hover:bg-gray-300 transition-colors"
             >
                 <FiArrowLeft /> Kembali
             </button>
 
-            {/* Grup Tombol Aksi */}
+           
             <div className="flex items-center gap-4">
                 <button
                     onClick={() => handleAction('REJECT')}
