@@ -1,22 +1,26 @@
-// File: SeminarProposalForm.tsx
-
 "use client";
 
 import { useState } from 'react';
-// import { useRouter } from 'next/navigation'; // Mungkin tidak perlu
 import { FiUpload, FiSend, FiFileText } from 'react-icons/fi';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 
 const MySwal = withReactContent(Swal);
-
-// --- PERUBAHAN 1: Hapus prop 'isAlreadySubmitted' ---
-interface SeminarProposalFormProps {
-  judulId: number;
-  // isAlreadySubmitted: boolean; // Dihapus
+interface JudulData {
+  id: number;
+  topik: string;
+  judul: string;
+  pembimbing1: string | null; 
+  pembimbing2: string | null; 
 }
 
-// Tipe FilesState (tidak berubah)
+
+interface SeminarProposalFormProps {
+  judulId: number;
+  judulData: JudulData;
+ 
+}
+
 type FilesState = {
   proposal: File | null;
   persetujuan: File | null;
@@ -24,7 +28,7 @@ type FilesState = {
   transkrip: File | null;
 };
 
-// Komponen FileUploadBox (tidak berubah)
+// fungsi untuk mengklik upload pdf
 const FileUploadBox = ({ id, name, label, file, onChange }: {
     id: string;
     name: keyof FilesState;
@@ -58,8 +62,7 @@ const FileUploadBox = ({ id, name, label, file, onChange }: {
 );
 
 
-// --- PERUBAHAN 2: Hapus prop 'isAlreadySubmitted' dari parameter ---
-export default function SeminarProposalForm({ judulId }: SeminarProposalFormProps) {
+export default function SeminarProposalForm({ judulId, judulData }: SeminarProposalFormProps) {
   const initialFilesState: FilesState = {
     proposal: null,
     persetujuan: null,
@@ -69,7 +72,7 @@ export default function SeminarProposalForm({ judulId }: SeminarProposalFormProp
 
   const [files, setFiles] = useState<FilesState>(initialFilesState);
   const [isLoading, setIsLoading] = useState(false);
-  // const router = useRouter();
+
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, files: inputFiles } = e.target as HTMLInputElement & { name: keyof FilesState };
@@ -83,15 +86,7 @@ export default function SeminarProposalForm({ judulId }: SeminarProposalFormProp
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // --- PERUBAHAN 3: Hapus pengecekan 'isAlreadySubmitted' di awal ---
-    /*
-    if (isAlreadySubmitted) {
-      MySwal.fire({...});
-      return;
-    }
-    */
-
-    // Validasi kelengkapan form (tidak berubah)
+    // pengecekan apakah semua dokumen diupload
     if (!files.proposal || !files.persetujuan || !files.lampiran_5xseminar || !files.transkrip) {
       MySwal.fire({ icon: 'warning', title: 'Form Belum Lengkap', text: 'Harap lengkapi semua dokumen persyaratan.' });
       return;
@@ -107,6 +102,7 @@ export default function SeminarProposalForm({ judulId }: SeminarProposalFormProp
       }
     });
 
+// menyabungkan ke api
     try {
       const response = await fetch('/api/proposal', {
         method: 'POST',
@@ -115,14 +111,13 @@ export default function SeminarProposalForm({ judulId }: SeminarProposalFormProp
 
       const result = await response.json();
 
-      // Jika response TIDAK OK (termasuk jika proposal sudah ada)
+      // Jika response tidak ok maka gagal megirimkan data
       if (!response.ok) {
-        // --- PERUBAHAN 4: Lempar error agar ditangkap oleh catch ---
-        // Pesan error akan diambil dari response API
+
         throw new Error(result.message || `Gagal mengirim: Status ${response.status}`);
       }
 
-      // Jika response OK (berhasil submit)
+      // Jika response OK maka data berhasil submit
       await MySwal.fire({
         icon: 'success',
         title: 'Pendaftaran Terkirim!',
@@ -130,34 +125,70 @@ export default function SeminarProposalForm({ judulId }: SeminarProposalFormProp
         timer: 2000,
         showConfirmButton: false
       });
-      // Setelah sukses, bisa refresh atau redirect
-      // Contoh: window.location.reload();
-
+    
     } catch (error: any) {
-      // --- PERUBAHAN 5: Tampilkan alert error dari API ---
-      // Pesan error di sini akan berisi "Anda sudah mengajukan..." jika API mengembalikannya
       MySwal.fire({
-          icon: 'error', // Atau 'info' jika pesan error adalah "sudah diajukan"
+          icon: 'error',
           title: 'Gagal Mengirim',
-          text: error.message // Tampilkan pesan dari API
+          text: error.message 
       });
     } finally {
       setIsLoading(false);
     }
   };
 
-  // --- Render Form (Tidak ada perubahan di sini) ---
+  // tampilan form 
   return (
     <main className="min-h-screen bg-gray-100 p-4 sm:p-6 lg:p-8">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Pendaftaran Seminar Proposal</h1>
           <p className="text-gray-600 mt-1">Upload dokumen persyaratan untuk mendaftar seminar proposal.</p>
-           {/* Hapus pesan info di sini jika tidak diperlukan */}
-           {/* {isAlreadySubmitted && ( ... )} */}
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
+          {/* form informasi judul */}
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+            <h2 className="text-xl font-semibold text-gray-800 mb-6 border-b pb-3">Informasi Judul</h2>
+            <div className="space-y-6"> 
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Topik</label>
+                <div className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-800 font-medium">
+                  {judulData.topik || "Topik belum ditetapkan"}
+                </div>
+              </div>
+
+               <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Judul Skripsi</label>
+                <div className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 min-h-[100px] whitespace-pre-wrap text-gray-800">
+                  {judulData.judul || "Judul belum ditetapkan"}
+                </div>
+              </div>
+
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-dashed border-gray-300">
+                <div>
+                  <label className="block text-sm font-medium text-blue-700 mb-1">
+                    Pembimbing 1
+                  </label>
+                  <div className="w-full px-3 py-2 border border-blue-300 rounded-md shadow-sm bg-blue-50 text-blue-800 font-semibold">
+                    {judulData.pembimbing1 || "Belum Ditetapkan"}
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-blue-700 mb-1">
+                    Pembimbing 2
+                  </label>
+                  <div className="w-full px-3 py-2 border border-blue-300 rounded-md shadow-sm bg-blue-50 text-blue-800 font-semibold">
+                    {judulData.pembimbing2 || "Belum Ditetapkan"}
+                  </div>
+                </div>
+              </div>
+              
+            </div>
+
+          </div>
+
+
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <h2 className="text-xl font-semibold text-gray-800 mb-6 border-b pb-3">Dokumen Persyaratan</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
@@ -184,7 +215,6 @@ export default function SeminarProposalForm({ judulId }: SeminarProposalFormProp
           <div className="flex justify-end pt-4">
             <button
               type="submit"
-              // Tombol hanya disabled saat loading, tidak berdasarkan status submit
               disabled={isLoading}
               className="inline-flex items-center gap-2 py-2.5 px-6 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
