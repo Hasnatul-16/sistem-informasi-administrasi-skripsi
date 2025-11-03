@@ -8,7 +8,6 @@ export default function MahasiswaDashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    // SidebarProvider sudah membuat container flex-nya sendiri.
     <SidebarProvider>
         
        
@@ -16,7 +15,7 @@ export default function MahasiswaDashboardLayout({
 
         
         <SidebarInset>
-          <Header title="Dasbor Mahasiswa" />
+          <Header title="Dashboard Mahasiswa" />
           <main className="flex-1 p-4 sm:p-6">
             {children}
           </main>

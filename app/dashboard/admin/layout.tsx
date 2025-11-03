@@ -8,14 +8,13 @@ export default function AdminDashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    // SidebarProvider sudah membuat container flex-nya sendiri.
     <SidebarProvider>
        
         <AppSidebar role="admin" />
 
         
         <SidebarInset>
-          <Header  title="Dasbor admin" />
+          <Header  title="Dashboard Admin" />
           <main className="flex-1 p-4 sm:p-6 ">
             {children}
           </main>
