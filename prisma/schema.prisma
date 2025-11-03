@@ -1,5 +1,3 @@
-// File: prisma/schema.prisma
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,7 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// --- ENUM DIPERBARUI ---
 enum Role {
   MAHASISWA
   ADMIN
@@ -29,14 +26,13 @@ enum Jurusan {
   SISTEM_INFORMASI
 }
 
-// --- MODEL DIPERBARUI ---
 model User {
-  id        Int        @id @default(autoincrement())
-  nama      String?
-  email     String     @unique
-  password  String
-  role      Role
-  jurusan   Jurusan
+  id       Int     @id @default(autoincrement())
+  nama     String?
+  email    String  @unique
+  password String
+  role     Role
+  jurusan  Jurusan
 
   mahasiswa Mahasiswa?
 
@@ -75,45 +71,37 @@ model Judul {
   sk_tanggal         DateTime? @map("sk_tanggal")
   sk_number          String?   @map("sk_number")
 
-  // --- Kolom Pembimbing dikembalikan menjadi String ---
-  pembimbing1        String?   @map("pembimbing1")
-  pembimbing2        String?   @map("pembimbing2")
+  pembimbing1 String? @map("pembimbing1")
+  pembimbing2 String? @map("pembimbing2")
 
   mahasiswa Mahasiswa @relation(fields: [id_mahasiswa], references: [id])
 
-  proposal      Proposal?
+  proposal      Proposal[] 
   seminar_hasil SeminarHasil?
 
   @@map("judul")
 }
 
-// ===========================================
-// ==== PERUBAHAN UTAMA ADA DI MODEL INI ====
-// ===========================================
 model Proposal {
   id               Int       @id @default(autoincrement())
-  id_judul         Int       @unique @map("id_judul")
+  id_judul         Int       @map("id_judul") // hilangkan @unique agar bisa 1 judul punya banyak proposal
   tanggal          DateTime  @default(now())
-  proposal         String    // Path ke file draft proposal
-  persetujuan      String    // Path ke file persetujuan pembimbing
+  proposal         String 
+  persetujuan      String 
   status           Status
   jadwal_sidang    DateTime? @map("jadwal_sidang")
   sk_penguji       String?   @map("sk_penguji")
   undangan_penguji String?   @map("undangan_penguji")
   penguji          String?
 
-  // --- KOLOM BARU DITAMBAHKAN DI SINI ---
-  lampiran_5xseminar String?  // Path file bukti ikut seminar
-  catatan     String?  // Catatan revisi dari admin 
-  transkrip     String?   // Path file transkrip terbaru
+  lampiran_5xseminar String? 
+  catatan            String? 
+  transkrip          String? 
 
   judul Judul @relation(fields: [id_judul], references: [id])
 
   @@map("proposal")
 }
-// ===========================================
-// ====       AKHIR DARI PERUBAHAN          ====
-// ===========================================
 
 model SeminarHasil {
   id               Int       @id @default(autoincrement())
@@ -129,16 +117,14 @@ model SeminarHasil {
   sk_penguji       String?   @map("sk_penguji")
   undangan_penguji String?   @map("undangan_penguji")
 
-  // --- Kolom Penguji dikembalikan menjadi String ---
-  penguji1         String?   @map("penguji1")
-  penguji2         String?   @map("penguji2")
+  penguji1 String? @map("penguji1")
+  penguji2 String? @map("penguji2")
 
   judul Judul @relation(fields: [id_judul], references: [id])
 
   @@map("seminar_hasil")
 }
 
-// --- Model Dosen sekarang berdiri sendiri tanpa relasi balik ---
 model Dosen {
   id      Int     @id @default(autoincrement())
   nama    String?

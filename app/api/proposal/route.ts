@@ -1,5 +1,3 @@
-// app/api/proposal/route.ts
-
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
@@ -25,6 +23,7 @@ const saveFile = async (file: File, subfolder: string) => {
 };
 
 export async function POST(request: Request) {
+ 
   const session = await getServerSession(authOptions);
   if (!session || !session.user || session.user.role !== 'MAHASISWA') {
     return NextResponse.json({ message: 'Akses ditolak.' }, { status: 403 });
@@ -37,7 +36,6 @@ export async function POST(request: Request) {
 
     const proposalFile = formData.get('proposal') as File | null;
     const persetujuanFile = formData.get('persetujuan') as File | null;
-    // --- PERBAIKAN: Ambil file dengan nama baru dari FormData ---
     const buktiSeminarFile = formData.get('lampiran_5xseminar') as File | null;
     const transkripFile = formData.get('transkrip') as File | null;
 
@@ -46,26 +44,36 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: 'ID Judul tidak valid.' }, { status: 400 });
     }
 
-    // --- PERBAIKAN: Validasi file dengan nama baru ---
     if (!proposalFile || !persetujuanFile || !buktiSeminarFile || !transkripFile) {
       return NextResponse.json({ message: 'Semua dokumen persyaratan wajib diupload.' }, { status: 400 });
     }
 
-    // Validasi Judul & Mahasiswa (tidak berubah)
-    const judul = await prisma.judul.findUnique({ where: { id: judulId }, select: { status: true, id_mahasiswa: true }});
-    const mahasiswa = await prisma.mahasiswa.findUnique({ where: { id_user: session.user.id }, select: { id: true }});
+  
+    const judul = await prisma.judul.findUnique({ where: { id: judulId }, select: { status: true, id_mahasiswa: true } });
+    const mahasiswa = await prisma.mahasiswa.findUnique({ where: { id_user: session.user.id }, select: { id: true } });
     if (!judul || judul.status !== 'DISETUJUI' || judul.id_mahasiswa !== mahasiswa?.id) {
       return NextResponse.json({ message: 'Judul tidak ditemukan, belum disetujui, atau bukan milik Anda.' }, { status: 404 });
     }
-    const existingProposal = await prisma.proposal.findUnique({ where: { id_judul: judulId }});
-    if (existingProposal) {
-      return NextResponse.json({ message: 'Anda sudah pernah mendaftar seminar proposal untuk judul ini.' }, { status: 409 });
+
+    // Mencari Proposal yang statusnya BUKAN DITOLAK_ADMIN
+    const activeProposal = await prisma.proposal.findFirst({
+      where: {
+        id_judul: judulId,
+        status: {
+          not: Status.DITOLAK_ADMIN
+        }
+      }
+    });
+
+
+    if (activeProposal) {
+      return NextResponse.json({
+        message: 'Anda masih memiliki pengajuan Seminar Proposal yang sedang diproses atau telah disetujui untuk judul ini.'
+      }, { status: 409 });
     }
 
-    // Simpan file (tidak berubah, hanya pastikan subfolder benar)
     const proposalPath = await saveFile(proposalFile, 'proposals');
     const persetujuanPath = await saveFile(persetujuanFile, 'persetujuan');
-    // --- PERBAIKAN: Gunakan nama field baru untuk subfolder (opsional tapi lebih rapi) ---
     const buktiSeminarPath = await saveFile(buktiSeminarFile, 'lampiran_seminar');
     const transkripPath = await saveFile(transkripFile, 'transkrip_proposal');
 
@@ -75,11 +83,9 @@ export async function POST(request: Request) {
         id_judul: judulId,
         proposal: proposalPath,
         persetujuan: persetujuanPath,
-        status: Status.TERKIRIM,
-        // --- PERBAIKAN: Simpan ke kolom database yang baru ---
+        status: Status.TERKIRIM, 
         lampiran_5xseminar: buktiSeminarPath,
         transkrip: transkripPath,
-        // 'catatan' tidak perlu diisi saat mahasiswa submit
       },
     });
 
