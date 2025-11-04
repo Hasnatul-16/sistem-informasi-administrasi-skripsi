@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { FiUpload, FiSend, FiFileText } from 'react-icons/fi';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
+import { useRouter } from 'next/navigation';
 
 const MySwal = withReactContent(Swal);
 interface JudulData {
@@ -72,6 +73,7 @@ export default function SeminarProposalForm({ judulId, judulData }: SeminarPropo
 
   const [files, setFiles] = useState<FilesState>(initialFilesState);
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -125,6 +127,7 @@ export default function SeminarProposalForm({ judulId, judulData }: SeminarPropo
         timer: 2000,
         showConfirmButton: false
       });
+       router.push('/dashboard');
     
     } catch (error: any) {
       MySwal.fire({
@@ -147,7 +150,6 @@ export default function SeminarProposalForm({ judulId, judulData }: SeminarPropo
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
-          {/* form informasi judul */}
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <h2 className="text-xl font-semibold text-gray-800 mb-6 border-b pb-3">Informasi Judul</h2>
             <div className="space-y-6"> 
@@ -192,7 +194,6 @@ export default function SeminarProposalForm({ judulId, judulData }: SeminarPropo
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <h2 className="text-xl font-semibold text-gray-800 mb-6 border-b pb-3">Dokumen Persyaratan</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
-              {/* FileUploadBox tidak berubah */}
               <FileUploadBox
                 id="proposal" name="proposal" label="Draft Proposal Skripsi"
                 file={files.proposal} onChange={handleFileChange}
