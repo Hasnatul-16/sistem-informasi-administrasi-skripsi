@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useMemo, useCallback, useEffect } from 'react'; 
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import type { Proposal, Judul, Mahasiswa, User, Dosen, Status } from '@prisma/client';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 
-import { FiX, FiCheckCircle, FiCalendar, FiUser, FiBook, FiUsers, FiHash, FiFilter, FiSearch } from 'react-icons/fi';
+import { FiX, FiCheckCircle, FiCalendar, FiUser, FiBook, FiUsers, FiHash, FiFilter, FiSearch, FiEdit, FiFile, FiSave } from 'react-icons/fi';
 
 const MySwal = withReactContent(Swal);
 
@@ -23,11 +23,11 @@ interface KaprodiProposalTableProps {
 
 
 const StatusBadge = ({ status }: { status: Status }) => {
-  
+
     const statusConfig: { [key in Status]?: { text: string; color: string } } = {
-        DIPROSES_KAPRODI: { text: "Perlu Diproses Kaprodi", color: "bg-purple-100 text-purple-800" },
+        DIPROSES_KAPRODI: { text: "Belum Ditetapkan", color: "bg-purple-100 text-purple-800" },
         DISETUJUI: { text: "Penguji Ditetapkan", color: "bg-green-100 text-green-800" },
-        DITOLAK_ADMIN: { text: "Ditolak Admin", color: "bg-red-100 text-red-800" },
+        
     };
     const config = statusConfig[status] || { text: status.replace('_', ' '), color: "bg-gray-100 text-gray-800" };
 
@@ -38,12 +38,38 @@ const StatusBadge = ({ status }: { status: Status }) => {
     );
 };
 
+// --- START: FUNGSI HELPER BARU UNTUK KONVERSI WAKTU LOKAL (SOLUSI) ---
+/**
+ * Mengubah string tanggal (UTC) dari database menjadi format YYYY-MM-DDTHH:MM
+ * yang diperlukan oleh input datetime-local, menggunakan waktu lokal browser.
+ * Contoh: '2025-11-05T03:00:00.000Z' (UTC) -> '2025-11-05T10:00' (WIB/Lokal)
+ */
+const formatDateToLocalInput = (dateString: string | Date): string => {
+    if (!dateString) return '';
+    
+    // Buat objek Date. Ini akan menginterpretasikan string UTC dengan benar
+    // dan secara internal menyimpan waktu dalam representasi lokal browser.
+    const date = new Date(dateString);
+
+    // Ambil komponen waktu lokal
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+
+    // Gabungkan menjadi format YYYY-MM-DDTHH:MM (Lokal)
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+};
+// --- END: FUNGSI HELPER BARU ---
+
+
 export default function KaprodiProposalTable({ initialProposals, lecturers }: KaprodiProposalTableProps) {
     const [proposals, setProposals] = useState(initialProposals ?? []);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedProposal, setSelectedProposal] = useState<ProposalWithDetails | null>(null);
 
-  
+
     const [actionData, setActionData] = useState({
         penguji: '',
         jadwalSidang: '',
@@ -51,11 +77,11 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
 
     const [isLoading, setIsLoading] = useState(false);
 
-  
+
     const today = new Date();
-    const thirtyDaysAgo = new Date(); 
+    const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(today.getDate() - 30);
-    
+
     const [dateInputs, setDateInputs] = useState({
         startDate: thirtyDaysAgo.toISOString().split('T')[0],
         endDate: today.toISOString().split('T')[0],
@@ -79,27 +105,27 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
     const applyFilter = () => {
         setAppliedFilters({ ...dateInputs, search: searchQuery });
     };
-    
-    
+
+
     useEffect(() => {
         setProposals(initialProposals ?? []);
     }, [initialProposals]);
 
 
-    
+
     useEffect(() => {
         const start = new Date(appliedFilters.startDate);
         start.setHours(0, 0, 0, 0);
         const end = new Date(appliedFilters.endDate);
         end.setHours(23, 59, 59, 999);
         const searchLower = appliedFilters.search.toLowerCase();
-        
+
         const filtered = proposals.filter(p => {
-           
+
             const proposalDate = new Date(p.tanggal);
             const dateMatch = proposalDate >= start && proposalDate <= end;
 
-         
+
             const searchMatch = (
                 p.judul.mahasiswa.nama.toLowerCase().includes(searchLower) ||
                 p.judul.mahasiswa.nim.toLowerCase().includes(searchLower) ||
@@ -109,10 +135,10 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
 
             return dateMatch && searchMatch;
         });
-        
+
         setDisplayData(filtered);
     }, [proposals, appliedFilters]);
-  
+
 
 
     const resetActionData = useCallback(() => {
@@ -128,11 +154,20 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
         resetActionData();
     }, [resetActionData]);
 
+    // Diperbarui untuk mengisi data edit jika ada dengan konversi waktu lokal
     const openModal = (proposal: ProposalWithDetails) => {
         setSelectedProposal(proposal);
+
+        let initialJadwal = '';
+        
+        if (proposal.jadwal_sidang) {
+            // 👇 MENGGUNAKAN FUNGSI HELPER BARU UNTUK MENGAMBIL WAKTU LOKAL
+            initialJadwal = formatDateToLocalInput(proposal.jadwal_sidang); 
+        }
+
         setActionData({
             penguji: proposal.penguji || '',
-            jadwalSidang: proposal.jadwal_sidang ? new Date(proposal.jadwal_sidang).toISOString().slice(0, 16) : '',
+            jadwalSidang: initialJadwal,
         });
         setIsModalOpen(true);
     };
@@ -142,46 +177,56 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
     }
 
     const handleAssign = useCallback(async () => {
-        
+
         if (!selectedProposal || !actionData.penguji || !actionData.jadwalSidang) {
             MySwal.fire({ icon: 'warning', title: 'Belum Lengkap', text: 'Harap lengkapi Dosen Penguji dan Jadwal Sidang.' });
             return;
         }
 
         setIsLoading(true);
+
+        // Tentukan status baru. Jika ini adalah EDIT (status sudah DISETUJUI), status tidak perlu diubah.
+        // Jika ini adalah PENETAPAN (status DIPROSES_KAPRODI), status harus diubah menjadi DISETUJUI.
+        const newStatus = selectedProposal.status === 'DIPROSES_KAPRODI' ? 'DISETUJUI' : selectedProposal.status;
+        const actionTitle = selectedProposal.status === 'DIPROSES_KAPRODI' ? 'Penetapan' : 'Pembaruan';
+
+
         try {
+            // Catatan: actionData.jadwalSidang adalah string lokal (YYYY-MM-DDTHH:MM)
+            // KITA HARUS MENGUBAHNYA MENJADI ISO STRING (UTC) KETIKA DIKIRIM KE DATABASE/SERVER
+            const localDate = new Date(actionData.jadwalSidang);
+            const isoStringForDB = localDate.toISOString(); 
+
             const response = await fetch(`/api/proposal/kaprodi/${selectedProposal.id}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     penguji: actionData.penguji,
-                    jadwalSidang: new Date(actionData.jadwalSidang).toISOString(),
-                    
-                    sk_penguji: null, 
-                    status: 'DISETUJUI'
+                    jadwalSidang: isoStringForDB, // Mengirimkan dalam format ISO (UTC) ke server
+                    // Kita tidak perlu mengatur sk_penguji di sini, biarkan null atau diurus di endpoint
+                    status: newStatus // Menggunakan status yang sudah disesuaikan
                 }),
             });
 
             if (!response.ok) {
                 const errorResponse = await response.json();
-                throw new Error(errorResponse?.message || 'Gagal menyimpan data');
+                throw new Error(errorResponse?.message || `Gagal ${actionTitle.toLowerCase()} data`);
             }
             const updated = await response.json();
 
             MySwal.fire({
                 icon: 'success',
                 title: 'Berhasil!',
-                text: 'Penguji dan Jadwal berhasil ditetapkan.',
+                text: `${actionTitle} Penguji dan Jadwal berhasil.`,
                 timer: 2000,
                 showConfirmButton: false
             });
 
+            // Memperbarui state proposals dan displayData
             setProposals(prev =>
                 prev.map(p => p.id === updated.id ? { ...p, ...updated } : p)
             );
-            
-          
-            setDisplayData(prev => 
+            setDisplayData(prev =>
                 prev.map(p => p.id === updated.id ? { ...p, ...updated } : p)
             );
 
@@ -196,7 +241,8 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
 
     return (
         <>
-         
+
+            {/* Bagian Filter dan Search (TIDAK BERUBAH) */}
             <div className="bg-gradient-to-r from-blue-600 to-cyan-500 p-4 rounded-lg shadow-md flex items-center justify-between gap-4 mb-6">
                 <div className="flex items-center gap-4">
                     <div>
@@ -212,13 +258,13 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
                             onClick={applyFilter}
                             className="bg-white text-blue-600 font-bold py-2 px-4 rounded-md hover:bg-gray-100 transition-colors flex items-center gap-2"
                         >
-                            <FiFilter size={16}/> Terapkan Filter
+                            <FiFilter size={16} /> Terapkan Filter
                         </button>
                     </div>
                 </div>
                 <div className="self-end relative">
-                    <input 
-                        type="text" 
+                    <input
+                        type="text"
                         placeholder="Cari berdasarkan nama, NIM, atau judul..."
                         value={searchQuery}
                         onChange={handleSearchChange}
@@ -229,10 +275,10 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
                         }}
                         className="w-64 mt-1 p-2 pl-10 border border-white/30 rounded-md bg-white/20 text-white placeholder-white/70 focus:ring-2 focus:ring-white/50 focus:bg-white focus:text-gray-800 transition-all"
                     />
-                    <FiSearch size={16} className="absolute left-3 top-1/2 -translate-y-1/2 mt-0.5 text-white/70 focus:text-blue-600"/>
+                    <FiSearch size={16} className="absolute left-3 top-1/2 -translate-y-1/2 mt-0.5 text-white/70 focus:text-blue-600" />
                 </div>
             </div>
-            
+
 
 
             <div className="overflow-x-auto bg-white rounded-lg shadow-md border">
@@ -273,8 +319,15 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
                                     </td>
                                     <td className="px-6 py-4">
                                         {p.status === 'DIPROSES_KAPRODI' ? (
-                                            <button onClick={() => openModal(p)} className="px-3 py-1.5 text-sm bg-blue-600 text-white font-semibold rounded-md shadow-sm hover:bg-blue-700">
-                                                Tetapkan
+                                            <button onClick={() => openModal(p)} className="text-blue-600 hover:text-blue-800 text-sm font-semibold flex items-center gap-1 transition-colors">
+                                                <FiSave size={14} /> Tetapkan
+                                            </button>
+                                        ) : p.status === 'DISETUJUI' ? ( // JIKA SUDAH DISETUJUI, TAMPILKAN LINK EDIT
+                                            <button
+                                                onClick={() => openModal(p)}
+                                                className="text-green-600 hover:text-green-800 text-sm font-semibold flex items-center gap-1 transition-colors"
+                                            >
+                                                <FiEdit size={14} /> Edit 
                                             </button>
                                         ) : (
                                             <StatusBadge status={p.status} />
@@ -288,24 +341,32 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
             </div>
 
 
-           
+
+            {/* Modal (TIDAK BERUBAH STRUKTUR) */}
             {isModalOpen && selectedProposal && (
                 <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm flex justify-center items-center z-50 p-4">
                     <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-4xl animate-fade-in-scale">
                         <div className="flex justify-between items-start mb-4 pb-4 border-b">
                             <div>
-                                <h2 className="text-xl font-bold text-gray-800">Tetapkan Penguji & Jadwal Sidang Proposal</h2>
-                                <p className="text-sm text-gray-500 mt-1">Review detail pengajuan dan pembimbing yang sudah ditetapkan sebelum menetapkan penguji.</p>
+                                <h2 className="text-xl font-bold text-gray-800">
+                                    {selectedProposal.status === 'DISETUJUI' ? 'Edit' : 'Tetapkan'} Penguji & Jadwal Sidang Proposal
+                                </h2>
+                                <p className="text-sm text-gray-500 mt-1">
+                                    {selectedProposal.status === 'DISETUJUI' ?
+                                        'Perbarui Penguji atau Jadwal Sidang yang sudah ditetapkan.' :
+                                        'Review detail pengajuan dan pembimbing yang sudah ditetapkan sebelum menetapkan penguji.'
+                                    }
+                                </p>
                             </div>
                             <button onClick={closeModal} className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full">
                                 <FiX size={20} />
                             </button>
                         </div>
 
-                    
+
                         <h3 className="text-lg font-semibold text-gray-700 mb-3">Detail Pengajuan</h3>
 
-                        
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 pb-4 border-b">
                             <div className='space-y-2'>
                                 <div>
@@ -330,13 +391,13 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
                             </div>
                         </div>
 
-                     
+
                         <div className="bg-slate-50 p-4 rounded-lg border mt-4 mb-6">
                             <p className="text-xs text-gray-500 mb-1">Judul Skripsi</p>
                             <p className="font-semibold text-base leading-snug">{selectedProposal.judul.judul}</p>
                         </div>
 
-                    
+
                         <div className="mb-6 pb-4 border-b border-gray-200">
                             <h3 className="text-lg font-semibold text-gray-700 mb-3">Dosen Pembimbing yang Sudah Ditetapkan</h3>
                             <div className='p-4 bg-blue-50 rounded-lg border border-blue-200 grid grid-cols-1 md:grid-cols-2 gap-4'>
@@ -348,15 +409,15 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
                                     <p className="text-sm font-medium text-gray-700 mb-1">Pembimbing Pendamping (2)</p>
                                     <p className="font-semibold text-blue-700 text-base">{selectedProposal.judul.pembimbing2 || 'Belum Ditetapkan'}</p>
                                 </div>
-                                
+
                             </div>
                         </div>
 
-                       
+
                         <div className='mb-6'>
-                            <h3 className="text-lg font-semibold text-green-600 mb-3">Penetapan Penguji & Jadwal Sidang Proposal</h3>
+                            <h3 className="text-lg font-semibold text-green-600 mb-3">Penetapan/Pengeditan Penguji & Jadwal Sidang Proposal</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                
+
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Pilih Dosen Penguji (1 Orang)</label>
                                     <select
@@ -371,7 +432,7 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
                                     </select>
                                 </div>
 
-                              
+
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Tanggal & Waktu Sidang</label>
                                     <input
@@ -386,11 +447,11 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
                             </div>
                         </div>
 
-                       
+
                         <div className="mt-8 flex justify-end space-x-3 border-t pt-4">
                             <button onClick={closeModal} className="px-4 py-2 bg-gray-100 text-gray-700 font-semibold rounded-md hover:bg-gray-200 transition-colors text-sm">Batal</button>
                             <button onClick={handleAssign} disabled={isLoading} className="px-4 py-2 bg-green-600 text-white font-semibold rounded-md shadow-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm">
-                                {isLoading ? 'Menyimpan...' : 'Simpan & Tetapkan Jadwal'}
+                                {isLoading ? 'Menyimpan...' : (selectedProposal.status === 'DISETUJUI' ? 'Simpan Perubahan' : 'Simpan & Tetapkan Jadwal')}
                             </button>
                         </div>
                     </div>
