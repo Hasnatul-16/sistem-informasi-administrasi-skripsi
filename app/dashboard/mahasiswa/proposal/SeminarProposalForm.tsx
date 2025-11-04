@@ -74,6 +74,16 @@ export default function SeminarProposalForm({ judulId, judulData }: SeminarPropo
   const [files, setFiles] = useState<FilesState>(initialFilesState);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  // untuk update judul
+  const [judulForm, setJudulForm] = useState({
+    topik: judulData.topik,
+    judul: judulData.judul,
+  });
+
+  const handleJudulChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setJudulForm(prev => ({ ...prev, [name]: value }));
+  };
 
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -97,6 +107,9 @@ export default function SeminarProposalForm({ judulId, judulData }: SeminarPropo
     setIsLoading(true);
     const formData = new FormData();
     formData.append('id_judul', judulId.toString());
+    formData.append('topik_baru', judulForm.topik);
+    formData.append('judul_baru', judulForm.judul);
+
 
     Object.entries(files).forEach(([key, value]) => {
       if (value) {
@@ -153,19 +166,36 @@ export default function SeminarProposalForm({ judulId, judulData }: SeminarPropo
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <h2 className="text-xl font-semibold text-gray-800 mb-6 border-b pb-3">Informasi Judul</h2>
             <div className="space-y-6"> 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Topik</label>
-                <div className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-800 font-medium">
-                  {judulData.topik || "Topik belum ditetapkan"}
-                </div>
+
+               <div>
+                <label htmlFor="topik" className="block text-sm font-medium text-gray-700 mb-1">Topik <span className="text-red-500">*</span></label>
+                <input
+                  id="topik"
+                  name="topik"
+                  type="text"
+                  value={judulForm.topik}
+                  onChange={handleJudulChange}
+                  placeholder="Masukkan topik skripsi"
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-gray-800 font-medium"
+                />
               </div>
 
                <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Judul Skripsi</label>
-                <div className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 min-h-[100px] whitespace-pre-wrap text-gray-800">
-                  {judulData.judul || "Judul belum ditetapkan"}
-                </div>
+                <label htmlFor="judul" className="block text-sm font-medium text-gray-700 mb-1">Judul Skripsi <span className="text-red-500">*</span></label>
+                <textarea
+                  id="judul"
+                  name="judul"
+                  rows={4}
+                  value={judulForm.judul}
+                  onChange={handleJudulChange}
+                  placeholder="Masukkan judul skripsi"
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 min-h-[100px] text-gray-800"
+                />
               </div>
+              <div className="block text-sm font-small text-gray-500 mb-5 ">Note: Jika ada Perubahan judul setalah anda melakukan bimbingan ,mohon untuk menginputkan ulang judul atau topik  pada kolom di atas </div>
+
 
                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-dashed border-gray-300">
                 <div>

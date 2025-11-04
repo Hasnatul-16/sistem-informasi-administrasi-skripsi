@@ -34,6 +34,9 @@ export async function POST(request: Request) {
     const judulIdString = formData.get('id_judul') as string;
     const judulId = parseInt(judulIdString, 10);
 
+    const newTopik = formData.get('topik_baru') as string | null;
+    const newJudul = formData.get('judul_baru') as string | null;
+
     const proposalFile = formData.get('proposal') as File | null;
     const persetujuanFile = formData.get('persetujuan') as File | null;
     const buktiSeminarFile = formData.get('lampiran_5xseminar') as File | null;
@@ -42,6 +45,10 @@ export async function POST(request: Request) {
 
     if (isNaN(judulId)) {
       return NextResponse.json({ message: 'ID Judul tidak valid.' }, { status: 400 });
+    }
+      // Validasi data Judul/Topik baru
+    if (!newTopik || !newJudul || newTopik.trim() === '' || newJudul.trim() === '') {
+      return NextResponse.json({ message: 'Topik dan Judul Skripsi wajib diisi.' }, { status: 400 });
     }
 
     if (!proposalFile || !persetujuanFile || !buktiSeminarFile || !transkripFile) {
@@ -54,6 +61,16 @@ export async function POST(request: Request) {
     if (!judul || judul.status !== 'DISETUJUI' || judul.id_mahasiswa !== mahasiswa?.id) {
       return NextResponse.json({ message: 'Judul tidak ditemukan, belum disetujui, atau bukan milik Anda.' }, { status: 404 });
     }
+
+    //  Update data Judul di database 
+    await prisma.judul.update({
+      where: { id: judulId },
+      data: {
+        topik: newTopik.trim(), 
+        judul: newJudul.trim(), 
+        
+      },
+    });
 
     // Mencari Proposal yang statusnya BUKAN DITOLAK_ADMIN
     const activeProposal = await prisma.proposal.findFirst({
