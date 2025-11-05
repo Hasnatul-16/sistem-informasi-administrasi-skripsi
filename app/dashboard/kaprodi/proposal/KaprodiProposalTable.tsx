@@ -38,30 +38,21 @@ const StatusBadge = ({ status }: { status: Status }) => {
     );
 };
 
-// --- START: FUNGSI HELPER BARU UNTUK KONVERSI WAKTU LOKAL (SOLUSI) ---
-/**
- * Mengubah string tanggal (UTC) dari database menjadi format YYYY-MM-DDTHH:MM
- * yang diperlukan oleh input datetime-local, menggunakan waktu lokal browser.
- * Contoh: '2025-11-05T03:00:00.000Z' (UTC) -> '2025-11-05T10:00' (WIB/Lokal)
- */
+
 const formatDateToLocalInput = (dateString: string | Date): string => {
     if (!dateString) return '';
     
-    // Buat objek Date. Ini akan menginterpretasikan string UTC dengan benar
-    // dan secara internal menyimpan waktu dalam representasi lokal browser.
+
     const date = new Date(dateString);
 
-    // Ambil komponen waktu lokal
     const year = date.getFullYear();
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const day = date.getDate().toString().padStart(2, '0');
     const hours = date.getHours().toString().padStart(2, '0');
     const minutes = date.getMinutes().toString().padStart(2, '0');
 
-    // Gabungkan menjadi format YYYY-MM-DDTHH:MM (Lokal)
     return `${year}-${month}-${day}T${hours}:${minutes}`;
 };
-// --- END: FUNGSI HELPER BARU ---
 
 
 export default function KaprodiProposalTable({ initialProposals, lecturers }: KaprodiProposalTableProps) {
@@ -154,14 +145,12 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
         resetActionData();
     }, [resetActionData]);
 
-    // Diperbarui untuk mengisi data edit jika ada dengan konversi waktu lokal
     const openModal = (proposal: ProposalWithDetails) => {
         setSelectedProposal(proposal);
 
         let initialJadwal = '';
         
         if (proposal.jadwal_sidang) {
-            // 👇 MENGGUNAKAN FUNGSI HELPER BARU UNTUK MENGAMBIL WAKTU LOKAL
             initialJadwal = formatDateToLocalInput(proposal.jadwal_sidang); 
         }
 
@@ -185,15 +174,11 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
 
         setIsLoading(true);
 
-        // Tentukan status baru. Jika ini adalah EDIT (status sudah DISETUJUI), status tidak perlu diubah.
-        // Jika ini adalah PENETAPAN (status DIPROSES_KAPRODI), status harus diubah menjadi DISETUJUI.
         const newStatus = selectedProposal.status === 'DIPROSES_KAPRODI' ? 'DISETUJUI' : selectedProposal.status;
         const actionTitle = selectedProposal.status === 'DIPROSES_KAPRODI' ? 'Penetapan' : 'Pembaruan';
 
 
         try {
-            // Catatan: actionData.jadwalSidang adalah string lokal (YYYY-MM-DDTHH:MM)
-            // KITA HARUS MENGUBAHNYA MENJADI ISO STRING (UTC) KETIKA DIKIRIM KE DATABASE/SERVER
             const localDate = new Date(actionData.jadwalSidang);
             const isoStringForDB = localDate.toISOString(); 
 
@@ -202,9 +187,8 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     penguji: actionData.penguji,
-                    jadwalSidang: isoStringForDB, // Mengirimkan dalam format ISO (UTC) ke server
-                    // Kita tidak perlu mengatur sk_penguji di sini, biarkan null atau diurus di endpoint
-                    status: newStatus // Menggunakan status yang sudah disesuaikan
+                    jadwalSidang: isoStringForDB, 
+                    status: newStatus 
                 }),
             });
 
@@ -222,7 +206,7 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
                 showConfirmButton: false
             });
 
-            // Memperbarui state proposals dan displayData
+          
             setProposals(prev =>
                 prev.map(p => p.id === updated.id ? { ...p, ...updated } : p)
             );
@@ -242,7 +226,7 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
     return (
         <>
 
-            {/* Bagian Filter dan Search (TIDAK BERUBAH) */}
+           
             <div className="bg-gradient-to-r from-blue-600 to-cyan-500 p-4 rounded-lg shadow-md flex items-center justify-between gap-4 mb-6">
                 <div className="flex items-center gap-4">
                     <div>
@@ -322,7 +306,7 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
                                             <button onClick={() => openModal(p)} className="text-blue-600 hover:text-blue-800 text-sm font-semibold flex items-center gap-1 transition-colors">
                                                 <FiSave size={14} /> Tetapkan
                                             </button>
-                                        ) : p.status === 'DISETUJUI' ? ( // JIKA SUDAH DISETUJUI, TAMPILKAN LINK EDIT
+                                        ) : p.status === 'DISETUJUI' ? ( 
                                             <button
                                                 onClick={() => openModal(p)}
                                                 className="text-green-600 hover:text-green-800 text-sm font-semibold flex items-center gap-1 transition-colors"
@@ -341,8 +325,6 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
             </div>
 
 
-
-            {/* Modal (TIDAK BERUBAH STRUKTUR) */}
             {isModalOpen && selectedProposal && (
                 <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm flex justify-center items-center z-50 p-4">
                     <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-4xl animate-fade-in-scale">

@@ -92,11 +92,6 @@ export default function ProposalVerificationClientPage({ initialProposals, jurus
                     </select>
                 </div>
                 
-                <div className="self-end pt-5">
-                    <button className="bg-white text-blue-600 font-bold py-2 px-4 rounded-md hover:bg-gray-100 transition-colors flex items-center gap-2">
-                        <FiFilter/> Filter
-                    </button>
-                </div>
             </div>
 
           
