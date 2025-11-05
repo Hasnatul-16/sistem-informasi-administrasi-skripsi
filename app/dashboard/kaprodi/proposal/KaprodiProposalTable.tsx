@@ -9,7 +9,6 @@ import { FiX, FiCheckCircle, FiCalendar, FiUser, FiBook, FiUsers, FiHash, FiFilt
 
 const MySwal = withReactContent(Swal);
 
-
 type ProposalWithDetails = Proposal & {
     judul: Judul & {
         mahasiswa: Mahasiswa & { user: User };
@@ -21,13 +20,10 @@ interface KaprodiProposalTableProps {
     lecturers: Dosen[];
 }
 
-
 const StatusBadge = ({ status }: { status: Status }) => {
-
     const statusConfig: { [key in Status]?: { text: string; color: string } } = {
         DIPROSES_KAPRODI: { text: "Belum Ditetapkan", color: "bg-purple-100 text-purple-800" },
         DISETUJUI: { text: "Penguji Ditetapkan", color: "bg-green-100 text-green-800" },
-        
     };
     const config = statusConfig[status] || { text: status.replace('_', ' '), color: "bg-gray-100 text-gray-800" };
 
@@ -38,11 +34,9 @@ const StatusBadge = ({ status }: { status: Status }) => {
     );
 };
 
-
 const formatDateToLocalInput = (dateString: string | Date): string => {
     if (!dateString) return '';
     
-
     const date = new Date(dateString);
 
     const year = date.getFullYear();
@@ -54,12 +48,10 @@ const formatDateToLocalInput = (dateString: string | Date): string => {
     return `${year}-${month}-${day}T${hours}:${minutes}`;
 };
 
-
 export default function KaprodiProposalTable({ initialProposals, lecturers }: KaprodiProposalTableProps) {
     const [proposals, setProposals] = useState(initialProposals ?? []);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedProposal, setSelectedProposal] = useState<ProposalWithDetails | null>(null);
-
 
     const [actionData, setActionData] = useState({
         penguji: '',
@@ -69,67 +61,49 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
     const [isLoading, setIsLoading] = useState(false);
 
 
-    const today = new Date();
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(today.getDate() - 30);
+    const currentMonth = new Date().getMonth() + 1;
+    const currentYear = new Date().getFullYear();
 
-    const [dateInputs, setDateInputs] = useState({
-        startDate: thirtyDaysAgo.toISOString().split('T')[0],
-        endDate: today.toISOString().split('T')[0],
+    const [filters, setFilters] = useState({
+        month: currentMonth,
+        year: currentYear,
     });
+
     const [searchQuery, setSearchQuery] = useState('');
-    const [appliedFilters, setAppliedFilters] = useState({
-        startDate: thirtyDaysAgo.toISOString().split('T')[0],
-        endDate: today.toISOString().split('T')[0],
-        search: ''
-    });
-    const [displayData, setDisplayData] = useState<ProposalWithDetails[]>([]);
 
-    const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setDateInputs(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    const monthOptions = Array.from({ length: 12 }, (_, i) => ({ value: i + 1, label: new Date(0, i).toLocaleString('id-ID', { month: 'long' }) }));
+    const yearOptions = [currentYear, currentYear - 1, currentYear - 2];
+
+    const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setFilters(prev => ({ ...prev, [e.target.name]: parseInt(e.target.value) }));
     };
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchQuery(e.target.value);
     };
 
-    const applyFilter = () => {
-        setAppliedFilters({ ...dateInputs, search: searchQuery });
-    };
-
-
     useEffect(() => {
         setProposals(initialProposals ?? []);
     }, [initialProposals]);
 
-
-
-    useEffect(() => {
-        const start = new Date(appliedFilters.startDate);
-        start.setHours(0, 0, 0, 0);
-        const end = new Date(appliedFilters.endDate);
-        end.setHours(23, 59, 59, 999);
-        const searchLower = appliedFilters.search.toLowerCase();
-
-        const filtered = proposals.filter(p => {
-
-            const proposalDate = new Date(p.tanggal);
-            const dateMatch = proposalDate >= start && proposalDate <= end;
-
-
-            const searchMatch = (
-                p.judul.mahasiswa.nama.toLowerCase().includes(searchLower) ||
-                p.judul.mahasiswa.nim.toLowerCase().includes(searchLower) ||
-                p.judul.judul.toLowerCase().includes(searchLower) ||
-                p.judul.topik.toLowerCase().includes(searchLower)
-            );
-
-            return dateMatch && searchMatch;
+    const displayData = useMemo(() => {
+        const dateFiltered = proposals.filter(p => {
+            const propDate = new Date(p.tanggal);
+            return propDate.getMonth() + 1 === filters.month && propDate.getFullYear() === filters.year;
         });
 
-        setDisplayData(filtered);
-    }, [proposals, appliedFilters]);
+        if (!searchQuery) {
+            return dateFiltered;
+        }
 
+        const searchLower = searchQuery.toLowerCase();
+        return dateFiltered.filter(p =>
+            p.judul.mahasiswa.nama.toLowerCase().includes(searchLower) ||
+            p.judul.mahasiswa.nim.toLowerCase().includes(searchLower) ||
+            p.judul.judul.toLowerCase().includes(searchLower) ||
+            p.judul.topik.toLowerCase().includes(searchLower) 
+        );
+    }, [proposals, filters, searchQuery]); 
 
 
     const resetActionData = useCallback(() => {
@@ -166,7 +140,6 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
     }
 
     const handleAssign = useCallback(async () => {
-
         if (!selectedProposal || !actionData.penguji || !actionData.jadwalSidang) {
             MySwal.fire({ icon: 'warning', title: 'Belum Lengkap', text: 'Harap lengkapi Dosen Penguji dan Jadwal Sidang.' });
             return;
@@ -176,7 +149,6 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
 
         const newStatus = selectedProposal.status === 'DIPROSES_KAPRODI' ? 'DISETUJUI' : selectedProposal.status;
         const actionTitle = selectedProposal.status === 'DIPROSES_KAPRODI' ? 'Penetapan' : 'Pembaruan';
-
 
         try {
             const localDate = new Date(actionData.jadwalSidang);
@@ -206,11 +178,7 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
                 showConfirmButton: false
             });
 
-          
             setProposals(prev =>
-                prev.map(p => p.id === updated.id ? { ...p, ...updated } : p)
-            );
-            setDisplayData(prev =>
                 prev.map(p => p.id === updated.id ? { ...p, ...updated } : p)
             );
 
@@ -226,43 +194,35 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
     return (
         <>
 
-           
-            <div className="bg-gradient-to-r from-blue-600 to-cyan-500 p-4 rounded-lg shadow-md flex items-center justify-between gap-4 mb-6">
+            <div className="bg-gradient-to-r from-blue-600 to-cyan-500 p-4 rounded-lg shadow-md flex flex-wrap items-center justify-between gap-4 mb-6">
                 <div className="flex items-center gap-4">
-                    <div>
-                        <label htmlFor="startDate" className="text-white font-semibold text-sm">Tanggal Mulai</label>
-                        <input type="date" id="startDate" name="startDate" value={dateInputs.startDate} onChange={handleDateChange} className="w-full mt-1 p-2 border border-white/30 rounded-md bg-white/20 text-white focus:ring-2 focus:ring-white/50" />
+                    <div className='flex flex-col'>
+                        <label htmlFor="month" className="text-white font-semibold text-sm">Bulan</label>
+                        <select id="month" name="month" value={filters.month} onChange={handleFilterChange}
+                            className="p-2 border border-white/30 rounded-md bg-white/20 text-white focus:ring-2 focus:ring-white/50 min-w-[120px]">
+                            {monthOptions.map(opt => <option key={opt.value} value={opt.value} className="text-black">{opt.label}</option>)}
+                        </select>
                     </div>
-                    <div>
-                        <label htmlFor="endDate" className="text-white font-semibold text-sm">Tanggal Akhir</label>
-                        <input type="date" id="endDate" name="endDate" value={dateInputs.endDate} onChange={handleDateChange} className="w-full mt-1 p-2 border border-white/30 rounded-md bg-white/20 text-white focus:ring-2 focus:ring-white/50" />
-                    </div>
-                    <div className="self-end">
-                        <button
-                            onClick={applyFilter}
-                            className="bg-white text-blue-600 font-bold py-2 px-4 rounded-md hover:bg-gray-100 transition-colors flex items-center gap-2"
-                        >
-                            <FiFilter size={16} /> Terapkan Filter
-                        </button>
+                    <div className='flex flex-col'>
+                        <label htmlFor="year" className="text-white font-semibold text-sm">Tahun</label>
+                        <select id="year" name="year" value={filters.year} onChange={handleFilterChange}
+                            className="p-2 border border-white/30 rounded-md bg-white/20 text-white focus:ring-2 focus:ring-white/50 min-w-[100px]">
+                            {yearOptions.map(year => <option key={year} value={year} className="text-black">{year}</option>)}
+                        </select>
                     </div>
                 </div>
-                <div className="self-end relative">
+
+                <div className="relative self-end">
                     <input
                         type="text"
-                        placeholder="Cari berdasarkan nama, NIM, atau judul..."
+                        placeholder="Cari berdasarkan nama, NIM, atau judul..." 
                         value={searchQuery}
                         onChange={handleSearchChange}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                                applyFilter();
-                            }
-                        }}
-                        className="w-64 mt-1 p-2 pl-10 border border-white/30 rounded-md bg-white/20 text-white placeholder-white/70 focus:ring-2 focus:ring-white/50 focus:bg-white focus:text-gray-800 transition-all"
+                        className="w-64 bg-white/30 text-white placeholder-white/70 rounded-full py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-white/50"
                     />
-                    <FiSearch size={16} className="absolute left-3 top-1/2 -translate-y-1/2 mt-0.5 text-white/70 focus:text-blue-600" />
+                    <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-white/70" />
                 </div>
             </div>
-
 
 
             <div className="overflow-x-auto bg-white rounded-lg shadow-md border">
