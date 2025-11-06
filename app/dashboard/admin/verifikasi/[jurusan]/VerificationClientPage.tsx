@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from 'react';
-import SubmissionTable from '../../SubmissionTable'; 
+import SubmissionTable from './SubmissionTable'; 
 import type { Judul, Mahasiswa, User } from '@prisma/client';
 import { FiFilter, FiSearch } from 'react-icons/fi';
 

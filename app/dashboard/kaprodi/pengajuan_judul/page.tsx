@@ -1,7 +1,7 @@
 // app/dashboard/kaprodi/pengajuan-judul/page.tsx
 
 import { PrismaClient, Jurusan } from '@prisma/client';
-import KaprodiSubmissionTable from '../KaprodiSubmissionTable'; 
+import KaprodiSubmissionTable from './KaprodiSubmissionTable'; 
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
