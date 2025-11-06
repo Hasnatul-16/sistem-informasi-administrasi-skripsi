@@ -10,7 +10,7 @@ const saveFile = async (file: File, subfolder: string) => {
   const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);
   const filename = `${Date.now()}_${file.name.replace(/\s/g, '_')}`;
-  const uploadDir = path.join(process.cwd(), 'public/uploads', subfolder);
+  const uploadDir = path.join(process.cwd(), 'public/uploads', 'proposal', subfolder);
   const filePath = path.join(uploadDir, filename);
   try {
     await mkdir(uploadDir, { recursive: true });
