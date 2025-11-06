@@ -27,12 +27,12 @@ enum Jurusan {
 }
 
 model User {
-  id       Int     @id @default(autoincrement())
-  nama     String?
-  email    String  @unique
-  password String
-  role     Role
-  jurusan  Jurusan
+  id        Int        @id @default(autoincrement())
+  nama      String?
+  email     String     @unique
+  password  String
+  role      Role
+  jurusan   Jurusan
 
   mahasiswa Mahasiswa?
 
@@ -40,96 +40,96 @@ model User {
 }
 
 model Mahasiswa {
-  id      Int     @id @default(autoincrement())
-  id_user Int     @unique @map("id_user")
-  nama    String
-  nim     String  @unique
-  jurusan Jurusan
+  id        Int     @id @default(autoincrement())
+  id_user   Int     @unique @map("id_user")
+  nama      String
+  nim       String  @unique
+  jurusan   Jurusan
 
-  user  User    @relation(fields: [id_user], references: [id])
-  judul Judul[]
+  user      User    @relation(fields: [id_user], references: [id])
+  judul     Judul[]
 
   @@map("mahasiswa")
 }
 
 model Judul {
-  id                 Int       @id @default(autoincrement())
-  id_mahasiswa       Int       @map("id_mahasiswa")
-  tanggal            DateTime  @default(now())
-  jurusan            Jurusan
-  topik              String
-  judul              String    @db.Text
-  status             Status    @default(TERKIRIM)
-  catatan            String?   @db.Text
-  transkrip          String?
-  ukt                String?
-  konsultasi         String?
-  usulan_pembimbing1 String    @map("usulan_pembimbing1")
-  usulan_pembimbing2 String    @map("usulan_pembimbing2")
-  usulan_pembimbing3 String?   @map("usulan_pembimbing3")
-  skPembimbing       String?   @map("sk_pembimbing")
-  sk_tanggal         DateTime? @map("sk_tanggal")
-  sk_number          String?   @map("sk_number")
+  id                   Int            @id @default(autoincrement())
+  id_mahasiswa         Int            @map("id_mahasiswa")
+  tanggal              DateTime       @default(now())
+  jurusan              Jurusan
+  topik                String
+  judul                String         @db.Text
+  status               Status         @default(TERKIRIM)
+  catatan              String?        @db.Text
+  transkrip            String?
+  ukt                  String?
+  konsultasi           String?
+  usulan_pembimbing1   String         @map("usulan_pembimbing1")
+  usulan_pembimbing2   String         @map("usulan_pembimbing2")
+  usulan_pembimbing3   String?        @map("usulan_pembimbing3")
+  skPembimbing         String?        @map("sk_pembimbing")
+  sk_tanggal           DateTime?      @map("sk_tanggal")
+  sk_number            String?        @map("sk_number")
 
-  pembimbing1 String? @map("pembimbing1")
-  pembimbing2 String? @map("pembimbing2")
+  pembimbing1          String?        @map("pembimbing1")
+  pembimbing2          String?        @map("pembimbing2")
 
-  mahasiswa Mahasiswa @relation(fields: [id_mahasiswa], references: [id])
-
-  proposal      Proposal[] 
-  seminar_hasil SeminarHasil?
+  mahasiswa            Mahasiswa      @relation(fields: [id_mahasiswa], references: [id])
+  proposal             Proposal[] 
+  seminar_hasil        SeminarHasil[] 
 
   @@map("judul")
 }
 
 model Proposal {
-  id               Int       @id @default(autoincrement())
-  id_judul         Int       @map("id_judul") // hilangkan @unique agar bisa 1 judul punya banyak proposal
-  tanggal          DateTime  @default(now())
-  proposal         String 
-  persetujuan      String 
-  status           Status
-  jadwal_sidang    DateTime? @map("jadwal_sidang")
-  sk_penguji       String?   @map("sk_penguji")
-  undangan_penguji String?   @map("undangan_penguji")
-  penguji          String?
+  id                   Int           @id @default(autoincrement())
+  id_judul             Int           @map("id_judul") 
+  tanggal              DateTime      @default(now())
+  proposal             String 
+  persetujuan          String 
+  status               Status
+  jadwal_sidang        DateTime?     @map("jadwal_sidang")
+  sk_penguji           String?       @map("sk_penguji")
+  undangan_penguji     String?       @map("undangan_penguji")
+  penguji              String?
 
-  lampiran_5xseminar String? 
-  catatan            String? 
-  transkrip          String? 
+  lampiran_5xseminar   String?       @map("lampiran_5xseminar") 
+  catatan              String?       @db.Text 
+  transkrip            String? 
 
-  judul Judul @relation(fields: [id_judul], references: [id])
+  judul                Judul         @relation(fields: [id_judul], references: [id])
 
   @@map("proposal")
 }
 
 model SeminarHasil {
-  id               Int       @id @default(autoincrement())
-  id_judul         Int       @unique @map("id_judul")
-  tanggal          DateTime  @default(now())
-  bukti_sempro     String    @map("bukti_sempro")
-  draf_skripsi     String    @map("draf_skripsi")
-  bukti_konsultasi String    @map("bukti_konsultasi")
-  sertifikat_toefl String    @map("sertifikat_toefl")
-  bukti_hafalan    String    @map("bukti_hafalan")
-  status           Status
-  jadwal_sidang    DateTime? @map("jadwal_sidang")
-  sk_penguji       String?   @map("sk_penguji")
-  undangan_penguji String?   @map("undangan_penguji")
+  id                 Int           @id @default(autoincrement())
+  id_judul           Int           @map("id_judul") 
+  tanggal            DateTime      @default(now())
+  bukti_sempro       String        @map("bukti_sempro")
+  draf_skripsi       String        @map("draf_skripsi")
+  bukti_konsultasi   String        @map("bukti_konsultasi")
+  sertifikat_toefl   String        @map("sertifikat_toefl")
+  bukti_hafalan      String        @map("bukti_hafalan")
+  status             Status
+  jadwal_sidang      DateTime?     @map("jadwal_sidang")
+  sk_penguji         String?       @map("sk_penguji")
+  undangan_penguji   String?       @map("undangan_penguji")
+  penguji1           String?       @map("penguji1")
+  penguji2           String?       @map("penguji2")
+  transkrip          String?
+  catatan            String? 
 
-  penguji1 String? @map("penguji1")
-  penguji2 String? @map("penguji2")
-
-  judul Judul @relation(fields: [id_judul], references: [id])
+  judul              Judul         @relation(fields: [id_judul], references: [id])
 
   @@map("seminar_hasil")
 }
 
 model Dosen {
-  id      Int     @id @default(autoincrement())
-  nama    String?
-  nip     String  @unique
-  jurusan Jurusan
+  id        Int     @id @default(autoincrement())
+  nama      String?
+  nip       String  @unique
+  jurusan   Jurusan
 
   @@map("dosen")
 }
