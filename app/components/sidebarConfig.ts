@@ -1,15 +1,12 @@
-import { Home, Edit, Layers, User, BarChart2, Archive, ClipboardCheck, Layers2Icon } from "lucide-react"; // <-- 1. Impor ikon baru
-
-// Tipe untuk item di dalam sub-menu
+import { Home, Edit, Layers, User, BarChart2, Archive, ClipboardCheck, Layers2Icon } from "lucide-react"; 
 export type SubMenuItem = {
   title: string;
   url: string;
 };
 
-// Tipe utama untuk menu, sekarang bisa memiliki sub-menu (subItems)
 export type MenuItem = {
   title: string;
-  url?: string; // URL menjadi opsional karena item induk tidak punya URL
+  url?: string; 
   icon: React.ElementType;
   subItems?: SubMenuItem[];
 };
@@ -28,19 +25,18 @@ export const menuItemsByRole: { [key: string]: MenuItem[] } = {
   admin: [
     { title: "Dashboard", url: "/dashboard/admin", icon: Home },
     
-    // --- PERUBAHAN UTAMA DI BLOK INI ---
+    
     { 
-      title: "Verifikasi Pengajuan", // <-- 2. Nama menu diubah
-      icon: ClipboardCheck,          // <-- 3. Ikon diubah agar lebih sesuai
+      title: "Verifikasi Pengajuan", 
+      icon: ClipboardCheck,        
       
-      // URL sub-menu sudah benar sesuai struktur folder yang kita buat
+    
       subItems: [
         { title: "Matematika", url: "/dashboard/admin/verifikasi/MATEMATIKA" },
         { title: "Sistem Informasi", url: "/dashboard/admin/verifikasi/SISTEM_INFORMASI" },
         
       ],
     },
-    // ------------------------------------
 
     { 
       title: "Seminar Proposal", 
@@ -55,8 +51,8 @@ export const menuItemsByRole: { [key: string]: MenuItem[] } = {
       title: "Seminar Hasil", 
       icon: User,
       subItems: [
-        { title: "Matematika", url: "/dashboard/admin/semhas/MATEMATIKA" },
-        { title: "Sistem Informasi", url: "/dashboard/admin/semhas/SISTEM_INFORMASI" },
+        { title: "Matematika", url: "/dashboard/admin/seminar-hasil/MATEMATIKA" },
+        { title: "Sistem Informasi", url: "/dashboard/admin/seminar-hasil/SISTEM_INFORMASI" },
 
       ],
     },

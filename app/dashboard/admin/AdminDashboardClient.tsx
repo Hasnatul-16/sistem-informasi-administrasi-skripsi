@@ -156,7 +156,6 @@ export default function AdminDashboardClient({ titleSubmissions, proposalSubmiss
   const periodFilteredTitles = useMemo(() => filterByPeriod(titleSubmissions), [titleSubmissions, filters]);
   const periodFilteredProposals = useMemo(() => filterByPeriod(proposalSubmissions), [proposalSubmissions, filters]);
   const periodFilteredHasils = useMemo(() => filterByPeriod(hasilSubmissions), [hasilSubmissions, filters]);
-
   const verifiedTitles = useMemo(() =>
     periodFilteredTitles.filter(s =>
       s.status === 'DIPROSES_KAPRODI' ||
@@ -238,18 +237,17 @@ export default function AdminDashboardClient({ titleSubmissions, proposalSubmiss
             iconColor="text-green-600"
           />
           <ActionCard
-            title="Pendaftaran Sem. Hasil"
+            title="Pendaftaran Sidang Skripsi"
             icon={<FiCheckSquare size={20} />}
             notifications={pendingHasilNotifications}
             emptyText="Tidak ada pendaftaran hasil yang perlu diverifikasi."
-            viewLink="/dashboard/admin/semhas"
+            viewLink="/dashboard/admin/seminar-hasil"
             iconBgColor="bg-orange-100"
             iconColor="text-orange-600"
           />
         </div>
       </div>
 
-      
       <div className="bg-white p-6 rounded-lg shadow-sm border">
         <h3 className="font-semibold text-gray-800 mb-4 flex items-center gap-2"><FiFilter size={18} /> Filter Data Statistik</h3>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
@@ -270,7 +268,7 @@ export default function AdminDashboardClient({ titleSubmissions, proposalSubmiss
           iconColor="text-blue-600"
         />
         <StatCard
-          title="Total Seminar Proposal"
+          title="Total Sem. Proposal"
           value={stats.totalProposal}
           subtitle={periodeText}
           icon={<FiClipboard size={22} />}
@@ -278,7 +276,8 @@ export default function AdminDashboardClient({ titleSubmissions, proposalSubmiss
           iconColor="text-green-600"
         />
         <StatCard
-          title="Total Seminar Hasil"
+          title="Total Sem. Hasil"
+          // Menggunakan verifiedHasils yang sudah difilter status & periode
           value={stats.totalHasil}
           subtitle={periodeText}
           icon={<FiCheckSquare size={22} />}

@@ -41,15 +41,7 @@ export default async function AdminDashboardPage() {
           <h1 className="text-xl font-bold">Selamat datang, Admin {adminName}!</h1>
           <p className="mt-1 opacity-90 text-sm">Dashboard pengelolaan Sistem Administrasi Skripsi.</p>
         </div>
-        <div className="flex gap-2">
-            {/* Ukuran tombol dan teks diperkecil lagi */}
-            <button className="bg-white/20 hover:bg-white/30 text-white font-semibold py-1 px-3 text-xs rounded-lg flex items-center gap-1.5 transition-colors">
-                <FiUsers size={14}/> Kelola Pengguna
-            </button>
-            <button className="bg-white/20 hover:bg-white/30 text-white font-semibold py-1 px-3 text-xs rounded-lg flex items-center gap-1.5 transition-colors">
-                <FiSettings size={14}/> Pengaturan
-            </button>
-        </div>
+      
       </div>
       
       <AdminDashboardClient 

@@ -1,5 +1,3 @@
-
-
 import Link from 'next/link';
 import prisma from '@/lib/prisma';
 import {
@@ -14,7 +12,6 @@ import {
   FiCalendar,
   FiBook, 
 } from 'react-icons/fi';
-
 import DownloadSKButton from './DownloadSK';
 import { Status } from '@prisma/client';
 import { getServerSession } from 'next-auth';
@@ -27,19 +24,18 @@ type ExtendedProposal = {
   id: number;
   tanggal: Date;
   status: Status;
-  penguji: string | null;          
+  penguji: string | null;
   jadwal_sidang: Date | null;
   sk_penguji: string | null;
   catatan: string | null;
   status_sidang: string | null;
 }
 
-
 type ExtendedSeminarHasil = {
   id: number;
   tanggal: Date;
   status: Status;
-
+  catatan: string | null;
 }
 
 async function getMahasiswaData() {
@@ -56,7 +52,6 @@ async function getMahasiswaData() {
   });
 
   if (!studentProfile) {
-   
     return {
       studentProfile: null,
       latestJudulSubmission: null,
@@ -70,7 +65,6 @@ async function getMahasiswaData() {
     orderBy: { tanggal: 'desc' },
   });
 
- 
   const latestProposalSubmission = await prisma.proposal.findFirst({
     where: { judul: { id_mahasiswa: studentProfile.id } },
     orderBy: { tanggal: 'desc' },
@@ -78,16 +72,14 @@ async function getMahasiswaData() {
       id: true,
       tanggal: true,
       status: true,
-      penguji: true,        
+      penguji: true,
       jadwal_sidang: true,
       sk_penguji: true,
-      
       catatan: true,
 
     }
   }) as ExtendedProposal | null;
 
- 
   const latestSeminarHasilSubmission = await prisma.seminarHasil.findFirst({
     where: { judul: { id_mahasiswa: studentProfile.id } },
     orderBy: { tanggal: 'desc' },
@@ -95,7 +87,7 @@ async function getMahasiswaData() {
       id: true,
       tanggal: true,
       status: true,
-  
+      catatan: true,
     }
   }) as ExtendedSeminarHasil | null;
 
@@ -103,17 +95,13 @@ async function getMahasiswaData() {
   return { studentProfile, latestJudulSubmission, latestProposalSubmission, latestSeminarHasilSubmission };
 }
 
-
-
 const StatusBadge = ({ status }: { status: Status | 'DIJADWALKAN' | 'MENUNGGU_PENETAPAN' | 'SEMINAR_HASIL_DISETUJUI' }) => {
   const statusConfig = {
     TERKIRIM: { text: "Diperiksa oleh Admin", icon: FiClock, color: "bg-yellow-100 text-yellow-800" },
     DIPERIKSA_ADMIN: { text: "Diperiksa Admin", icon: FiClock, color: "bg-yellow-100 text-yellow-800" },
     DITOLAK_ADMIN: { text: "Ditolak Admin", icon: FiXCircle, color: "bg-red-100 text-red-800" },
     DIPROSES_KAPRODI: { text: "Diproses Kaprodi", icon: FiClock, color: "bg-purple-100 text-purple-800" },
-    DISETUJUI: { text: "Disetujui", icon: FiCheckCircle, color: "bg-green-500 text-white" }, 
-    
-    
+    DISETUJUI: { text: "Disetujui", icon: FiCheckCircle, color: "bg-green-500 text-white" },
   } as const; 
 
   const config = statusConfig[status as keyof typeof statusConfig] || { text: status, icon: FiAlertCircle, color: "bg-gray-100 text-gray-800" };
@@ -127,9 +115,7 @@ const StatusBadge = ({ status }: { status: Status | 'DIJADWALKAN' | 'MENUNGGU_PE
   );
 };
 
-
 export default async function MahasiswaDashboardPage() {
-  
   const { studentProfile, latestJudulSubmission, latestProposalSubmission, latestSeminarHasilSubmission } = await getMahasiswaData();
 
   if (!studentProfile) {
@@ -141,27 +127,17 @@ export default async function MahasiswaDashboardPage() {
     );
   }
 
- 
   const isProposalApproved = latestProposalSubmission?.status === 'DISETUJUI';
 
- 
   const isSidangScheduled = isProposalApproved && latestProposalSubmission?.jadwal_sidang && latestProposalSubmission.penguji;
 
- 
-  let sidangStatus: 'DIJADWALKAN' | 'MENUNGGU_PENETAPAN' | 'DISETUJUI' = 'MENUNGGU_PENETAPAN';
-
- 
+  let sidangStatus:  'DISETUJUI';
 
   if (isProposalApproved) {
     if (isSidangScheduled) {
-      sidangStatus = 'DIJADWALKAN';
-    } else {
-      
       sidangStatus = 'DISETUJUI';
-    }
+    } 
   }
-
-
 
   const penguji = latestProposalSubmission?.penguji || 'Belum Ditetapkan';
   const skPengujiUrl = latestProposalSubmission?.sk_penguji;
@@ -170,19 +146,17 @@ export default async function MahasiswaDashboardPage() {
     ? new Date(latestProposalSubmission.jadwal_sidang).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })
     : 'Menunggu Penetapan';
 
-
   const isSeminarHasilSubmitted = !!latestSeminarHasilSubmission;
   const isSeminarHasilApproved = latestSeminarHasilSubmission?.status === 'DISETUJUI';
 
 
-  
-  const steps = ['Pengajuan Judul', 'Seminar Proposal', 'Seminar Hasil', 'Sidang Skripsi'];
+  const steps = ['Pengajuan Judul', 'Seminar Proposal', 'Sidang Skripsi', 'Selesai Skripsi'];
   let currentStepIndex = 0;
 
   if (latestJudulSubmission?.status === 'DISETUJUI') {
     currentStepIndex = 1;
   }
-  
+
   if (isProposalApproved) {
     currentStepIndex = 2; 
   }
@@ -196,7 +170,6 @@ export default async function MahasiswaDashboardPage() {
 
   return (
     <div className="space-y-8">
-     
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Selamat Datang, {studentProfile.nama}!</h1>
         <p className="mt-1 text-gray-600">Pantau progres skripsi Anda dan lihat status pengajuan terbaru di sini.</p>
@@ -204,7 +177,6 @@ export default async function MahasiswaDashboardPage() {
 
       ---
 
-     
       <div className="bg-white p-6 rounded-lg shadow-sm border">
         <h2 className="text-xl font-semibold mb-5">Progres Skripsi Anda</h2>
         <div className="flex items-center">
@@ -227,14 +199,12 @@ export default async function MahasiswaDashboardPage() {
       </div>
 
       ---
-
-      
       <div className="bg-white p-6 rounded-lg shadow-sm border">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">Status Pengajuan Judul Terakhir</h2>
           {latestJudulSubmission && <StatusBadge status={latestJudulSubmission.status} />}
         </div>
-       
+  
         {!latestJudulSubmission ? (
           <div className="text-center py-10">
             <FiEdit className="mx-auto h-12 w-12 text-gray-400" />
@@ -277,7 +247,6 @@ export default async function MahasiswaDashboardPage() {
               <p> Silahkan Hubungi Dosen Pembimbing untuk Memulai Propses Bimbingan  </p>
 
               <div className="mt-4 flex flex-col sm:flex-row gap-2">
-               
                 {
                   (() => {
                     const rawName = `${studentProfile.nama || 'mahasiswa'}`;
@@ -301,7 +270,6 @@ export default async function MahasiswaDashboardPage() {
 
       ---
 
-     
       <div className="bg-white p-6 rounded-lg shadow-sm border">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">Status Pengajuan Seminar Proposal Terakhir</h2>
@@ -310,12 +278,10 @@ export default async function MahasiswaDashboardPage() {
 
         {
           latestProposalSubmission?.status === 'DITOLAK_ADMIN' ? (
-          
             <div className="p-4 bg-red-50 border-l-4 border-red-400 rounded-r-lg">
               <h3 className="text-md font-bold text-red-800">Pengajuan Proposal Perlu Direvisi</h3>
 
               <div className="mt-2 text-sm text-red-700">
-                
                 <p><strong>Catatan dari Admin:</strong> {latestProposalSubmission.catatan || 'Tidak ada catatan.'}</p>
               </div>
 
@@ -324,7 +290,6 @@ export default async function MahasiswaDashboardPage() {
               </Link>
             </div>
           ) : isProposalApproved ? (
-           
             <div className="p-4 bg-green-100 border-l-4 border-green-500 rounded-r-lg">
               <h3 className="text-md font-bold text-green-900"> Proposal Disetujui!</h3>
               <p className="mt-1 text-sm text-green-800">melakukan seminar proposal seusai dengan jadwal yang telah ditetapkan</p>
@@ -339,7 +304,6 @@ export default async function MahasiswaDashboardPage() {
                 </div>
               )}
 
-              
               {isSidangScheduled && skPengujiUrl && (
                 <div className="mt-4 flex flex-col sm:flex-row gap-2">
                   {
@@ -360,13 +324,12 @@ export default async function MahasiswaDashboardPage() {
                 </div>
               )}
 
-             
               <Link href="/dashboard/mahasiswa/seminar-hasil" className="mt-4 inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700">
-                Lanjut Pengajuan Seminar Hasil <FiArrowRight />
+                Lanjut Pengajuan Sidang Skripsi <FiArrowRight />
               </Link>
             </div>
           ) : (latestJudulSubmission?.status === 'DISETUJUI' && !latestProposalSubmission) ? (
-           
+
             <div className="text-center py-10">
               <FiBookOpen className="mx-auto h-12 w-12 text-blue-500" />
               <h3 className="mt-2 text-lg font-medium text-gray-900">Judul Disetujui, Siap Ajukan Proposal</h3>
@@ -376,7 +339,7 @@ export default async function MahasiswaDashboardPage() {
               </Link>
             </div>
           ) : latestJudulSubmission?.status === 'DISETUJUI' && pendingStatuses.includes(latestProposalSubmission?.status as Status) ? (
-           
+
             <div className="text-center py-10">
               <FiClock className="mx-auto h-12 w-12 text-yellow-500" />
               <h3 className="mt-2 text-lg font-medium text-gray-900">Pengajuan Proposal Sedang Diproses</h3>
@@ -394,55 +357,59 @@ export default async function MahasiswaDashboardPage() {
 
       ---
 
-      
+  
       <div className="bg-white p-6 rounded-lg shadow-sm border">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">Status Pengajuan Seminar Hasil Terakhir</h2>
+          <h2 className="text-xl font-semibold">Status Pengajuan Sidang Skripsi Terakhir</h2>
           {latestSeminarHasilSubmission && <StatusBadge status={latestSeminarHasilSubmission.status} />}
         </div>
 
         {
-          
+  
           !isProposalApproved ? (
-            
+         
             <div className="text-center py-10 text-gray-500">
               <FiBook className="mx-auto h-12 w-12 text-gray-400" />
-              <p className="mt-2">Anda harus **Seminar Proposal Disetujui** terlebih dahulu untuk mengajukan Seminar Hasil.</p>
+              <p className="mt-2">Seminar Proposal Disetujui terlebih dahulu untuk mengajukan Sidang Skripsi.</p>
             </div>
           ) : isSeminarHasilApproved ? (
-            
+  
             <div className="p-4 bg-indigo-50 border-l-4 border-indigo-400 rounded-r-lg">
-              <h3 className="text-md font-bold text-indigo-800">✅ Seminar Hasil Anda Telah Disetujui!</h3>
+              <h3 className="text-md font-bold text-indigo-800"> Sidang Skripsi Anda Telah Disetujui!</h3>
               <p className="mt-1 text-sm text-indigo-700">Langkah terakhir: **Pengajuan Sidang Skripsi**.</p>
-             
+       
               <Link href="/dashboard/mahasiswa/sidang-skripsi" className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700">
                 Lanjut Pengajuan Sidang Skripsi <FiArrowRight />
               </Link>
             </div>
           ) : isSeminarHasilSubmitted && pendingStatuses.includes(latestSeminarHasilSubmission.status as Status) ? (
-            
+      
             <div className="text-center py-10">
               <FiClock className="mx-auto h-12 w-12 text-yellow-500" />
-              <h3 className="mt-2 text-lg font-medium text-gray-900">Pengajuan Seminar Hasil Sedang Diproses</h3>
+              <h3 className="mt-2 text-lg font-medium text-gray-900">Pengajuan Sidang Skripsi Sedang Diproses</h3>
               <p className="mt-1 text-sm text-gray-500">Silakan tunggu verifikasi dokumen Anda.</p>
             </div>
           ) : isSeminarHasilSubmitted && latestSeminarHasilSubmission.status === 'DITOLAK_ADMIN' ? (
-           
+         
             <div className="p-4 bg-red-50 border-l-4 border-red-400 rounded-r-lg">
-              <h3 className="text-md font-bold text-red-800">Pengajuan Seminar Hasil Perlu Direvisi</h3>
-              <p className="mt-2 text-sm text-red-700">Silakan cek catatan dan Ajukan Ulang.</p>
+              <h3 className="text-md font-bold text-red-800">Pengajuan Sidang Skripsi Perlu Direvisi</h3>
+
+              <div className="mt-2 text-sm text-red-700">
+                <p><strong>Catatan dari Admin:</strong> {latestSeminarHasilSubmission.catatan || 'Tidak ada catatan.'}</p>
+              </div>
+
               <Link href="/dashboard/mahasiswa/seminar-hasil" className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700">
-                Ajukan Ulang Seminar Hasil <FiArrowRight />
+                Ajukan Ulang Sidang Skripsi <FiArrowRight />
               </Link>
             </div>
           ) : (
-          
+        
             <div className="text-center py-10">
               <FiBook className="mx-auto h-12 w-12 text-blue-500" />
-              <h3 className="mt-2 text-lg font-medium text-gray-900">Siap Ajukan Seminar Hasil</h3>
-              <p className="mt-1 text-sm text-gray-500">Proposal telah disetujui. Ajukan Seminar Hasil Anda.</p>
+              <h3 className="mt-2 text-lg font-medium text-gray-900">Siap Ajukan Sidang Skripsi</h3>
+              <p className="mt-1 text-sm text-gray-500">Proposal telah disetujui. Ajukan Sidang Skripsi Anda.</p>
               <Link href="/dashboard/mahasiswa/seminar-hasil" className="mt-6 inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700">
-                Ajukan Seminar Hasil Sekarang <FiArrowRight />
+                Ajukan Sidang Skripsi Sekarang <FiArrowRight />
               </Link>
             </div>
           )}
