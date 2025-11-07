@@ -18,7 +18,7 @@ export const menuItemsByRole: { [key: string]: MenuItem[] } = {
     { title: "Dashboard", url: "/dashboard/mahasiswa", icon: Home },
     { title: "Pengajuan Judul", url: "/dashboard/mahasiswa/pengajuan-judul", icon: Edit },
     { title: "Seminar Proposal", url: "/dashboard/mahasiswa/proposal", icon: Layers },
-    { title: "Sidang Skripsi", url: "/dashboard/mahasiswa/sidang-skripsi", icon: User },
+    { title: "Sidang Skripsi", url: "/dashboard/mahasiswa/seminar-hasil", icon: User },
   ],
 
   
@@ -65,7 +65,7 @@ export const menuItemsByRole: { [key: string]: MenuItem[] } = {
     { title: "Dashboard", url: "/dashboard/kaprodi", icon: Home },
     { title: "Pengajuan Judul", url: "/dashboard/kaprodi/pengajuan_judul", icon: Edit },
     { title: "Seminar Proposal", url: "/dashboard/kaprodi/proposal", icon:  Layers2Icon },
-    { title: "Seminar hasil", url: "/dashboard/kaprodi/jadwal-seminar", icon: Layers },
+    { title: "Seminar hasil", url: "/dashboard/kaprodi/seminar-hasil", icon: Layers },
     { title: "Profile", url: "/dashboard/kaprodi/jadwal-seminar", icon: User },
   ],
 };

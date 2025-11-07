@@ -238,7 +238,7 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
                     </thead>
                     <tbody className="divide-y divide-gray-100">
                         {displayData.length === 0 ? (
-                            <tr><td colSpan={5} className="py-10 text-center text-gray-500">Tidak ada pengajuan proposal yang perlu diproses pada filter ini.</td></tr>
+                            <tr><td colSpan={5} className="py-10 text-center text-gray-500">Tidak ada pengajuan proposal yang perlu diproses pada bulan ini.</td></tr>
                         ) : (
                             displayData.map(p => (
                                 <tr key={p.id} className="hover:bg-gray-50">
@@ -296,7 +296,7 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
                                 <p className="text-sm text-gray-500 mt-1">
                                     {selectedProposal.status === 'DISETUJUI' ?
                                         'Perbarui Penguji atau Jadwal Sidang yang sudah ditetapkan.' :
-                                        'Review detail pengajuan dan pembimbing yang sudah ditetapkan sebelum menetapkan penguji.'
+                                        ''
                                     }
                                 </p>
                             </div>
@@ -344,11 +344,11 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
                             <h3 className="text-lg font-semibold text-gray-700 mb-3">Dosen Pembimbing yang Sudah Ditetapkan</h3>
                             <div className='p-4 bg-blue-50 rounded-lg border border-blue-200 grid grid-cols-1 md:grid-cols-2 gap-4'>
                                 <div>
-                                    <p className="text-sm font-medium text-gray-700 mb-1">Pembimbing Utama (1)</p>
+                                    <p className="text-sm font-medium text-gray-700 mb-1">Pembimbing 1</p>
                                     <p className="font-semibold text-blue-700 text-base">{selectedProposal.judul.pembimbing1 || 'Belum Ditetapkan'}</p>
                                 </div>
                                 <div>
-                                    <p className="text-sm font-medium text-gray-700 mb-1">Pembimbing Pendamping (2)</p>
+                                    <p className="text-sm font-medium text-gray-700 mb-1">Pembimbing 2</p>
                                     <p className="font-semibold text-blue-700 text-base">{selectedProposal.judul.pembimbing2 || 'Belum Ditetapkan'}</p>
                                 </div>
 
@@ -357,11 +357,11 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
 
 
                         <div className='mb-6'>
-                            <h3 className="text-lg font-semibold text-green-600 mb-3">Penetapan/Pengeditan Penguji & Jadwal Sidang Proposal</h3>
+                            <h3 className="text-lg font-semibold text-green-600 mb-3">Update Penguji & Jadwal Sidang Proposal</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Pilih Dosen Penguji (1 Orang)</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Pilih Dosen Penguji </label>
                                     <select
                                         name="penguji"
                                         value={actionData.penguji}

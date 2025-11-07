@@ -226,7 +226,6 @@ export default function KaprodiSubmissionTable({ initialSubmissions, lecturers }
             <div className="flex justify-between items-start mb-4 pb-4 border-b">
               <div>
                 <h2 className="text-2xl font-bold text-gray-800">Tetapkan Dosen Pembimbing</h2>
-                <p className="text-gray-500 mt-1">Review detail pengajuan sebelum menetapkan pembimbing.</p>
               </div>
               <button onClick={closeModal} className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full">
                 <FiX size={20} />
