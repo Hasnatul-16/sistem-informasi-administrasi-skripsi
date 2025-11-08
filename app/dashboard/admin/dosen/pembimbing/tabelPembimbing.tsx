@@ -270,6 +270,14 @@ export default function PembimbingStatsClient({
                         <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-white/70 h-5 w-5" />
                     </div>
                 </div>
+            </div>
+            
+            <div className="bg-white p-6 rounded-lg shadow-md border space-y-4">
+
+                 <p className="mt-1 text-gray-600">
+                    Data ditampilkan untuk Jurusan:{' '}
+                    <strong className='text-indigo-700'>{filters.jurusan.replace('_', ' ')}</strong>
+                </p>
 
                 {!isKaprodi && (
                     <div className='flex items-center gap-4'>
@@ -289,10 +297,7 @@ export default function PembimbingStatsClient({
                         ))}
                     </div>
                 )}
-                <p className="mt-1 text-gray-600">
-                    Data ditampilkan untuk Jurusan:{' '}
-                    <strong className='text-indigo-700'>{filters.jurusan.replace('_', ' ')}</strong>
-                </p>
+               
                 
                 <div className="mt-6">
                     {isTableLoading ? (
@@ -368,7 +373,7 @@ export default function PembimbingStatsClient({
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-bold">
                                                     {dosen.totalPembimbing1 + dosen.totalPembimbing2} kali
                                                 </td>
-                                                {/* Kolom Aksi */}
+                                               
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                     <button
                                                         onClick={() => handleOpenDetail(dosen)}

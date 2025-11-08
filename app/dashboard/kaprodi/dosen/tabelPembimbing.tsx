@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import type { Jurusan } from '@prisma/client';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
+
 import { 
     FiEye, FiX, FiUsers, FiBookOpen, FiActivity, FiLoader, 
     FiSearch, FiCalendar, FiAlertTriangle, FiHash, FiUser, FiSettings
@@ -14,8 +15,8 @@ type DosenStat = {
     nip: string;
     totalPengujiSempro: number;
     totalPengujiSemhas: number;
-    totalPembimbing1: number; 
-    totalPembimbing2: number; 
+    totalPembimbing1: number;
+    totalPembimbing2: number;
     totalBeban: number;
 };
 
@@ -27,12 +28,12 @@ type RiwayatItem = {
     role: string;
 };
 
-export type DosenHistory = {
+export type DosenPembimbingHistory = {
     namaDosen: string;
     nip: string;
-    totalMenguji: number;
-    totalPengujiSempro: number;
-    totalPengujiSemhas: number;
+    totalBimbingan: number;
+    totalPembimbing1: number;
+    totalPembimbing2: number;
     riwayat: RiwayatItem[];
 };
 
@@ -45,14 +46,13 @@ interface DosenStatsClientProps {
 
 const ALL_JURUSAN: Jurusan[] = ['SISTEM_INFORMASI', 'MATEMATIKA'];
 
-export default function DosenStatsClient({ 
+export default function PembimbingStatsClient({ 
     isKaprodi, 
     initialTahun, 
     initialSemester, 
     initialJurusan 
 }: DosenStatsClientProps) {
-    
-    // --- STATE ---
+ 
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
@@ -62,18 +62,20 @@ export default function DosenStatsClient({
         jurusan: (searchParams.get('jurusan') as Jurusan) || initialJurusan,
         search: searchParams.get('search') || '',
     });
-
     const [dosenStats, setDosenStats] = useState<DosenStat[]>([]);
     const [isTableLoading, setIsTableLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [modalData, setModalData] = useState<DosenHistory | null>(null);
+    const [modalData, setModalData] = useState<DosenPembimbingHistory | null>(null);
     const [isModalLoading, setIsModalLoading] = useState(false);
     const [selectedDosen, setSelectedDosen] = useState<DosenStat | null>(null);
+
     const currentYear = new Date().getFullYear();
     const yearOptions = Array.from({ length: 6 }, (_, i) => String(currentYear - i));
     const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
+
         const params = new URLSearchParams(searchParams.toString());
         params.set(name, value);
         if (name === 'search' && value === '') {
@@ -91,6 +93,7 @@ export default function DosenStatsClient({
         const params = new URLSearchParams(searchParams.toString());
         params.set('jurusan', newJurusan);
         router.push(`${pathname}?${params.toString()}`);
+
         setFilters(prev => ({
             ...prev,
             jurusan: newJurusan
@@ -106,6 +109,7 @@ export default function DosenStatsClient({
                 semester: filters.semester,
                 jurusan: filters.jurusan,
             });
+ 
             if (filters.search) {
                 params.append('search', filters.search);
             }
@@ -114,7 +118,7 @@ export default function DosenStatsClient({
             
             if (!res.ok) {
                 const errorData = await res.json();
-                throw new Error(errorData.details || errorData.message || 'Gagal memuat data statistik dosen.');
+                throw new Error(errorData.details || errorData.message || 'Gagal memuat data tabel dosen.');
             }
 
             const data: DosenStat[] = await res.json();
@@ -141,7 +145,7 @@ export default function DosenStatsClient({
                 tahun: filters.tahun,
                 semester: filters.semester,
                 jurusan: filters.jurusan,
-                role: 'penguji' 
+                role: 'pembimbing' 
             });
 
             const res = await fetch(`/api/dosen/riwayat?${params.toString()}`);
@@ -151,7 +155,7 @@ export default function DosenStatsClient({
                 throw new Error(errorData.details || errorData.message || 'Gagal memuat detail riwayat dosen.');
             }
 
-            const data: DosenHistory = await res.json();
+            const data: DosenPembimbingHistory = await res.json();
             setModalData(data);
 
         } catch (err: any) {
@@ -159,7 +163,7 @@ export default function DosenStatsClient({
             setModalData({
                 namaDosen: `Error Dosen (${dosen.nip})`,
                 nip: dosen.nip,
-                totalMenguji: 0, totalPengujiSempro: 0, totalPengujiSemhas: 0, 
+                totalBimbingan: 0, totalPembimbing1: 0, totalPembimbing2: 0, 
                 riwayat: [{mahasiswa: 'Error', nim: 'N/A', judul: `Gagal memuat: ${err.message}`, tanggal: new Date(), role: 'Error'}] 
             });
         } finally {
@@ -182,7 +186,7 @@ export default function DosenStatsClient({
             clearTimeout(handler);
         };
 
-    }, [filters]);
+    }, [filters]); 
 
     const formatDate = (date: Date | string) => {
         const dateObj = typeof date === 'string' ? new Date(date) : date;
@@ -214,18 +218,14 @@ export default function DosenStatsClient({
 
     const periodeSaatIni = `${filters.semester.charAt(0) + filters.semester.slice(1).toLowerCase()} ${filters.tahun}`;
 
- 
     return (
         <main className="space-y-6">
-            <h1 className="text-3xl font-bold text-gray-900">Daftar Dosen Penguji</h1>
-            <p className="mt-0 text-gray-600">menampilkan total dosen menjadi penguji pada seminar proposal dan sidang skripsi </p>
+            <h1 className="text-3xl font-bold text-gray-900"> Daftar Dosen Pembimbing</h1>
+            <p className="mt-0 text-gray-600">Menampilkan total dosen menjadi pembimbing skripsi.</p>
             
             <div className="bg-white p-6 rounded-lg shadow-md border space-y-4">
-
                 <div className="bg-gradient-to-r from-blue-600 to-cyan-500 p-4 rounded-lg shadow-md flex flex-wrap items-center justify-between gap-4">
- 
                     <div className="flex items-center gap-4">
-                        
                         <div className="flex flex-col">
                             <label htmlFor="semester" className="text-sm font-semibold text-white mb-1">
                                 Periode Semester
@@ -241,7 +241,6 @@ export default function DosenStatsClient({
                                 <option value="GENAP" className='text-gray-800'>Genap</option>
                             </select>
                         </div>
-
                         <div className="flex flex-col">
                             <label htmlFor="tahun" className="text-sm font-semibold text-white mb-1">
                                 Tahun Akademik
@@ -259,8 +258,6 @@ export default function DosenStatsClient({
                             </select>
                         </div>
                     </div>
-
-                    {/* Kolom Search */}
                     <div className="relative self-end">
                         <input
                             type="text"
@@ -273,33 +270,8 @@ export default function DosenStatsClient({
                         <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-white/70 h-5 w-5" />
                     </div>
                 </div>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-md border space-y-4">
 
-                 <p className="mt-1 text-gray-600">
-                    Data ditampilkan untuk Jurusan:{' '}
-                    <strong className='text-indigo-700'>{filters.jurusan.replace('_', ' ')}</strong>
-                </p>
-   
-                {!isKaprodi && (
-                    <div className='flex items-center gap-4'>
-                        <label className="text-sm font-medium text-gray-700">Filter Jurusan:</label>
-                        {ALL_JURUSAN.map(j => (
-                            <button
-                                key={j}
-                                onClick={() => handleJurusanChange(j)}
-                                className={`px-4 py-2 text-sm font-semibold rounded-full transition duration-150 ${
-                                    filters.jurusan === j
-                                        ? 'bg-indigo-600 text-white shadow-md'
-                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                }`}
-                            >
-                                {j.replace('_', ' ')}
-                            </button>
-                        ))}
-                    </div>
-                )}
-
+               
                 
                 <div className="mt-6">
                     {isTableLoading ? (
@@ -320,18 +292,19 @@ export default function DosenStatsClient({
                                         <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[35%]">
                                             <div className="flex items-center gap-2"><FiUsers size={16} className="text-blue-600" /><span>Dosen</span></div>
                                         </th>
-                                        <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[20%]">
-                                            <div className="flex items-center gap-2"><FiBookOpen size={16} className="text-blue-600" /><span>Penguji Seminar Proposal</span></div>
-                                        </th>
                                         
                                         <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[20%]">
-                                            <div className="flex items-center gap-2"><FiBookOpen size={16} className="text-blue-600" /><span>Penguji Sidang Skripsi</span></div>
+                                            <div className="flex items-center gap-2"><FiUser size={16} className="text-blue-600" /><span>Pembimbing 1</span></div>
+                                        </th>
+                                      
+                                        <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[20%]">
+                                            <div className="flex items-center gap-2"><FiUser size={16} className="text-blue-600" /><span>Pembimbing 2</span></div>
+                                        </th>
+                                        
+                                        <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[15%]">
+                                            <div className="flex items-center gap-2"><FiActivity size={16} className="text-blue-600" /><span>Total Bimbingan</span></div>
                                         </th>
                                        
-                                        <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[15%]">
-                                            <div className="flex items-center gap-2"><FiActivity size={16} className="text-blue-600" /><span>Total Menguji</span></div>
-                                        </th>
-                                        
                                         <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[10%]">
                                             <div className="flex items-center gap-2"><FiSettings size={16} className="text-blue-600" /><span>Aksi</span></div>
                                         </th>
@@ -343,7 +316,7 @@ export default function DosenStatsClient({
                                     ) : (
                                         dosenStats.map((dosen) => (
                                             <tr key={dosen.nip} className="hover:bg-gray-50 transition-colors">
-                                               
+                
                                                 <td className="px-6 py-4 whitespace-nowrap">
                                                     <div className="flex flex-col gap-1.5">
                                                         <div className="flex items-center gap-2">
@@ -364,22 +337,22 @@ export default function DosenStatsClient({
                                                 </td>
                                                
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-medium">
-                                                    {dosen.totalPengujiSempro} kali
+                                                    {dosen.totalPembimbing1} kali
                                                 </td>
                                                 
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-medium">
-                                                    {dosen.totalPengujiSemhas} kali
+                                                    {dosen.totalPembimbing2} kali
                                                 </td>
-                                               
+                                                
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-bold">
-                                                    {dosen.totalPengujiSempro + dosen.totalPengujiSemhas} kali
+                                                    {dosen.totalPembimbing1 + dosen.totalPembimbing2} kali
                                                 </td>
-                                               
+                                              
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                     <button
                                                         onClick={() => handleOpenDetail(dosen)}
                                                         className="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-900 font-semibold"
-                                                        title="Lihat Detail Riwayat Penguji"
+                                                        title="Lihat Detail Riwayat Pembimbing"
                                                     >
                                                         <FiEye className="h-4 w-4" /> Lihat
                                                     </button>
@@ -394,22 +367,22 @@ export default function DosenStatsClient({
                 </div>
             </div> 
 
-
+            
             {isModalOpen && (
                 <div className="fixed inset-0 z-50 overflow-y-auto bg-gray-900/50 backdrop-blur-sm flex justify-center items-center p-4">
                     <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl m-4 transform transition-all animate-fade-in-scale">
                         
-                      
+                       
                         <div className="p-4 border-b flex justify-between items-center">
                             <h2 className="text-xl font-bold text-gray-800">
-                                Riwayat Penguji - {selectedDosen?.nama || 'Memuat...'}
+                                Riwayat Pembimbing - {selectedDosen?.nama || 'Memuat...'}
                             </h2>
                             <button onClick={handleCloseModal} className="p-2 text-gray-500 hover:text-gray-800">
                                 <FiX className="h-6 w-6" />
                             </button>
                         </div>
 
-                      
+                        
                         <div className="p-6 space-y-6 max-h-[80vh] overflow-y-auto">
                             {isModalLoading || !modalData ? (
                                 <div className="text-center py-10 text-indigo-500 flex flex-col items-center">
@@ -418,18 +391,18 @@ export default function DosenStatsClient({
                                 </div>
                             ) : (
                                 <>
-                                 
+                                   
                                     <div className="grid grid-cols-3 gap-4">
-                                        {renderSummaryCard('Total Keseluruhan Menguji', modalData.totalMenguji, 'bg-purple-100 text-purple-800')}
-                                        {renderSummaryCard('Total Penguji Sempro', modalData.totalPengujiSempro, 'bg-blue-100 text-blue-800')}
-                                        {renderSummaryCard('Total Penguji Semhas', modalData.totalPengujiSemhas, 'bg-green-100 text-green-800')}
+                                        {renderSummaryCard('Total Bimbingan', modalData.totalBimbingan, 'bg-purple-100 text-purple-800')}
+                                        {renderSummaryCard('Total Pembimbing 1', modalData.totalPembimbing1, 'bg-green-100 text-green-800')}
+                                        {renderSummaryCard('Total Pembimbing 2', modalData.totalPembimbing2, 'bg-teal-100 text-teal-800')}
                                     </div>
 
                                     <p className="text-sm font-semibold text-gray-600 pt-2">
                                         Riwayat di Periode Aktif: <span className='font-bold text-indigo-700'>{periodeSaatIni}</span> ({modalData.riwayat.length} entri)
                                     </p>
                                     
-                                    
+                                  
                                     <div className="overflow-x-auto border rounded-lg">
                                         <table className="min-w-full divide-y divide-gray-200">
                                             <thead className="bg-gray-50 sticky top-0">
@@ -462,7 +435,7 @@ export default function DosenStatsClient({
                                                 ) : (
                                                     <tr>
                                                         <td colSpan={4} className="text-center py-8 text-gray-500">
-                                                            Tidak ada riwayat pengujian pada periode akademik ini.
+                                                            Tidak ada riwayat bimbingan pada periode akademik ini.
                                                         </td>
                                                     </tr>
                                                 )}
