@@ -1,4 +1,9 @@
-import { Home, Edit, Layers, User, BarChart2, Archive, ClipboardCheck, Layers2Icon } from "lucide-react"; 
+import { 
+    Home, Edit, Layers, User, BarChart2, Archive, 
+    ClipboardCheck, Layers2Icon, Layers3, LayersIcon, 
+    Calendar 
+} from "lucide-react"; 
+
 export type SubMenuItem = {
   title: string;
   url: string;
@@ -18,23 +23,19 @@ export const menuItemsByRole: { [key: string]: MenuItem[] } = {
     { title: "Dashboard", url: "/dashboard/mahasiswa", icon: Home },
     { title: "Pengajuan Judul", url: "/dashboard/mahasiswa/pengajuan-judul", icon: Edit },
     { title: "Seminar Proposal", url: "/dashboard/mahasiswa/proposal", icon: Layers },
-    { title: "Sidang Skripsi", url: "/dashboard/mahasiswa/seminar-hasil", icon: User },
+    { title: "Sidang Skripsi", url: "/dashboard/mahasiswa/seminar-hasil", icon: LayersIcon},
   ],
 
   
   admin: [
     { title: "Dashboard", url: "/dashboard/admin", icon: Home },
     
-    
     { 
       title: "Verifikasi Pengajuan", 
-      icon: ClipboardCheck,        
-      
-    
+      icon: ClipboardCheck,      
       subItems: [
         { title: "Matematika", url: "/dashboard/admin/verifikasi/MATEMATIKA" },
         { title: "Sistem Informasi", url: "/dashboard/admin/verifikasi/SISTEM_INFORMASI" },
-        
       ],
     },
 
@@ -44,20 +45,26 @@ export const menuItemsByRole: { [key: string]: MenuItem[] } = {
       subItems: [
         { title: "Matematika", url: "/dashboard/admin/proposal/MATEMATIKA" },
         { title: "Sistem Informasi", url: "/dashboard/admin/proposal/SISTEM_INFORMASI" },
-        
       ],
     },
     { 
       title: "Seminar Hasil", 
-      icon: User,
+      icon: Layers3, 
       subItems: [
         { title: "Matematika", url: "/dashboard/admin/seminar-hasil/MATEMATIKA" },
         { title: "Sistem Informasi", url: "/dashboard/admin/seminar-hasil/SISTEM_INFORMASI" },
-
       ],
     },
     { title: "Monitoring", url: "/dashboard/admin/monitoring", icon: BarChart2 },
     { title: "Arsip SK", url: "/dashboard/admin/arsip", icon: Archive },
+    { 
+      title: "Tabel Dosen", 
+      icon: User,
+      subItems: [
+        { title: "Dosen Penguji", url: "/dashboard/admin/dosen" },
+        { title: "Dosen Pembimbing", url: "/dashboard/admin/dosen/pembimbing" },
+      ],
+    },
   ],
 
   
@@ -66,6 +73,8 @@ export const menuItemsByRole: { [key: string]: MenuItem[] } = {
     { title: "Pengajuan Judul", url: "/dashboard/kaprodi/pengajuan_judul", icon: Edit },
     { title: "Seminar Proposal", url: "/dashboard/kaprodi/proposal", icon:  Layers2Icon },
     { title: "Seminar hasil", url: "/dashboard/kaprodi/seminar-hasil", icon: Layers },
-    { title: "Profile", url: "/dashboard/kaprodi/jadwal-seminar", icon: User },
+    { title: "Jadwal Seminar", url: "/dashboard/kaprodi/jadwal-seminar", icon: Calendar }, 
+    { title: "Dosen Pembimbing", url: "/dashboard/kaprodi/dosen",icon: User },
+      
   ],
 };
