@@ -1,13 +1,14 @@
 "use client";
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import Link from 'next/link';
-import { FiFileText, FiBarChart2, FiBell, FiArrowRight, FiFilter, FiCalendar, FiFilePlus, FiClipboard, FiCheckSquare, FiInfo } from 'react-icons/fi';
+import { FiBarChart2, FiBell, FiArrowRight, FiFilter, FiCalendar, FiFilePlus, FiClipboard, FiCheckSquare, FiInfo } from 'react-icons/fi';
 import type { Judul, Proposal, SeminarHasil, Mahasiswa } from '@prisma/client';
 
 type TitleSubmissionWithStudent = Judul & { mahasiswa: Mahasiswa };
 type ProposalWithDetails = Proposal & { submission: { mahasiswa: Mahasiswa } };
 type HasilWithDetails = SeminarHasil & { submission: { mahasiswa: Mahasiswa } };
+type SubmissionItem = TitleSubmissionWithStudent | ProposalWithDetails | HasilWithDetails;
 
 interface AdminDashboardProps {
   titleSubmissions: TitleSubmissionWithStudent[];
@@ -42,12 +43,12 @@ const ActionCard = ({ title, icon, iconBgColor, iconColor, notifications, emptyT
   icon: React.ReactNode;
   iconBgColor: string;
   iconColor: string;
-  notifications: any[];
+  notifications: SubmissionItem[];
   emptyText: string;
   viewLink: string;
 }) => {
-  const getNotificationDetails = (item: any) => {
-    const mahasiswa = item.mahasiswa || item.submission?.mahasiswa;
+  const getNotificationDetails = (item: SubmissionItem) => {
+    const mahasiswa = 'mahasiswa' in item ? item.mahasiswa : item.submission.mahasiswa;
     return {
       id: item.id,
       nama: mahasiswa?.nama || 'N/A',
@@ -112,11 +113,14 @@ export default function AdminDashboardClient({ titleSubmissions, proposalSubmiss
     semester: 'ganjil',
   });
 
-  const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => { setFilters(prev => ({ ...prev, [e.target.name]: e.target.value })); };
+  const handleFilterChange = useCallback((e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
+    setFilters(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  }, []);
 
-  const filterByPeriod = (data: any[]) => {
+  const filterByPeriod = useCallback((data: SubmissionItem[]) => {
     return data.filter(item => {
-      const dateKey = item.tanggal ? item.tanggal : item.createdAt;
+  
+      const dateKey = item.tanggal;
       if (!dateKey) return false;
 
       const itemDate = new Date(dateKey);
@@ -139,7 +143,7 @@ export default function AdminDashboardClient({ titleSubmissions, proposalSubmiss
           return true;
       }
     });
-  };
+  }, [filters]);
 
   const pendingTitleNotifications = titleSubmissions.filter(s =>
     s.status === 'TERKIRIM'
@@ -153,9 +157,9 @@ export default function AdminDashboardClient({ titleSubmissions, proposalSubmiss
     s.status === 'TERKIRIM'
   );
 
-  const periodFilteredTitles = useMemo(() => filterByPeriod(titleSubmissions), [titleSubmissions, filters]);
-  const periodFilteredProposals = useMemo(() => filterByPeriod(proposalSubmissions), [proposalSubmissions, filters]);
-  const periodFilteredHasils = useMemo(() => filterByPeriod(hasilSubmissions), [hasilSubmissions, filters]);
+  const periodFilteredTitles = useMemo(() => filterByPeriod(titleSubmissions), [titleSubmissions, filterByPeriod]);
+  const periodFilteredProposals = useMemo(() => filterByPeriod(proposalSubmissions), [proposalSubmissions, filterByPeriod]);
+  const periodFilteredHasils = useMemo(() => filterByPeriod(hasilSubmissions), [hasilSubmissions, filterByPeriod]);
   const verifiedTitles = useMemo(() =>
     periodFilteredTitles.filter(s =>
       s.status === 'DIPROSES_KAPRODI' ||
@@ -187,7 +191,7 @@ export default function AdminDashboardClient({ titleSubmissions, proposalSubmiss
   };
 
   const chartData = useMemo(() => {
-    const getJurusan = (item: any) => item.mahasiswa?.jurusan || item.submission?.mahasiswa?.jurusan;
+    const getJurusan = (item: SubmissionItem) => 'mahasiswa' in item ? item.mahasiswa?.jurusan : item.submission.mahasiswa?.jurusan;
     return {
       si: {
         judul: verifiedTitles.filter(s => getJurusan(s) === 'SISTEM_INFORMASI').length,
@@ -277,7 +281,6 @@ export default function AdminDashboardClient({ titleSubmissions, proposalSubmiss
         />
         <StatCard
           title="Total Sem. Hasil"
-          // Menggunakan verifiedHasils yang sudah difilter status & periode
           value={stats.totalHasil}
           subtitle={periodeText}
           icon={<FiCheckSquare size={22} />}

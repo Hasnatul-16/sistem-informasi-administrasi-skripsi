@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import prisma from '@/lib/prisma';
 import {
-  FiFileText,
   FiClock,
   FiCheckCircle,
   FiXCircle,
@@ -9,13 +8,12 @@ import {
   FiArrowRight,
   FiAlertCircle,
   FiBookOpen,
-  FiCalendar,
   FiBook, 
 } from 'react-icons/fi';
 import DownloadSKButton from './DownloadSK';
 import { Status } from '@prisma/client';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/app/api/auth/auth';
 import { redirect } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
@@ -95,14 +93,16 @@ async function getMahasiswaData() {
   return { studentProfile, latestJudulSubmission, latestProposalSubmission, latestSeminarHasilSubmission };
 }
 
-const StatusBadge = ({ status }: { status: Status | 'DIJADWALKAN' | 'MENUNGGU_PENETAPAN' | 'SEMINAR_HASIL_DISETUJUI' }) => {
+
+const StatusBadge = ({ status }: { status: Status | 'DIJADWALKAN' | 'MENUNGGU_PENETAPAN' | 'LULUS_SKRIPSI' }) => {
   const statusConfig = {
-    TERKIRIM: { text: "Diperiksa oleh Admin", icon: FiClock, color: "bg-yellow-100 text-yellow-800" },
-    DIPERIKSA_ADMIN: { text: "Diperiksa Admin", icon: FiClock, color: "bg-yellow-100 text-yellow-800" },
-    DITOLAK_ADMIN: { text: "Ditolak Admin", icon: FiXCircle, color: "bg-red-100 text-red-800" },
-    DIPROSES_KAPRODI: { text: "Diproses Kaprodi", icon: FiClock, color: "bg-purple-100 text-purple-800" },
-    DISETUJUI: { text: "Disetujui", icon: FiCheckCircle, color: "bg-green-500 text-white" },
-  } as const; 
+     TERKIRIM: { text: 'Diperiksa oleh Admin', icon: FiClock, color: "bg-yellow-100 text-yellow-800" },
+    DIPERIKSA_ADMIN: { text: 'Diperiksa Admin', icon: FiClock, color: "bg-yellow-100 text-yellow-800" },
+    DITOLAK_ADMIN: { text: 'Ditolak Admin', icon: FiXCircle, color: "bg-red-100 text-red-800" },
+    DIPROSES_KAPRODI: { text: 'Diproses Kaprodi', icon: FiClock, color: "bg-purple-100 text-purple-800" },
+    DISETUJUI: { text: 'Disetujui', icon: FiCheckCircle, color: "bg-green-500 text-white" },
+  } as const;
+
 
   const config = statusConfig[status as keyof typeof statusConfig] || { text: status, icon: FiAlertCircle, color: "bg-gray-100 text-gray-800" };
   const Icon = config.icon;
@@ -118,7 +118,7 @@ const StatusBadge = ({ status }: { status: Status | 'DIJADWALKAN' | 'MENUNGGU_PE
 export default async function MahasiswaDashboardPage() {
   const { studentProfile, latestJudulSubmission, latestProposalSubmission, latestSeminarHasilSubmission } = await getMahasiswaData();
 
-  if (!studentProfile) {
+if (!studentProfile) {
     return (
       <div className="text-center p-10">
         <h1 className="text-2xl font-bold text-red-600">Profil Mahasiswa Tidak Ditemukan</h1>
@@ -128,16 +128,7 @@ export default async function MahasiswaDashboardPage() {
   }
 
   const isProposalApproved = latestProposalSubmission?.status === 'DISETUJUI';
-
   const isSidangScheduled = isProposalApproved && latestProposalSubmission?.jadwal_sidang && latestProposalSubmission.penguji;
-
-  let sidangStatus:  'DISETUJUI';
-
-  if (isProposalApproved) {
-    if (isSidangScheduled) {
-      sidangStatus = 'DISETUJUI';
-    } 
-  }
 
   const penguji = latestProposalSubmission?.penguji || 'Belum Ditetapkan';
   const skPengujiUrl = latestProposalSubmission?.sk_penguji;
@@ -244,7 +235,7 @@ export default async function MahasiswaDashboardPage() {
                 <li><strong>Pembimbing 2:</strong> {latestJudulSubmission.pembimbing2}</li>
               </ul><br />
 
-              <p> Silahkan Hubungi Dosen Pembimbing untuk Memulai Propses Bimbingan  </p>
+              <p> Silahkan Hubungi Dosen Pembimbing untuk Memulai Proses Bimbingan  </p>
 
               <div className="mt-4 flex flex-col sm:flex-row gap-2">
                 {
@@ -263,7 +254,7 @@ export default async function MahasiswaDashboardPage() {
           <div className="text-center py-10">
             <FiClock className="mx-auto h-12 w-12 text-yellow-500" />
             <h3 className="mt-2 text-lg font-medium text-gray-900">Pengajuan Judul Anda Sedang Diproses</h3>
-            <p className="mt-1 text-sm text-gray-500">Lihat detail status di bagian "Pengajuan Sedang Diproses" di atas.</p>
+            <p className="mt-1 text-sm text-gray-500">Lihat detail status di bagian &quot;Pengajuan Sedang Diproses&quot; di atas.</p>
           </div>
         )}
       </div>
@@ -309,7 +300,8 @@ export default async function MahasiswaDashboardPage() {
                   {
                     (() => {
                       const rawName = `${studentProfile.nama || 'mahasiswa'}`;
-                      const rawNim = studentProfile.nim || latestProposalSubmission.id;
+                    const rawNim = studentProfile.nim || latestProposalSubmission.id;
+
                       const sanitized = rawName.replace(/[^a-zA-Z0-9\- _]/g, '_').replace(/\s+/g, '_');
                       const filename = `SK-PENGUJI-SEMPRO-${sanitized}-${rawNim}.pdf`;
 
@@ -349,7 +341,7 @@ export default async function MahasiswaDashboardPage() {
             
             <div className="text-center py-10 text-gray-500">
               <FiBookOpen className="mx-auto h-12 w-12 text-gray-400" />
-              <p className="mt-2">Pengajuan Judul Belum Disetujui. Lanjutkan tahap Judul terlebih dahulu.</p>
+             <p className="mt-2">Seminar Proposal <strong>&quot;Disetujui&quot;</strong> terlebih dahulu untuk mengajukan Sidang Skripsi.</p>
             </div>
           )
         }
@@ -370,7 +362,7 @@ export default async function MahasiswaDashboardPage() {
          
             <div className="text-center py-10 text-gray-500">
               <FiBook className="mx-auto h-12 w-12 text-gray-400" />
-              <p className="mt-2">Seminar Proposal Disetujui terlebih dahulu untuk mengajukan Sidang Skripsi.</p>
+               <p className="mt-2">Seminar Proposal <strong>&quot;Disetujui&quot;</strong> terlebih dahulu untuk mengajukan Sidang Skripsi.</p>
             </div>
           ) : isSeminarHasilApproved ? (
   

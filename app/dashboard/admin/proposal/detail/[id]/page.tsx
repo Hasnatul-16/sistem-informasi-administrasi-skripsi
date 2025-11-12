@@ -1,9 +1,7 @@
-
-
 import prisma from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { FiAlertCircle, FiFileText, FiDownload, FiArrowLeft } from 'react-icons/fi';
+import { authOptions } from '@/app/api/auth/auth';
+import { FiAlertCircle, FiFileText, FiDownload} from 'react-icons/fi';
 import Link from 'next/link';
 import type { Proposal, Judul, Mahasiswa } from '@prisma/client';
 
@@ -58,14 +56,15 @@ const FileItem = (label: string, url: string | null | undefined) => (
 );
 
 
-export default async function ProposalDetailPage({ params }: { params: { id: string } }) {
+export default async function ProposalDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
   
   if (session?.user?.role !== 'ADMIN') {
     return <div className="p-4 text-red-600 font-medium">Akses ditolak. Anda bukan Admin.</div>;
   }
 
-  const proposalId = parseInt(params.id, 10);
+  const { id } = await params;
+  const proposalId = parseInt(id, 10);
   if (isNaN(proposalId)) {
     return <div className="p-4 text-red-600 font-medium">ID Proposal tidak valid.</div>;
   }
@@ -89,8 +88,8 @@ export default async function ProposalDetailPage({ params }: { params: { id: str
   }
 
  
-  const buktiSeminarUrl = (proposal as any)['lampiran_5xseminar'] ?? (proposal as any)['bukti_seminar_url'];
-  const transkripUrl = (proposal as any)['transkrip'] ?? (proposal as any)['transkrip_url'];
+    const buktiSeminarUrl = (proposal as unknown as Record<string, unknown>)['lampiran_5xseminar'] as string | null ?? (proposal as unknown as Record<string, unknown>)['bukti_seminar_url'] as string | null;
+  const transkripUrl = (proposal as unknown as Record<string, unknown>)['transkrip'] as string | null ?? (proposal as unknown as Record<string, unknown>)['transkrip_url'] as string | null;
 
 
   return (

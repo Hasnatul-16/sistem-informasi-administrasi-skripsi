@@ -1,18 +1,15 @@
-// app/dashboard/kaprodi/pengajuan-judul/page.tsx
-
 import { PrismaClient, Jurusan } from '@prisma/client';
 import KaprodiSubmissionTable from './KaprodiSubmissionTable'; 
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/app/api/auth/auth';
 
 const prisma = new PrismaClient();
 
 async function getDataForKaprodi(jurusanKaprodi: Jurusan) {
-  // --- PERBAIKAN LOGIKA UTAMA DI SINI ---
+
   const submissions = await prisma.judul.findMany({
     where: {
       jurusan: jurusanKaprodi,
-      // Hanya ambil data dengan status yang relevan untuk Kaprodi
       status: {
         in: ['DIPROSES_KAPRODI', 'DISETUJUI']
       }
@@ -20,7 +17,7 @@ async function getDataForKaprodi(jurusanKaprodi: Jurusan) {
     include: {
      mahasiswa: { include: { user: true } },
     },
-    orderBy: { tanggal: 'desc' }, // Urutkan dari yang terbaru diproses
+    orderBy: { tanggal: 'desc' }, 
   });
 
   const lecturers = await prisma.dosen.findMany({

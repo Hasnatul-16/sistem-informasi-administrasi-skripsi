@@ -1,14 +1,15 @@
 
 
-import { NextResponse } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 import prisma from '@/lib/prisma';
 import { Status } from '@prisma/client';
 
 export async function PATCH(
-    request: Request,
-    { params }: { params: { id: string } }
+   request: NextRequest,
+    context: { params: Promise<{ id: string }> }
 ) {
     try {
+        const params = await context.params;
         const proposalId = parseInt(params.id, 10);
         if (isNaN(proposalId)) {
             return NextResponse.json({ message: 'ID proposal tidak valid' }, { status: 400 });

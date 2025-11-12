@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import type { Judul, Mahasiswa, User, Dosen, Status } from '@prisma/client';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
-import { FiX, FiClock, FiCheckCircle, FiFileText, FiFilter, FiXCircle, FiUsers, FiBook, FiTag, FiSettings, FiCalendar, FiUser, FiHash, FiSearch } from 'react-icons/fi';
+import { FiX, FiClock, FiCheckCircle, FiFileText, FiUsers, FiBook, FiTag, FiSettings, FiCalendar, FiUser, FiHash, FiSearch } from 'react-icons/fi';
 
 const MySwal = withReactContent(Swal);
 
@@ -18,7 +18,7 @@ interface KaprodiTableProps {
 }
 
 const StatusBadge = ({ status }: { status: Status }) => {
-  const statusConfig: { [key in Status]?: { text: string; icon: any; color: string } } = {
+  const statusConfig: { [key in Status]?: { text: string; icon: React.ComponentType<{ className?: string }>; color: string } } = {
     DIPROSES_KAPRODI: { text: "Perlu Diproses", icon: FiClock, color: "bg-purple-100 text-purple-800" },
     DISETUJUI: { text: "Selesai Diproses", icon: FiCheckCircle, color: "bg-green-100 text-green-800" },
   };
@@ -123,8 +123,9 @@ export default function KaprodiSubmissionTable({ initialSubmissions, lecturers }
       );
 
       closeModal();
-    } catch (error: any) {
-      MySwal.fire({ icon: 'error', title: 'Oops...', text: error.message || 'Terjadi kesalahan pada server.' });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Terjadi kesalahan pada server.';
+      MySwal.fire({ icon: 'error', title: 'Oops...', text: message });
     } finally {
       setIsLoading(false);
     }

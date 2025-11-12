@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import SubmissionTable from './SubmissionTable'; 
 import type { Judul, Mahasiswa, User } from '@prisma/client';
-import { FiFilter, FiSearch } from 'react-icons/fi';
+import { FiSearch } from 'react-icons/fi';
 
 type SubmissionWithStudent = Judul & {
   student: Mahasiswa & { user: User };

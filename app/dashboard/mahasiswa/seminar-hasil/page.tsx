@@ -1,5 +1,5 @@
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from '@/app/api/auth/auth';
 import prisma from "@/lib/prisma";
 import SeminarHasilForm from "./SeminarHasilForm"; 
 import Link from "next/link";
@@ -26,7 +26,7 @@ export default async function SeminarHasilPage() {
   const approvedJudul = await prisma.judul.findFirst({
     where: {
       id_mahasiswa: mahasiswa.id,
-      status: 'DISETUJUI',
+      status: Status.DISETUJUI, 
     },
     select: {
       id: true,
@@ -84,27 +84,29 @@ export default async function SeminarHasilPage() {
 
   const activeSeminarHasil = await prisma.seminarHasil.findFirst({
    where: {
-      id_judul: mahasiswa.id,
-      status: 'DISETUJUI',
+       id_judul: approvedJudul.id, 
+        status: {
+        not: Status.DITOLAK_ADMIN,
+        },
     },
   });
+    if (activeSeminarHasil) {
+     return (
+            <main className="min-h-screen bg-gray-100 p-8 flex items-center justify-center">
+                <div className="bg-white p-8 rounded-lg shadow-md text-center max-w-lg border border-blue-300">
+                    <FiCheckCircle className="w-12 h-12 mx-auto text-blue-500 mb-4" />
+                    <h1 className="text-xl font-bold text-gray-800 mb-2">Pengajuan Sedang Diproses/Disetujui</h1>
+                    <p className="text-gray-600 mb-6">
+                        Anda sudah memiliki pengajuan Seminar Hasil yang sedang dalam proses verifikasi atau telah disetujui untuk judul ini.
+                    </p>
+                    <Link href="/dashboard/mahasiswa" className="text-blue-600 hover:underline font-medium">
+                        Kembali ke Dashboard
+                    </Link>
+                </div>
+            </main>
+        );
+    }
 
-  if (activeSeminarHasil && activeSeminarHasil.status !== Status.DITOLAK_ADMIN) {
-    return (
-      <main className="min-h-screen bg-gray-100 p-8 flex items-center justify-center">
-        <div className="bg-white p-8 rounded-lg shadow-md text-center max-w-lg border border-blue-300">
-          <FiCheckCircle className="w-12 h-12 mx-auto text-blue-500 mb-4" />
-          <h1 className="text-xl font-bold text-gray-800 mb-2">Pengajuan Sedang Diproses</h1>
-          <p className="text-gray-600 mb-6">
-            Anda sudah memiliki pengajuan Sidang Skripsi yang sedang dalam proses verifikasi atau telah disetujui untuk judul ini.
-          </p>
-          <Link href="/dashboard/mahasiswa" className="text-blue-600 hover:underline font-medium">
-            Kembali ke Dashboard
-          </Link>
-        </div>
-      </main>
-    );
-  }
 
   return (
     <SeminarHasilForm

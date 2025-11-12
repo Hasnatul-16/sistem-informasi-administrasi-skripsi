@@ -2,7 +2,7 @@ import { AppSidebar } from "@/app/components/sidebar";
 import { Header } from "@/app/components/Header";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"; 
+import { authOptions } from '@/app/api/auth/auth'; 
 import prisma from "@/lib/prisma"; 
 
 export default async function KaprodiDashboardLayout({

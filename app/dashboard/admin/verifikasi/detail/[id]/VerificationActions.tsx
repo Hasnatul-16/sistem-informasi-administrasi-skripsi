@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-// --- PERUBAHAN: Tambahkan tipe data yang dibutuhkan ---
 import type { Judul, Mahasiswa, User } from '@prisma/client';
 import { FiCheckCircle, FiXCircle, FiArrowLeft } from 'react-icons/fi';
 import Swal from 'sweetalert2';
@@ -10,12 +9,10 @@ import withReactContent from 'sweetalert2-react-content';
 
 const MySwal = withReactContent(Swal);
 
-// --- PERUBAHAN 1: Definisikan tipe data lengkap untuk 'submission' ---
 type SubmissionWithStudent = Judul & {
   student:Mahasiswa & { user: User };
 };
 
-// --- PERUBAHAN 2: Terima seluruh objek submission, bukan hanya ID ---
 export default function VerificationActions({ submission }: { submission: SubmissionWithStudent }) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -60,7 +57,7 @@ export default function VerificationActions({ submission }: { submission: Submis
   const processSubmission = async (action: 'VERIFY' | 'REJECT', catatanAdmin = '') => {
     setIsLoading(true);
     try {
-      const response = await fetch(`/api/submission/${submission.id}`, { // Menggunakan submission.id
+      const response = await fetch(`/api/submission/${submission.id}`, { 
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action, catatanAdmin }),
@@ -79,15 +76,15 @@ export default function VerificationActions({ submission }: { submission: Submis
         showConfirmButton: false,
       });
 
-      // --- PERUBAHAN 3: Arahkan ke halaman jurusan yang benar (dinamis) ---
       router.push(`/dashboard/admin/verifikasi/${submission.jurusan}`);
       router.refresh();
 
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Terjadi kesalahan pada server.';
       MySwal.fire({
         icon: 'error',
         title: 'Oops...',
-        text: error.message || 'Terjadi kesalahan pada server.',
+        text: errorMessage,
       });
     } finally {
       setIsLoading(false);
@@ -95,17 +92,16 @@ export default function VerificationActions({ submission }: { submission: Submis
   };
 
   return (
-    // --- PERUBAHAN 4: Ubah layout untuk menampung tombol Kembali ---
+
     <div className="flex justify-between items-center gap-4 pt-6 mt-6 border-t">
-      {/* Tombol Kembali */}
+  
       <button
-        onClick={() => router.back()} // Menggunakan router.back() untuk kembali
+        onClick={() => router.back()} 
         className="inline-flex items-center gap-2 py-2 px-5 bg-gray-200 text-gray-800 rounded-md font-semibold hover:bg-gray-300 transition-colors"
       >
         <FiArrowLeft /> Kembali
       </button>
 
-      {/* Grup Tombol Aksi */}
       <div className="flex items-center gap-4">
         <button
           onClick={() => handleAction('REJECT')}

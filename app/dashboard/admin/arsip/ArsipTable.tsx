@@ -14,7 +14,7 @@ interface ArsipTableProps {
 }
 
 export default function ArsipTable({ initialSubmissions }: ArsipTableProps) {
-  const [submissions, setSubmissions] = useState(initialSubmissions);
+  const [submissions] = useState(initialSubmissions);
   const [filter, setFilter] = useState({ year: '', month: '', day: '' });
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -46,7 +46,7 @@ export default function ArsipTable({ initialSubmissions }: ArsipTableProps) {
     <div className="bg-white p-6 rounded-lg shadow-md border">
       <h2 className="text-xl font-semibold mb-4">Arsip Pengajuan Skripsi</h2>
       
-      {/* --- BAGIAN FILTER --- */}
+  
       <div className="flex flex-wrap items-end gap-4 p-4 mb-4 bg-gray-50 rounded-lg border">
         <div className="flex-grow">
           <label className="block text-sm font-medium text-gray-700 mb-1">Filter Berdasarkan Tanggal Pengajuan</label>
@@ -85,7 +85,6 @@ export default function ArsipTable({ initialSubmissions }: ArsipTableProps) {
         </button>
       </div>
 
-      {/* --- TABEL ARSIP --- */}
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white border">
           <thead className="bg-gray-50">

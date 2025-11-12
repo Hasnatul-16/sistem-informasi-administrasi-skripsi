@@ -1,16 +1,13 @@
-// app/layout.tsx
-
 import type { Metadata } from "next";
-// 1. Ganti font dari Geist menjadi Poppins
 import { Poppins } from "next/font/google";
 import "./globals.css";
-import AuthProvider from "./AuthProvider"; // Impor provider sesi
+import AuthProvider from "./AuthProvider";
 
-// 2. Inisialisasi font Poppins dengan berbagai ketebalan
+
 const poppins = Poppins({
-  variable: "--font-poppins", // Opsional: untuk penggunaan lanjutan
+  variable: "--font-poppins", 
   subsets: ["latin"],
-  weight: ["200", "300", "500", "600"], // 400=regular, 600=semibold, 700=bold
+  weight: ["200", "300", "500", "600"], 
 });
 
 export const metadata: Metadata = {
@@ -25,9 +22,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      {/* 3. Terapkan kelas font Poppins ke seluruh aplikasi */}
+    
       <body className={`${poppins.className} antialiased`}>
-        {/* AuthProvider membungkus seluruh aplikasi */}
+      
         <AuthProvider>
           {children}
         </AuthProvider>

@@ -2,8 +2,8 @@
 
 import { useState, useMemo } from 'react';
 import SeminarHasilTable from './SeminarHasilTable'; 
-import type { SeminarHasil, Judul, Mahasiswa, Status } from '@prisma/client'; 
-import { FiFilter, FiSearch, FiInbox } from 'react-icons/fi';
+import type { SeminarHasil, Judul, Mahasiswa } from '@prisma/client'; 
+import {  FiSearch, FiInbox } from 'react-icons/fi';
 
 type SeminarHasilWithDetails = SeminarHasil & {
     judul: Judul & {

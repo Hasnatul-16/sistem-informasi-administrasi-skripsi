@@ -1,7 +1,7 @@
 import { PrismaClient, Jurusan } from '@prisma/client';
 import KaprodiHasilTable from './KaprodiHasilTable'; 
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/app/api/auth/auth';
 
 const prisma = new PrismaClient();
 

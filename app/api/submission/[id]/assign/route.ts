@@ -3,13 +3,12 @@ import prisma from '@/lib/prisma';
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // 1. Konversi ID dari string (URL) menjadi number
-    const id = parseInt(params.id, 10);
+    const resolvedParams = await params;
+    const id = parseInt(resolvedParams.id, 10);
     
-    // Validasi jika ID tidak valid
     if (isNaN(id)) {
         return NextResponse.json({ message: 'ID pengajuan tidak valid' }, { status: 400 });
     }
@@ -24,7 +23,6 @@ export async function PATCH(
       return NextResponse.json({ message: 'Pembimbing 1 dan 2 tidak boleh orang yang sama' }, { status: 400 });
     }
 
-    // 2. Gunakan ID yang sudah menjadi number untuk update
     const updatedSubmission = await prisma.judul.update({
       where: { id: id },
       data: {

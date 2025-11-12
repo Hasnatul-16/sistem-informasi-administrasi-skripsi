@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { Jurusan, Role, Status } from '@prisma/client';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/app/api/auth/auth';
 
 type DosenStat = {
     nama: string;
@@ -94,7 +94,7 @@ export async function GET(request: Request) {
         
         const { searchParams } = new URL(request.url);
 
-        let targetJurusanStr = searchParams.get('jurusan');
+        const targetJurusanStr = searchParams.get('jurusan');
         let targetJurusan: Jurusan;
 
         if (userRole === Role.KAPRODI) {
@@ -124,11 +124,12 @@ export async function GET(request: Request) {
 
         return NextResponse.json(dosenStats, { status: 200 });
 
-    } catch (error: any) {
-        console.error("Gagal memproses API Dosen Stats:", error);
-        return NextResponse.json({ 
-            message: 'API Error: Gagal menghitung beban dosen.',
-            details: error.message || 'Terjadi kesalahan internal server.'
+    } catch (error: unknown) {
+        console.error("Gagal memproses API Riwayat Dosen:", error);
+        const errorMessage = error instanceof Error ? error.message : 'Terjadi kesalahan internal server.';
+        return NextResponse.json({
+            message: 'API Error: Gagal memuat riwayat dosen.',
+            details: errorMessage
         }, { status: 500 });
     }
 }

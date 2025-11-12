@@ -10,7 +10,7 @@ export default function DownloadSKButton({ submissionId, filename }: { submissio
       setLoading(true);
       const res = await fetch(`/api/sk/${submissionId}`);
       if (!res.ok) {
-        
+        // Try to parse JSON error message, otherwise throw status
         const errJson = await res.json().catch(() => null);
         throw new Error(errJson?.error || `HTTP ${res.status}`);
       }
@@ -19,7 +19,7 @@ export default function DownloadSKButton({ submissionId, filename }: { submissio
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      
+      // sanitize filename to remove illegal filesystem characters
       const ensurePdfExt = (name: string) => /\.pdf$/i.test(name) ? name : `${name}.pdf`;
       const sanitize = (name: string) => name.replace(/[\\/:*?"<>|]/g, '_');
       let outName = filename ? String(filename) : `SK-${submissionId}`;
@@ -30,10 +30,11 @@ export default function DownloadSKButton({ submissionId, filename }: { submissio
       a.click();
       a.remove();
       URL.revokeObjectURL(url);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Download SK error:', err);
-     
-      alert('Gagal mengunduh SK: ' + (err?.message || 'Internal Server Error'));
+      // Friendly user message
+      const message = err instanceof Error ? err.message : 'Internal Server Error';
+      alert('Gagal mengunduh SK: ' + message);
     } finally {
       setLoading(false);
     }

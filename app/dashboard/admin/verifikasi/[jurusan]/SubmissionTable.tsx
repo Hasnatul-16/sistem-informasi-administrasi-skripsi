@@ -13,7 +13,6 @@ type SubmissionWithStudent = Judul & {
   student: Mahasiswa & { user: User };
 };
 
-// Komponen Badge Status (tidak ada perubahan)
 const StatusBadge = ({ status }: { status: Status }) => {
     const statusConfig = {
       TERKIRIM: { text: "Diperiksa Admin", icon: FiClock, color: "bg-yellow-100 text-yellow-800" },
@@ -34,18 +33,17 @@ const StatusBadge = ({ status }: { status: Status }) => {
 
 export default function SubmissionTable({ initialSubmissions }: { initialSubmissions: SubmissionWithStudent[] }) {
   const [submissions, setSubmissions] = useState(initialSubmissions);
-  // State untuk melacak ID pengajuan yang sedang di-download
+ 
   const [loadingId, setLoadingId] = useState<number | null>(null);
   
   useEffect(() => {
     setSubmissions(initialSubmissions);
   }, [initialSubmissions]);
 
-  // Fungsi download PDF (langsung panggil API)
   const handleDownloadSK = async (submissionId: number, nim: string) => {
-    setLoadingId(submissionId); // Set loading untuk baris ini
+    setLoadingId(submissionId);
     try {
-      // Langsung panggil API route
+
       const res = await fetch(`/api/sk/${submissionId}`);
       
       if (!res.ok) {
@@ -59,18 +57,18 @@ export default function SubmissionTable({ initialSubmissions }: { initialSubmiss
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `SK-${nim || submissionId}.pdf`; // Gunakan NIM untuk nama file
+      a.download = `SK-${nim || submissionId}.pdf`; 
       document.body.appendChild(a);
       a.click();
-      
-      // Cleanup
+
       a.remove();
       URL.revokeObjectURL(url);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('downloadPdf error', err);
-      alert('Gagal mengunduh PDF. Cek console untuk detail.');
+      const errorMessage = err instanceof Error ? err.message : 'Terjadi kesalahan server.';
+      alert(`Gagal mengunduh PDF: ${errorMessage}`);
     } finally {
-      setLoadingId(null); // Selesai loading
+      setLoadingId(null); 
     }
   };
 
@@ -130,12 +128,11 @@ export default function SubmissionTable({ initialSubmissions }: { initialSubmiss
 
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   {sub.status === 'TERKIRIM' && (<Link href={`/dashboard/admin/verifikasi/detail/${sub.id}`} className="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-900 font-semibold">Verifikasi <FiArrowRight className="h-4 w-4"/></Link>)}
-                  
-                  {/* INI ADALAH TOMBOL DOWNLOAD LANGSUNG */}
+
                   {sub.status === 'DISETUJUI' && (
                     <button
                       onClick={() => handleDownloadSK(sub.id, sub.student.nim)}
-                      disabled={loadingId === sub.id} // Nonaktifkan tombol saat mengunduh
+                      disabled={loadingId === sub.id} 
                       className="inline-flex items-center gap-2 text-green-600 hover:text-green-900 font-semibold disabled:text-gray-400 disabled:cursor-wait"
                     >
                       {loadingId === sub.id ? (

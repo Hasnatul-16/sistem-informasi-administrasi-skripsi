@@ -67,7 +67,7 @@ model Judul {
   usulan_pembimbing1   String         @map("usulan_pembimbing1")
   usulan_pembimbing2   String         @map("usulan_pembimbing2")
   usulan_pembimbing3   String?        @map("usulan_pembimbing3")
-  skPembimbing         String?        @map("sk_pembimbing")
+  no_undangan         String?        @map("no_undangan")
   sk_tanggal           DateTime?      @map("sk_tanggal")
   sk_number            String?        @map("sk_number")
 
@@ -115,6 +115,7 @@ model SeminarHasil {
   jadwal_sidang      DateTime?     @map("jadwal_sidang")
   sk_penguji         String?       @map("sk_penguji")
   undangan_penguji   String?       @map("undangan_penguji")
+  undangan_munaqasah   String?       @map("undangan_munaqasah")
   penguji1           String?       @map("penguji1")
   penguji2           String?       @map("penguji2")
   transkrip          String?

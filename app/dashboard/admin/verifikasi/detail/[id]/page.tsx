@@ -1,5 +1,3 @@
-// src/app/dashboard/admin/verifikasi/[id]/page.tsx
-
 import prisma from '@/lib/prisma';
 import Link from 'next/link';
 import { FiFileText, FiDownload } from 'react-icons/fi';
@@ -20,16 +18,13 @@ async function getSubmission(id: string): Promise<SubmissionWithStudent> {
     include: { mahasiswa: { include: { user: true } } },
   });
   if (!submission) throw new Error('Pengajuan tidak ditemukan');
-  // Map `mahasiswa` (Prisma) -> `student` (komponen client mengharapkan nama ini)
   return { ...submission, student: submission.mahasiswa } as unknown as SubmissionWithStudent;
 }
 
-export default async function VerificationDetailPage({ params }: { params: { id: string } }) {
-  const submission = await getSubmission(params.id);
-
-  // Jika data dari Prisma memakai properti `mahasiswa`, map ke `student`
-  // sehingga komponen lain yang mengakses `student.*` akan bekerja.
-  const submissionWithStudent = { ...submission, student: (submission as any).mahasiswa } as any;
+export default async function VerificationDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const submission = await getSubmission(id);
+  const submissionWithStudent = submission;
 
   const detailItem = (label: string, value: string | undefined | null) => (
     <div>

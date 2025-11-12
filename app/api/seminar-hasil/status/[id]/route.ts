@@ -4,9 +4,10 @@ import { Status } from '@prisma/client';
 
 export async function PATCH(
     request: Request,
-    { params }: { params: { id: string } }
+   { params }: { params: Promise<{ id: string }> }
 ) {
-    const seminarHasilId = parseInt(params.id, 10); 
+    const resolvedParams = await params;
+    const seminarHasilId = parseInt(resolvedParams.id, 10);
 
     if (isNaN(seminarHasilId)) {
         return NextResponse.json({ message: 'ID Seminar Hasil tidak valid.' }, { status: 400 }); 

@@ -84,8 +84,9 @@ export default function SeminarHasilActionAdmin({ submission }: { submission: Se
             }, 1500);
 
 
-        } catch (error: any) {
-            MySwal.fire('Error', error.message || 'Terjadi kesalahan server.', 'error');
+        } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : 'Terjadi kesalahan server.';
+            MySwal.fire('Error', errorMessage, 'error');
         } finally {
             setIsLoading(false);
         }

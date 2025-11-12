@@ -1,8 +1,6 @@
-
-
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { FiFileText, FiUsers, FiCheckSquare, FiLayers, FiBell, FiArrowRight, FiUser } from 'react-icons/fi';
+import { authOptions } from '@/app/api/auth/auth';
+import { FiFileText, FiUsers, FiCheckSquare, FiLayers, FiBell, FiArrowRight } from 'react-icons/fi';
 import prisma from '@/lib/prisma';
 import { Jurusan, Judul, Proposal, SeminarHasil } from '@prisma/client';
 import Link from 'next/link';
@@ -35,10 +33,10 @@ const ActionCard = ({ title, linkBase, icon, iconBgColor, submissions }: {
     iconBgColor: string;
     submissions: (TitleSubmissionWithStudent | ProposalWithStudent | HasilWithStudent)[];
 }) => {
-    const getStudentDetails = (sub: any) => ({
+   const getStudentDetails = (sub: TitleSubmissionWithStudent | ProposalWithStudent | HasilWithStudent) => ({
         id: sub.id,
-        fullName: sub.mahasiswa?.nama || sub.judul?.mahasiswa?.nama,
-        jurusan: sub.mahasiswa?.jurusan || sub.judul?.mahasiswa?.jurusan,
+        fullName: 'mahasiswa' in sub ? sub.mahasiswa.nama : sub.judul.mahasiswa.nama,
+        jurusan: 'mahasiswa' in sub ? sub.mahasiswa.jurusan : sub.judul.mahasiswa.jurusan,
     });
 
     return (

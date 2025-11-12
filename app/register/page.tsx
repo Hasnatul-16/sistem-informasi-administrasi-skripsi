@@ -9,13 +9,22 @@ import withReactContent from 'sweetalert2-react-content';
 
 const MySwal = withReactContent(Swal);
 
-// --- Komponen Floating Label Input (Tidak Berubah) ---
-const FloatingLabelInput = ({ id, name, label, type, value, onChange, icon }: any) => { // Tambahkan 'name'
+interface FloatingLabelInputProps {
+  id: string;
+  name: string;
+  label: string;
+  type: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  icon: React.ReactNode;
+}
+
+const FloatingLabelInput = ({ id, name, label, type, value, onChange, icon }: FloatingLabelInputProps) => { 
   return (
     <div className="relative">
       <input
         id={id}
-        name={name} // Gunakan 'name'
+        name={name} 
         type={type}
         value={value}
         onChange={onChange}
@@ -45,7 +54,6 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  // --- PERBAIKAN DI SINI: Satu fungsi untuk semua input ---
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -77,11 +85,12 @@ export default function RegisterPage() {
       
       router.push('/');
 
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Terjadi kesalahan pada server.';
       MySwal.fire({
         icon: 'error',
         title: 'Oops...',
-        text: err.message || 'Terjadi kesalahan pada server.',
+        text: message,
       });
     } finally {
       setIsLoading(false);
@@ -102,7 +111,6 @@ export default function RegisterPage() {
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           
-          {/* Gunakan 'name' dan 'handleInputChange' untuk semua input */}
           <FloatingLabelInput id="nama" name="nama" label="Nama Lengkap" type="text" value={formData.nama} onChange={handleInputChange} icon={<FiUser className="h-5 w-5" />} />
           <FloatingLabelInput id="nim" name="nim" label="NIM" type="text" value={formData.nim} onChange={handleInputChange} icon={<FiBookmark className="h-5 w-5" />} />
           <FloatingLabelInput id="email" name="email" label="Alamat Email" type="email" value={formData.email} onChange={handleInputChange} icon={<FiMail className="h-5 w-5" />} />

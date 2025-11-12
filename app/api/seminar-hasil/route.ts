@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '../auth/[...nextauth]/route';
+import { authOptions } from '@/app/api/auth/auth';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
 import { Status } from '@prisma/client';

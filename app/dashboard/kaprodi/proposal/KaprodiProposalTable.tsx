@@ -5,7 +5,7 @@ import type { Proposal, Judul, Mahasiswa, User, Dosen, Status } from '@prisma/cl
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 
-import { FiX, FiCheckCircle, FiCalendar, FiUser, FiBook, FiUsers, FiHash, FiFilter, FiSearch, FiEdit, FiFile, FiSave } from 'react-icons/fi';
+import { FiX, FiCheckCircle, FiCalendar, FiUser, FiBook, FiUsers, FiHash, FiSearch, FiEdit, FiSave } from 'react-icons/fi';
 
 const MySwal = withReactContent(Swal);
 
@@ -183,8 +183,9 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
             );
 
             closeModal();
-        } catch (error: any) {
-            MySwal.fire({ icon: 'error', title: 'Oops...', text: error.message || 'Terjadi kesalahan pada server.' });
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : 'Terjadi kesalahan pada server.';
+            MySwal.fire({ icon: 'error', title: 'Oops...', text: message });
         } finally {
             setIsLoading(false);
         }

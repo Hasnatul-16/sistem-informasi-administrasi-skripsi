@@ -6,8 +6,17 @@ import { useRouter } from 'next/navigation';
 import { FiBookOpen, FiMail, FiLock } from 'react-icons/fi';
 import Link from 'next/link';
 
-// --- Komponen Input dengan Efek Floating Label yang Diperbarui ---
-const FloatingLabelInput = ({ id, label, type, value, onChange, icon }: any) => {
+
+interface FloatingLabelInputProps {
+  id: string;
+  label: string;
+  type: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  icon: React.ReactNode;
+}
+
+const FloatingLabelInput = ({ id, label, type, value, onChange, icon }: FloatingLabelInputProps) => {
   return (
     <div className="relative">
       <input
@@ -17,7 +26,7 @@ const FloatingLabelInput = ({ id, label, type, value, onChange, icon }: any) => 
         value={value}
         onChange={onChange}
         className="block px-3.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-        placeholder=" " // Placeholder kosong ini penting
+        placeholder=" " 
         required
       />
       <label
@@ -57,17 +66,16 @@ export default function LoginPage() {
       } else if (result?.ok) {
         router.push('/dashboard'); 
       }
-    } catch (error) {
+    } catch {
       setError('Terjadi kesalahan pada sistem. Silakan coba beberapa saat lagi.');
       setIsLoading(false);
     }
   };
 
   return (
-    // --- PERBAIKAN 1: Latar Belakang Biru Cerah ---
+
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-600 to-cyan-400">
-      
-      {/* --- PERBAIKAN 2: Form Berwarna Putih Solid --- */}
+
       <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-2xl shadow-2xl">
         <div className="text-center">
           <FiBookOpen className="w-12 h-12 mx-auto text-blue-600" />
@@ -80,21 +88,21 @@ export default function LoginPage() {
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           
-          <FloatingLabelInput 
+          <FloatingLabelInput
             id="email"
             label="Alamat Email"
             type="email"
             value={email}
-            onChange={(e: any) => setEmail(e.target.value)}
+            onChange={(e) => setEmail(e.target.value)}
             icon={<FiMail className="h-5 w-5" />}
           />
 
-          <FloatingLabelInput 
+          <FloatingLabelInput
             id="password"
             label="Password"
             type="password"
             value={password}
-            onChange={(e: any) => setPassword(e.target.value)}
+            onChange={(e) => setPassword(e.target.value)}
             icon={<FiLock className="h-5 w-5" />}
           />
           

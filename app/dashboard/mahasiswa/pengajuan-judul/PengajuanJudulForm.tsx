@@ -1,4 +1,3 @@
-// app/dashboard/mahasiswa/pengajuan-judul/PengajuanJudulForm.tsx
 "use client";
 
 import { useState } from 'react';
@@ -6,11 +5,10 @@ import { useRouter } from 'next/navigation';
 import { FiUpload, FiSend, FiFileText } from 'react-icons/fi';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
-import type { Dosen } from '@prisma/client'; // Impor tipe Dosen
+import type { Dosen } from '@prisma/client'; 
 
 const MySwal = withReactContent(Swal);
 
-// Tipe props untuk form, sekarang menerima dosenList
 interface PengajuanJudulFormProps {
   dosenList: Dosen[];
 }
@@ -20,9 +18,13 @@ type FilesState = {
   ukt: File | null;
   konsultasi: File | null;
 };
-
-// Komponen FileUploadBox (tidak berubah)
-const FileUploadBox = ({ id, name, label, file, onChange }: any) => (
+const FileUploadBox = ({ id, name, label, file, onChange }: {
+  id: string;
+  name: keyof FilesState;
+  label: string;
+  file: File | null;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}) => (
     <div>
       <label 
         htmlFor={id} 
@@ -48,7 +50,6 @@ const FileUploadBox = ({ id, name, label, file, onChange }: any) => (
     </div>
 );
 
-// Ini adalah komponen utama Anda, sekarang sebagai Client Component
 export default function PengajuanJudulForm({ dosenList }: PengajuanJudulFormProps) {
   const initialFormData = { judul: '', topik: '', usulan_pembimbing1: '', usulan_pembimbing2: '', usulan_pembimbing3: '' };
   const initialFilesState = { transkrip: null, ukt: null, konsultasi: null };
@@ -59,7 +60,7 @@ export default function PengajuanJudulForm({ dosenList }: PengajuanJudulFormProp
   const router = useRouter();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLSelectElement | HTMLInputElement>) => {
-    const { name, value } = e.target;
+    const { name, value } = e.target as HTMLTextAreaElement | HTMLSelectElement | HTMLInputElement;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
@@ -80,7 +81,7 @@ export default function PengajuanJudulForm({ dosenList }: PengajuanJudulFormProp
 
     setIsLoading(true);
     const submissionData = new FormData();
-    // Append fields with keys expected by the server route (snake_case)
+
     submissionData.append('judul', formData.judul);
     submissionData.append('topik', formData.topik);
     submissionData.append('usulan_pembimbing1', formData.usulan_pembimbing1);
@@ -98,8 +99,9 @@ export default function PengajuanJudulForm({ dosenList }: PengajuanJudulFormProp
 
       await MySwal.fire({ icon: 'success', title: 'Pengajuan Terkirim!', text: 'Data Anda telah berhasil dikirim dan akan segera diproses.' });
       router.push('/dashboard/mahasiswa');
-    } catch (error: any) {
-      MySwal.fire({ icon: 'error', title: 'Gagal Mengirim', text: error.message });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Terjadi kesalahan yang tidak diketahui';
+      MySwal.fire({ icon: 'error', title: 'Gagal Mengirim', text: message });
     } finally {
       setIsLoading(false);
     }
@@ -126,7 +128,7 @@ export default function PengajuanJudulForm({ dosenList }: PengajuanJudulFormProp
                 <textarea id="judul" name="judul" rows={4} value={formData.judul} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="Masukkan judul skripsi Anda..." required />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* --- PERUBAHAN UTAMA: Dropdown dinamis --- */}
+
                 <div>
                   <label htmlFor="usulan_pembimbing1" className="block text-sm font-medium text-gray-700 mb-1">Usulan Calon Pembimbing 1 <span className="text-red-500">*</span></label>
                   <select id="usulan_pembimbing1" name="usulan_pembimbing1" value={formData.usulan_pembimbing1} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white" required>

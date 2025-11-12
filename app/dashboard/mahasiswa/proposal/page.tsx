@@ -1,13 +1,10 @@
-// File: proposal/page.tsx
-
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from '@/app/api/auth/auth';
 import prisma from "@/lib/prisma";
-import SeminarProposalForm from "./SeminarProposalForm"; // Komponen Client
+import SeminarProposalForm from "./SeminarProposalForm"; 
 import Link from "next/link";
 import { FiAlertTriangle } from "react-icons/fi";
 
-// Pastikan data selalu baru
 export const revalidate = 0;
 
 export default async function SeminarProposalPage() {
@@ -17,7 +14,6 @@ export default async function SeminarProposalPage() {
     return <div className="p-4 text-red-600">Sesi tidak ditemukan.</div>;
   }
 
-  // 1. Cari profil mahasiswa
   const mahasiswa = await prisma.mahasiswa.findUnique({
     where: { id_user: session.user.id },
   });
@@ -26,14 +22,12 @@ export default async function SeminarProposalPage() {
     return <div className="p-4 text-red-600">Profil mahasiswa tidak ditemukan.</div>;
   }
 
-  // 2. Cari judul yang sudah DISETUJUI oleh Kaprodi untuk mahasiswa ini
-  // --- PERUBAHAN DI SINI: Ambil semua data judul yang diperlukan ---
   const approvedJudul = await prisma.judul.findFirst({
     where: {
       id_mahasiswa: mahasiswa.id,
       status: 'DISETUJUI',
     },
-    // Ambil semua kolom yang dibutuhkan oleh form read-only
+
     select: {
       id: true,
       topik: true,
@@ -41,17 +35,15 @@ export default async function SeminarProposalPage() {
       usulan_pembimbing1: true,
       usulan_pembimbing2: true,
       usulan_pembimbing3: true,
-      pembimbing1: true, // Pembimbing yang sudah ditetapkan
-      pembimbing2: true, // Pembimbing yang sudah ditetapkan
+      pembimbing1: true,
+      pembimbing2: true,
     },
-    // Tambahkan order by agar judul yang paling baru disetujui yang diambil (opsional)
+   
     orderBy: {
       tanggal: 'desc',
     }
   });
-  // -------------------------------------------------------------------
-
-  // 3. Jika tidak ada judul yang disetujui, tampilkan pesan
+ 
   if (!approvedJudul) {
     return (
       <main className="min-h-screen bg-gray-100 p-8 flex items-center justify-center">
@@ -69,12 +61,10 @@ export default async function SeminarProposalPage() {
     );
   }
 
-  // 4. Jika judul disetujui, render form dan kirim ID dan DATA JUDUL
-  // --- PERUBAHAN DI SINI: Kirimkan approvedJudul sebagai prop judulData ---
   return (
     <SeminarProposalForm
       judulId={approvedJudul.id}
-      judulData={approvedJudul} // Mengirimkan objek data judul lengkap
+      judulData={approvedJudul}
     />
   );
 }

@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { Jurusan, Role, Status } from '@prisma/client';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/app/api/auth/auth';
 
 type RiwayatEntry = {
     mahasiswa: string;
@@ -187,11 +187,12 @@ export async function GET(request: Request) {
 
         return NextResponse.json({ message: 'Role tidak valid.' }, { status: 400 });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Gagal memproses API Riwayat Dosen:", error);
-        return NextResponse.json({ 
+        const errorMessage = error instanceof Error ? error.message : 'Terjadi kesalahan internal server.';
+        return NextResponse.json({
             message: 'API Error: Gagal memuat riwayat dosen.',
-            details: error.message || 'Terjadi kesalahan internal server.'
+            details: errorMessage
         }, { status: 500 });
     }
 }

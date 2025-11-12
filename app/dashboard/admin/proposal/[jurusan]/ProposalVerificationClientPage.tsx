@@ -3,8 +3,8 @@
 
 import { useState, useMemo } from 'react';
 import ProposalTable from './ProposalTable'; 
-import type { Proposal, Judul, Mahasiswa, Status } from '@prisma/client';
-import { FiFilter, FiSearch, FiInbox } from 'react-icons/fi';
+import type { Proposal, Judul, Mahasiswa } from '@prisma/client';
+import {  FiSearch, FiInbox } from 'react-icons/fi';
 
 
 type ProposalWithDetails = Proposal & {

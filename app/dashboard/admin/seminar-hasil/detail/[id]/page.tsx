@@ -1,6 +1,6 @@
 import prisma from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/app/api/auth/auth';
 import { FiAlertCircle, FiFileText, FiDownload, FiArrowLeft } from 'react-icons/fi';
 import Link from 'next/link';
 import type { SeminarHasil, Judul, Mahasiswa } from '@prisma/client';
@@ -49,14 +49,15 @@ const FileItem = (label: string, url: string | null | undefined) => (
 );
 
 
-export default async function SeminarHasilDetailPage({ params }: { params: { id: string } }) {
+export default async function SeminarHasilDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const session = await getServerSession(authOptions);
 
     if (session?.user?.role !== 'ADMIN') {
         return <div className="p-4 text-red-600 font-medium">Akses ditolak. Anda bukan Admin.</div>;
     }
 
-    const seminarHasilId = parseInt(params.id, 10);
+    const { id } = await params;
+    const seminarHasilId = parseInt(id, 10);
     if (isNaN(seminarHasilId)) {
         return <div className="p-4 text-red-600 font-medium">ID Seminar Hasil tidak valid.</div>;
     }
@@ -68,8 +69,8 @@ export default async function SeminarHasilDetailPage({ params }: { params: { id:
             <main className="min-h-screen bg-gray-100 p-8 flex items-center justify-center">
                 <div className="bg-white p-8 rounded-lg shadow-md text-center max-w-lg border border-red-300">
                     <FiAlertCircle className="w-12 h-12 mx-auto text-red-500 mb-4" />
-                    <h1 className="text-xl font-bold text-gray-800 mb-2">Seminar Hasil Tidak Ditemukan</h1>
-                    <p className="text-gray-600 mb-6">Pengajuan Seminar Hasil dengan ID ini tidak ditemukan.</p>
+                    <h1 className="text-xl font-bold text-gray-800 mb-2">Sidang Skripsi Tidak Ditemukan</h1>
+                    <p className="text-gray-600 mb-6">Pengajuan Sidang Skripsi dengan ID ini tidak ditemukan.</p>
                     <Link href="/dashboard/admin" className="text-blue-600 hover:underline font-medium">
                         <FiArrowLeft className="inline-block mr-1" /> Kembali ke Dashboard Admin
                     </Link>

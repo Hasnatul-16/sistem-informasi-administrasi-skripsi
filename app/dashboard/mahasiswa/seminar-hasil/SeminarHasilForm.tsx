@@ -148,13 +148,14 @@ export default function SeminarHasilForm({ judulId, judulData }: SeminarHasilFor
             });
             router.push('/dashboard/mahasiswa');
 
-        } catch (error: any) {
-            MySwal.fire({
-                icon: 'error',
-                title: 'Gagal Mengirim',
-                text: error.message
-            });
-        } finally {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Terjadi kesalahan yang tidak diketahui';
+      MySwal.fire({
+        icon: 'error',
+        title: 'Gagal Mengirim',
+        text: message
+      });
+    } finally {
             setIsLoading(false);
         }
     };

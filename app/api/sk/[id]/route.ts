@@ -2,25 +2,23 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import fs from 'fs';
 import path from 'path';
-import puppeteer from 'puppeteer';
+import puppeteer, { Browser } from 'puppeteer';
 
-export async function GET(_req: Request, { params }: { params: { id?: string } }) {
-  const id = params?.id;
+export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 });
 
   const submissionId = Number(id);
   if (isNaN(submissionId)) return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
 
-  // fetch submission with mahasiswa
   const submission = await prisma.judul.findUnique({
     where: { id: submissionId },
     include: { mahasiswa: true },
-  }) as any; // Using type assertion temporarily until Prisma types are updated
+  }) 
   if (!submission || submission.status !== 'DISETUJUI') {
     return NextResponse.json({ error: 'SK untuk pengajuan ini tidak ditemukan atau belum disetujui.' }, { status: 404 });
   }
 
-  // Prepare inline logo
   let logoDataUri = '';
   try {
     const logoPath = path.join(process.cwd(), 'public', 'Logo_UIN_Imam_Bonjol.png');
@@ -37,8 +35,7 @@ export async function GET(_req: Request, { params }: { params: { id?: string } }
   const pembimbing1 = submission.usulan_pembimbing1 || submission.pembimbing1 || '';
   const pembimbing2 = submission.usulan_pembimbing2 || submission.pembimbing2 || '';
   const today = new Date();
-  
-  // Handle tanggal SK dengan aman
+
   let skDateObj = today;
   if (submission.sk_tanggal) {
     try {
@@ -54,12 +51,9 @@ export async function GET(_req: Request, { params }: { params: { id?: string } }
   const skDate = skDateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
   const skMonth = String(skDateObj.getMonth() + 1).padStart(2, '0');
   const skYear = skDateObj.getFullYear();
-
-  // Generate nomor SK dengan format yang benar
   const defaultSkNomor = `B.811/Un.13/FST/PP.00.9/${skMonth}/${skYear}`;
   const skNomor = submission.sk_number || defaultSkNomor;
   
-  // Log untuk debugging
   console.log('SK Date:', { 
     raw: submission.sk_tanggal,
     parsed: skDateObj,
@@ -71,46 +65,37 @@ export async function GET(_req: Request, { params }: { params: { id?: string } }
     final: skNomor
   });
   
-  // Buat nomor surat pengantar (seringkali +1 dari nomor SK)
-  let skNomorInt = 811; // Default number
+  let skNomorInt = 811; 
   const defaultSisa = `Un.13/FST/PP.00.9/${skMonth}/${skYear}`;
   let skNomorSisa = defaultSisa;
 
   try {
-    const skNomorParts = skNomor.split('/'); // Cth: ['B.811', 'Un.13', ...]
+    const skNomorParts = skNomor.split('/'); 
     
-    // Ambil bagian sisa dari nomor SK (cth: 'Un.13/FST/PP.00.9/09/2025')
     if (skNomorParts.length > 1) {
        skNomorSisa = skNomorParts.slice(1).join('/'); 
     }
 
-    // Ambil bagian pertama (cth: 'B.811')
+    
     const skNomorBase = skNomorParts[0]; 
     if (skNomorBase) {
-      const skNomorStr = skNomorBase.split('.')[1]; // Cth: '811'
+      const skNomorStr = skNomorBase.split('.')[1];
       if (skNomorStr) {
         const parsedInt = parseInt(skNomorStr);
-        // Validasi apakah hasil parse adalah angka (bukan NaN)
+        
         if (!isNaN(parsedInt)) {
-          skNomorInt = parsedInt; // Berhasil, Cth: 811
+          skNomorInt = parsedInt; 
         }
       }
     }
-  } catch (e) {
-    // Jika ada error parsing, biarkan menggunakan nilai default
+  } catch (error) {
     skNomorInt = 811; 
     skNomorSisa = defaultSisa;
-    console.error("Error parsing SK number for increment, using default:", e);
+   console.error("Error parsing SK number for increment, using default:", error);
   }
 
-  // Buat nomor surat baru yang sudah di-increment
   const suratNomor = `B.${skNomorInt + 1}/${skNomorSisa}`;
-  
-  // Format tanggal untuk surat pengantar (disamakan dengan tanggal SK sesuai contoh PDF)
   const suratDate = skDate;
-
-  // --- AKHIR BLOK YANG DIPERBAIKI ---
-
 
   const html = `<!doctype html>
   <html>
@@ -741,8 +726,7 @@ export async function GET(_req: Request, { params }: { params: { id?: string } }
     </body>
   </html>`;
 
-  // Gunakan Puppeteer untuk me-render HTML ke PDF
-  let browser: any = null;
+  let browser: Browser | null = null;
   try {
     try {
       browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
@@ -760,7 +744,6 @@ export async function GET(_req: Request, { params }: { params: { id?: string } }
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: 'networkidle0' });
     
-    // Gunakan margin kustom dari gambar yang diberikan
     const pdfBuffer = await page.pdf({
       format: 'A4',
       printBackground: true,
@@ -772,7 +755,7 @@ export async function GET(_req: Request, { params }: { params: { id?: string } }
       },
     });
 
-    return new NextResponse(pdfBuffer, {
+    return new NextResponse(new Uint8Array(pdfBuffer), {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
@@ -784,7 +767,7 @@ export async function GET(_req: Request, { params }: { params: { id?: string } }
     return NextResponse.json({ error: 'Gagal membuat PDF. Lihat log server untuk detail.' }, { status: 500 });
   } finally {
     if (browser) {
-      try { await browser.close(); } catch (e) { /* ignore close errors */ }
+       try { await browser.close(); } catch {  }
     }
   }
 }

@@ -30,7 +30,7 @@ interface ProposalTableProps {
 }
 
 const StatusBadge = ({ status }: { status: Status }) => {
-    const statusConfig: { [key in Status]?: { text: string; icon: any; color: string } } = {
+    const statusConfig: { [key in Status]?: { text: string; icon: React.ComponentType<{ className?: string }>; color: string } } = {
         TERKIRIM: { text: "Diperiksa Admin", icon: FiClock, color: "bg-yellow-100 text-yellow-800" },
         DIPERIKSA_ADMIN: { text: "Diperiksa Admin", icon: FiClock, color: "bg-yellow-100 text-yellow-800" },
         DITOLAK_ADMIN: { text: "Ditolak Admin", icon: FiXCircle, color: "bg-red-100 text-red-800" },
@@ -84,9 +84,10 @@ export default function ProposalTable({ initialProposals }: ProposalTableProps) 
 
             a.remove();
             URL.revokeObjectURL(url);
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error('downloadPdf error', err);
-            alert('Gagal mengunduh PDF. Cek console untuk detail.');
+            const errorMessage = err instanceof Error ? err.message : 'Terjadi kesalahan server.';
+            alert(`Gagal mengunduh PDF: ${errorMessage}`);
         } finally {
             setLoadingId(null);
         }

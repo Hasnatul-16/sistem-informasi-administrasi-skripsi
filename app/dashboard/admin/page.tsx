@@ -1,10 +1,8 @@
-// app/dashboard/admin/page.tsx
-
 import prisma from '@/lib/prisma';
 import AdminDashboardClient from './AdminDashboardClient';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { FiUsers, FiSettings } from 'react-icons/fi';
+import { authOptions } from '@/app/api/auth/auth';
+
 
 export const dynamic = 'force-dynamic';
 
@@ -32,12 +30,11 @@ export default async function AdminDashboardPage() {
   const adminName = session?.user?.email?.split('@')[0] || 'Admin';
 
   return (
-    <main className="space-y-6"> {/* Jarak antar elemen sedikit dikurangi */}
+    <main className="space-y-6"> 
       
-      {/* --- UKURAN FONT & PADDING DIPERKECIL --- */}
       <div className="bg-gradient-to-r from-blue-600 to-cyan-500 p-5 rounded-xl shadow-lg text-white flex justify-between items-center">
         <div>
-          {/* Ukuran judul diubah dari 2xl menjadi xl */}
+       
           <h1 className="text-xl font-bold">Selamat datang, Admin {adminName}!</h1>
           <p className="mt-1 opacity-90 text-sm">Dashboard pengelolaan Sistem Administrasi Skripsi.</p>
         </div>
@@ -46,7 +43,7 @@ export default async function AdminDashboardPage() {
       
       <AdminDashboardClient 
         titleSubmissions={titleSubmissions}
-        // Map shape so client can access `.submission.mahasiswa`
+     
         proposalSubmissions={proposalSubmissions.map(p => ({ ...p, submission: p.judul }))}
         hasilSubmissions={hasilSubmissions.map(h => ({ ...h, submission: h.judul }))}
       />

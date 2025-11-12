@@ -142,11 +142,12 @@ export default function SeminarProposalForm({ judulId, judulData }: SeminarPropo
       });
        router.push('/dashboard');
     
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Terjadi kesalahan yang tidak diketahui';
       MySwal.fire({
-          icon: 'error',
-          title: 'Gagal Mengirim',
-          text: error.message 
+        icon: 'error',
+        title: 'Gagal Mengirim',
+        text: message 
       });
     } finally {
       setIsLoading(false);

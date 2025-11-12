@@ -4,7 +4,7 @@ import { useState, useMemo, useCallback, useEffect } from 'react';
 import type { SeminarHasil, Judul, Mahasiswa, User, Dosen, Status } from '@prisma/client';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
-import { FiX, FiCheckCircle, FiCalendar, FiUser, FiBook, FiUsers, FiHash, FiEdit, FiSave, FiSearch } from 'react-icons/fi';
+import { FiX, FiCheckCircle, FiCalendar, FiUser, FiBook, FiUsers, FiHash, FiEdit,  FiSearch } from 'react-icons/fi';
 
 const MySwal = withReactContent(Swal);
 
@@ -121,7 +121,7 @@ export default function KaprodiHasilTable({ initialSeminarHasil, lecturers }: Ka
     const openModal = (sh: SeminarHasilWithDetails) => {
         setSelectedSeminarHasil(sh);
 
-        let initialJadwal = sh.jadwal_sidang ? formatDateToLocalInput(sh.jadwal_sidang) : '';
+        const initialJadwal = sh.jadwal_sidang ? formatDateToLocalInput(sh.jadwal_sidang) : '';
 
         const initialPenguji1 = sh.penguji1 || sh.pengujiSempro || ''; 
         const initialPenguji2 = sh.penguji2 || ''; 
@@ -199,8 +199,10 @@ export default function KaprodiHasilTable({ initialSeminarHasil, lecturers }: Ka
             );
 
             closeModal();
-        } catch (error: any) {
-            MySwal.fire({ icon: 'error', title: 'Oops...', text: error.message || 'Terjadi kesalahan pada server.' });
+        }  catch (error: unknown) {
+            const message = error instanceof Error ? error.message : 'Terjadi kesalahan pada server.';
+            MySwal.fire({ icon: 'error', title: 'Oops...', text: message });
+
         } finally {
             setIsLoading(false);
         }

@@ -4,23 +4,17 @@ import { Status } from '@prisma/client';
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // 1. Konversi ID dari string (URL) menjadi number
-    const submissionId = parseInt(params.id, 10);
+    const resolvedParams = await params;
+    const submissionId = parseInt(resolvedParams.id, 10);
     if (isNaN(submissionId)) {
       return NextResponse.json({ message: 'ID pengajuan tidak valid' }, { status: 400 });
     }
 
-    // 2. Ambil semua data dari body request
     const body = await request.json();
 
-    // =======================================================
-    // ====      LOGIKA PINTAR DIMULAI DARI SINI          ====
-    // =======================================================
-
-    // 3. JIKA INI AKSI DARI ADMIN (VERIFY / REJECT)
     if (body.action) {
       const { action, catatanAdmin } = body;
       let newStatus: Status;
@@ -46,7 +40,6 @@ export async function PATCH(
       return NextResponse.json(updatedSubmission, { status: 200 });
     }
 
-    // 4. JIKA INI AKSI DARI KAPRODI (MENETAPKAN PEMBIMBING)
     else if (body.pembimbing1) {
       const { pembimbing1, pembimbing2 } = body;
 
@@ -68,7 +61,6 @@ export async function PATCH(
       return NextResponse.json(updatedSubmission, { status: 200 });
     }
 
-    // 5. JIKA BUKAN KEDUANYA, MAKA AKSI TIDAK VALID
     else {
       return NextResponse.json({ message: 'Aksi tidak valid atau data tidak lengkap' }, { status: 400 });
     }
