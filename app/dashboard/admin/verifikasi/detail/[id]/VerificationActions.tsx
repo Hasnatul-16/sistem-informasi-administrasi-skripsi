@@ -17,6 +17,31 @@ export default function VerificationActions({ submission }: { submission: Submis
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
+  const showSkNumberInput = async () => {
+    const { value: skNumberPrefix } = await MySwal.fire({
+      title: "Masukkan Nomor SK Pembimbing",
+      text: "Masukkan angka awal pada nomor sk  (misalnya : B.XXX/Un.13/FST/PP.00.9/08/2025 )",
+      input: "text",
+      inputLabel: "Nomor Urut SK ",
+      inputPlaceholder: "Masukkan angka unik (misal: 811)",
+      inputAttributes: { "aria-label": "Nomor urut SK" },
+      showCancelButton: true,
+      confirmButtonText: 'Verifikasi & Lanjutkan',
+      confirmButtonColor: '#3085d6',
+      cancelButtonText: 'Batal',
+      inputValidator: (value) => {
+        if (!value || !/^\d+$/.test(value)) { 
+          return "Nomor urut SK harus berupa angka dan tidak boleh kosong!";
+        }
+      }
+    });
+
+    if (skNumberPrefix) {
+      processSubmission('VERIFY', '', skNumberPrefix);
+    }
+  };
+
+
   const handleAction = async (action: 'VERIFY' | 'REJECT') => {
     if (action === 'REJECT') {
       const { value: catatanAdmin } = await MySwal.fire({
@@ -38,29 +63,21 @@ export default function VerificationActions({ submission }: { submission: Submis
       if (!catatanAdmin) return;
       processSubmission(action, catatanAdmin);
     } else {
-      MySwal.fire({
-        title: "Teruskan ke Kaprodi?",
-        text: "Anda yakin data dan dokumen pengajuan ini sudah lengkap?",
-        icon: "question",
-        showCancelButton: true,
-        confirmButtonText: 'Ya, teruskan!',
-        confirmButtonColor: '#3085d6',
-        cancelButtonText: 'Batal'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          processSubmission(action);
-        }
-      });
+
+      showSkNumberInput();
     }
   };
 
-  const processSubmission = async (action: 'VERIFY' | 'REJECT', catatanAdmin = '') => {
+  const processSubmission = async (action: 'VERIFY' | 'REJECT', catatanAdmin = '', skNumberPrefix: string | null = null) => {
+
+    if (action === 'VERIFY' && !skNumberPrefix) return; 
+
     setIsLoading(true);
     try {
       const response = await fetch(`/api/submission/${submission.id}`, { 
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action, catatanAdmin }),
+        body: JSON.stringify({ action, catatanAdmin, skNumberPrefix }),
       });
 
       if (!response.ok) {
@@ -94,7 +111,7 @@ export default function VerificationActions({ submission }: { submission: Submis
   return (
 
     <div className="flex justify-between items-center gap-4 pt-6 mt-6 border-t">
-  
+
       <button
         onClick={() => router.back()} 
         className="inline-flex items-center gap-2 py-2 px-5 bg-gray-200 text-gray-800 rounded-md font-semibold hover:bg-gray-300 transition-colors"

@@ -14,7 +14,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   const submission = await prisma.judul.findUnique({
     where: { id: submissionId },
     include: { mahasiswa: true },
-  }) 
+  })
   if (!submission || submission.status !== 'DISETUJUI') {
     return NextResponse.json({ error: 'SK untuk pengajuan ini tidak ditemukan atau belum disetujui.' }, { status: 404 });
   }
@@ -32,8 +32,8 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   }
 
   const student = submission.mahasiswa;
-  const pembimbing1 = submission.usulan_pembimbing1 || submission.pembimbing1 || '';
-  const pembimbing2 = submission.usulan_pembimbing2 || submission.pembimbing2 || '';
+  const pembimbing1 =  submission.pembimbing1 || '';
+  const pembimbing2 =  submission.pembimbing2 || '';
   const today = new Date();
 
   let skDateObj = today;
@@ -53,8 +53,8 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   const skYear = skDateObj.getFullYear();
   const defaultSkNomor = `B.811/Un.13/FST/PP.00.9/${skMonth}/${skYear}`;
   const skNomor = submission.sk_number || defaultSkNomor;
-  
-  console.log('SK Date:', { 
+
+  console.log('SK Date:', {
     raw: submission.sk_tanggal,
     parsed: skDateObj,
     formatted: skDate
@@ -64,39 +64,59 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     fallback: defaultSkNomor,
     final: skNomor
   });
-  
-  let skNomorInt = 811; 
-  const defaultSisa = `Un.13/FST/PP.00.9/${skMonth}/${skYear}`;
-  let skNomorSisa = defaultSisa;
+
+
+  let suratNomor: string;
 
   try {
-    const skNomorParts = skNomor.split('/'); 
-    
-    if (skNomorParts.length > 1) {
-       skNomorSisa = skNomorParts.slice(1).join('/'); 
+    const skNomorParts = skNomor.split('/');
+    const basePart = skNomorParts[0]; 
+    const match = basePart.match(/^([A-Za-z]+\.?)([\d]+)$/);
+
+    if (match) {
+      const prefix = match[1]; 
+      const numberStr = match[2];
+      const parsedInt = parseInt(numberStr);
+
+      if (!isNaN(parsedInt)) {
+        const nextInt = parsedInt + 1; // 812
+        const remainingParts = skNomorParts.slice(1).join('/');
+        suratNomor = `${prefix}${nextInt}/${remainingParts}`; 
+      } else {
+        suratNomor = `B.${811 + 1}/${skNomorParts.slice(1).join('/')}`;
+      }
+    } else {
+
+      suratNomor = `B.${811 + 1}/Un.13/FST/PP.00.9/${skMonth}/${skYear}`;
     }
 
-    
-    const skNomorBase = skNomorParts[0]; 
-    if (skNomorBase) {
-      const skNomorStr = skNomorBase.split('.')[1];
-      if (skNomorStr) {
-        const parsedInt = parseInt(skNomorStr);
-        
-        if (!isNaN(parsedInt)) {
-          skNomorInt = parsedInt; 
-        }
-      }
-    }
   } catch (error) {
-    skNomorInt = 811; 
-    skNomorSisa = defaultSisa;
-   console.error("Error parsing SK number for increment, using default:", error);
+    suratNomor = `B.${811 + 1}/Un.13/FST/PP.00.9/${skMonth}/${skYear}`;
+    console.error("Error parsing SK number for increment, using default fallback:", error);
   }
 
-  const suratNomor = `B.${skNomorInt + 1}/${skNomorSisa}`;
-  const suratDate = skDate;
 
+  const suratDate = skDate;
+  console.log('Surat Number:', suratNomor);
+ 
+  if (!submission.no_undangan) {
+    try {
+      await prisma.judul.update({
+        where: { id: submissionId },
+        data: {
+          no_undangan: suratNomor,
+        },
+      });
+      console.log(`SK Pembimbing (${suratNomor}) berhasil disimpan ke database.`);
+    } catch (dbError) {
+      console.error('Gagal menyimpan SK Pembimbing ke database:', dbError);
+
+    }
+  } else if (submission.no_undangan !== suratNomor) {
+  
+    console.warn(`Nomor SK Pembimbing di database berbeda. Menggunakan yang sudah ada: ${submission.no_undangan}`);
+
+  }
   const html = `<!doctype html>
   <html>
     <head>
@@ -231,12 +251,6 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
         .tembusan ol { margin: 0; padding-left: 20px; }
         .tembusan li { margin-bottom: 2px; }
 
-        .footer-token {
-          font-size: 9pt;
-          font-style: italic;
-          margin-top: 20px;
-        }
-
         /* === Halaman 3: Lampiran === */
         .lampiran-header p {
           margin: 0;
@@ -337,21 +351,41 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
           vertical-align: top;
         }
         
-        .surat-date {
-          text-align: right;
-          margin: 15px 0;
+        
+        .surat-info-wrapper {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        margin: 1px 0 5px 0; 
+      }
+
+      .surat-info-wrapper .surat-date {
+        width: 30%; 
+        text-align: right;
+        flex-shrink: 0;
+        margin-top: 3px; 
+      }
+        .surat-info-wrapper .surat-detail-table {
+          width: 65%; 
         }
         
         .surat-yth {
           margin-top: 15px;
         }
-        .surat-yth p { margin-bottom: 2px; }
-        .surat-yth ol { margin: 0 0 5px 0; padding-left: 20px; list-style-type: none; }
-        .surat-yth ol li { 
-          display: flex;
-          justify-content: space-between;
+       .surat-yth p { margin-bottom: 2px; }
+          .surat-yth ol { 
+              margin: 0 0 5px 0; 
+              padding-left: 20px; 
+              list-style-type: none; 
+          }
+          .surat-yth ol li { 
+              display: flex;
+              margin-bottom: 3px;
+              line-height: 1.2;
+          }
+        .surat-yth ol li span:first-child {
+           width: 50%; 
         }
-        
         .surat-body {
           margin-top: 15px;
         }
@@ -489,7 +523,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
             <span class="section-label ">Menetapkan :</span>
             <div class="section-list">
               <p class="menetapkan-content">
-                PENUNJUKAN PEMBIMBING SKRIPSI MAHASISWA PROGRAM STUDI SISTEM INFORMASI FAKULTAS SAINS DAN TEKNOLOGI AN.<strong>${student?.nama?.toUpperCase() || ''}, NIM. ${student?.nim || ''}</strong>.
+                PENUNJUKAN PEMBIMBING SKRIPSI MAHASISWA PROGRAM STUDI SISTEM INFORMASI FAKULTAS SAINS DAN TEKNOLOGI a.n.<strong>${student?.nama?.toUpperCase() || ''}, NIM. ${student?.nim || ''}</strong>.
               </p>
             </div>
           </div>
@@ -539,8 +573,6 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
               <li>Mahasiswa yang bersangkutan.</li>
             </ol>
           </div>
-          
-          <p class="footer-token">Dokumen ini telah ditanda tangani secara elektronik.</p>
 
         </div>
       </div>
@@ -605,9 +637,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
           <p class="sig-name">Yulia</p>
           <p class="sig-nip">NIP. 198105052009012008</p>
         </div>
-        
-        <p class="footer-token">Dokumen ini telah ditanda tangani secara elektronik.</p>
-        
+
       </div>
       
       <div class="page-container page-break">
@@ -628,9 +658,9 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
         <hr class="divider thick" />
         <hr class="divider thin" />
         
-        <p class="surat-date">Padang, ${suratDate}</p>
+      <div class="surat-info-wrapper">
 
-        <table class="no-border" style="width: 70%;">
+          <table class="no-border surat-detail-table">
           <tbody>
             <tr>
               <td style="width: 80px;">Nomor</td>
@@ -647,8 +677,15 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
               <td>:</td>
               <td class="font-bold">Kesediaan Membimbing Skripsi Mahasiswa</td>
             </tr>
+             <tr>
+                <td></td>
+                <td></td>
+                <td class="font-bold">a.n. ${student?.nama?.toUpperCase() || ''}</td> 
+              </tr>
           </tbody>
         </table>
+        <p class="surat-date">Padang, ${suratDate}</p>
+      </div>
         
         <div class="surat-yth">
           <p>Kepada Yth.</p>
@@ -671,7 +708,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
           <p class="salam"><em>Assalamu'alaikum Wr.Wb.</em></p>
           <p>
             Bersama ini dengan hormat, disampaikan Surat Keputusan Dekan Fakultas Sains dan Teknologi
-            Universitas Islam Negeri Imam Bonjol Padang No.${skNomor} Tentang
+            Universitas Islam Negeri Imam Bonjol Padang  No.785/Un.13/FST/PP.00.9/05/2024 Tentang
             Penetapan Pembimbing Skripsi Mahasiswa Program Studi Sistem Informasi pada Fakultas Sains
             dan Teknologi Universitas Islam Negeri Imam Bonjol Padang Tahun Akademik ${skYear}/${parseInt(skYear.toString()) + 1}.
           </p>
@@ -715,11 +752,11 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
         </div>
 
         <div class="tembusan" style="margin-top: 20px;">
-          <p class="font-bold" style="text-decoration: underline;">Tembusan:</p>
+          <p">Tembusan Yth;:</p>
           <p>Dekan Fakultas Sains dan Teknologi UIN Imam Bonjol Padang</p>
         </div>
 
-        <p class="footer-token">Dokumen ini telah ditanda tangani secara elektronik.</p>
+        
         
       </div>
 
@@ -743,7 +780,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
 
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: 'networkidle0' });
-    
+
     const pdfBuffer = await page.pdf({
       format: 'A4',
       printBackground: true,
@@ -767,7 +804,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     return NextResponse.json({ error: 'Gagal membuat PDF. Lihat log server untuk detail.' }, { status: 500 });
   } finally {
     if (browser) {
-       try { await browser.close(); } catch {  }
+      try { await browser.close(); } catch { }
     }
   }
 }
