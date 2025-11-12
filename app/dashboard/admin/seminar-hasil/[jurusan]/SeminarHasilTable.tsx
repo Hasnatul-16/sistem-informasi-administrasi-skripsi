@@ -63,10 +63,10 @@ export default function SeminarHasilTable({ initialSeminarHasils }: SeminarHasil
 
     const [loadingId, setLoadingId] = useState<number | null>(null);
 
-    const handleDownloadSK = async (seminarHasilId: number, nim: string) => {
+    const handleDownloadSK = async (seminarHasilId: number, nim: string, nama: string) => {
         setLoadingId(seminarHasilId);
         try {
-            const res = await fetch(`/api/sk-ujian/${seminarHasilId}`); 
+            const res = await fetch(`/api/sk_skripsi/${seminarHasilId}`); 
 
             if (!res.ok) {
                 const json = await res.json().catch(() => ({}));
@@ -79,7 +79,7 @@ export default function SeminarHasilTable({ initialSeminarHasils }: SeminarHasil
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `SK-Ujian-Skripsi-${nim || seminarHasilId}.pdf`; 
+            a.download = `SK-Skripsi-${nama}-${nim}.pdf`; 
             document.body.appendChild(a);
             a.click();
 
@@ -144,12 +144,12 @@ export default function SeminarHasilTable({ initialSeminarHasils }: SeminarHasil
                                     </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                                    
+
                                     {new Date(sub.tanggal).toLocaleDateString('id-ID', { 
                                         day: '2-digit', month: 'long', year: 'numeric'
                                     })}
                                 </td>
-                                
+
                                 <td className="px-6 py-4 text-sm text-gray-600">{sub.judul.topik || '-'}</td>
                                 <td className="px-6 py-4">
                                     <p className="text-sm text-gray-800 whitespace-normal break-words" title={sub.judul.judul}>{sub.judul.judul}</p>
@@ -169,7 +169,11 @@ export default function SeminarHasilTable({ initialSeminarHasils }: SeminarHasil
 
                                     {sub.status === 'DISETUJUI' && (
                                         <button
-                                            onClick={() => handleDownloadSK(sub.id, sub.judul.mahasiswa.nim)}
+                                            onClick={() => handleDownloadSK(
+                                                sub.id, 
+                                                sub.judul.mahasiswa.nim, 
+                                                sub.judul.mahasiswa.nama
+                                            )}
                                             disabled={loadingId === sub.id}
                                             className="inline-flex items-center gap-2 text-green-600 hover:text-green-900 font-semibold disabled:text-gray-400 disabled:cursor-wait"
                                         >

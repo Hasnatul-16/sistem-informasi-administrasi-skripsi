@@ -15,45 +15,39 @@ type SeminarHasilWithDetails = SeminarHasil & {
     };
 };
 
-export default function SeminarHasilActionAdmin({ submission }: { submission: SeminarHasilWithDetails }) { 
+export default function SeminarHasilActionAdmin({ submission }: { submission: SeminarHasilWithDetails }) {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
 
-    const handleAction = async (action: 'APPROVE' | 'REJECT') => {
-        let catatanAdmin = '';
 
-        if (action === 'REJECT') {
-            const { value: rejectCatatan } = await MySwal.fire({
-                title: "Tolak Pengajuan Seminar Hasil", 
-                input: "textarea",
-                inputLabel: "Alasan Penolakan",
-                inputPlaceholder: "Masukkan alasan penolakan Seminar Hasil ini...", 
-                inputAttributes: { "aria-label": "Masukkan alasan penolakan" },
-                showCancelButton: true,
-                confirmButtonText: 'Tolak & Kembalikan',
-                confirmButtonColor: '#d33',
-                cancelButtonText: 'Batal',
-                inputValidator: (value) => {
-                    if (!value) {
-                        return "Alasan penolakan tidak boleh kosong!";
-                    }
+    const showSkUjianInput = async () => {
+        const { value: skUjianPrefix } = await MySwal.fire({
+            title: "Masukkan angka awal pada nomor sk  (misalnya : B.XXX/Un.13/FST/PP.00.9/08/2025 )",
+            input: "text",
+            inputPlaceholder: "Masukkan angka unik (misal: 793)",
+            inputAttributes: { "aria-label": "Nomor urut Surat Ujian" },
+            showCancelButton: true,
+            confirmButtonText: 'Verifikasi & Teruskan ke Kaprodi',
+            confirmButtonColor: '#28a745',
+            cancelButtonText: 'Batal',
+            inputValidator: (value) => {
+                if (!value || !/^\d+$/.test(value)) { 
+                    return "Nomor urut Surat Ujian harus berupa angka dan tidak boleh kosong!";
                 }
-            });
-            if (!rejectCatatan) return; 
-            catatanAdmin = rejectCatatan;
-
-        } else { 
-            const result = await MySwal.fire({
-                title: "Setujui Pengajuan Seminar Hasil?", 
-                text: "Anda yakin data dan dokumen Seminar Hasil ini sudah lengkap? Ini akan diteruskan ke Kaprodi.", 
-                icon: "question",
-                showCancelButton: true,
-                confirmButtonText: 'Ya, Setujui & Teruskan!',
-                confirmButtonColor: '#28a745',
-                cancelButtonText: 'Batal'
-            });
-            if (!result.isConfirmed) return;
+            }
+        });
+        if (skUjianPrefix) {
+            processSubmission('VERIFY', undefined, skUjianPrefix);
         }
+    };
+
+    const processSubmission = async (
+        action: 'VERIFY' | 'REJECT',
+        catatan: string | undefined = undefined,
+        skUjianPrefix: string | undefined = undefined 
+    ) => {
+       
+        if (action === 'VERIFY' && !skUjianPrefix) return;
 
         setIsLoading(true);
         try {
@@ -62,7 +56,8 @@ export default function SeminarHasilActionAdmin({ submission }: { submission: Se
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     action: action,
-                    catatan: catatanAdmin || undefined, 
+                    catatan: catatan,
+                    skPengujiPrefix: skUjianPrefix,
                 }),
             });
 
@@ -73,7 +68,8 @@ export default function SeminarHasilActionAdmin({ submission }: { submission: Se
 
             MySwal.fire({
                 icon: 'success',
-                title: `Seminar Hasil ${action === 'APPROVE' ? 'Disetujui' : 'Ditolak'}!`, 
+                title: `Seminar Hasil ${action === 'VERIFY' ? 'Diverifikasi' : 'Ditolak'}!`,
+                text: `Seminar Hasil berhasil di-${action === 'VERIFY' ? 'teruskan ke Kaprodi' : 'kembalikan ke mahasiswa'}.`,
                 timer: 2000,
                 showConfirmButton: false
             });
@@ -92,6 +88,35 @@ export default function SeminarHasilActionAdmin({ submission }: { submission: Se
         }
     };
 
+
+    const handleAction = async (action: 'VERIFY' | 'REJECT') => {
+
+        if (action === 'REJECT') {
+            const { value: rejectCatatan } = await MySwal.fire({
+                title: "Tolak Pengajuan Seminar Hasil",
+                input: "textarea",
+                inputLabel: "Alasan Penolakan",
+                inputPlaceholder: "Masukkan alasan penolakan Seminar Hasil ini...",
+                inputAttributes: { "aria-label": "Masukkan alasan penolakan" },
+                showCancelButton: true,
+                confirmButtonText: 'Tolak & Kembalikan',
+                confirmButtonColor: '#d33',
+                cancelButtonText: 'Batal',
+                inputValidator: (value) => {
+                    if (!value) {
+                        return "Alasan penolakan tidak boleh kosong!";
+                    }
+                }
+            });
+            if (!rejectCatatan) return; 
+            processSubmission(action, rejectCatatan);
+
+        } else { 
+           
+            showSkUjianInput();
+        }
+    };
+
     if (submission.status !== 'TERKIRIM') {
         return (
             <div className="mt-6 border-t pt-4">
@@ -105,9 +130,9 @@ export default function SeminarHasilActionAdmin({ submission }: { submission: Se
                         </p>
                     )}
                 </div>
-          
+             
                 <button
-                    onClick={() => router.push(`/dashboard/admin/seminar-hasil/${submission.judul.jurusan}`)} 
+                    onClick={() => router.push(`/dashboard/admin/seminar-hasil/${submission.judul.jurusan}`)}
                     className="inline-flex items-center gap-2 mt-4 py-2 px-5 bg-gray-200 text-gray-800 rounded-md font-semibold hover:bg-gray-300 transition-colors"
                 >
                     <FiArrowLeft /> Kembali ke Daftar
@@ -119,7 +144,7 @@ export default function SeminarHasilActionAdmin({ submission }: { submission: Se
 
     return (
         <div className="flex justify-between items-center gap-4 pt-6 mt-6 border-t">
-         
+          
             <button
                 onClick={() => router.back()} 
                 className="inline-flex items-center gap-2 py-2 px-5 bg-gray-200 text-gray-800 rounded-md font-semibold hover:bg-gray-300 transition-colors"
@@ -127,7 +152,7 @@ export default function SeminarHasilActionAdmin({ submission }: { submission: Se
                 <FiArrowLeft /> Kembali
             </button>
 
-       
+           
             <div className="flex items-center gap-4">
                 <button
                     onClick={() => handleAction('REJECT')}
@@ -137,7 +162,7 @@ export default function SeminarHasilActionAdmin({ submission }: { submission: Se
                     {isLoading ? <FiClock className='animate-spin' /> : <FiXCircle />} Tolak & Kembalikan
                 </button>
                 <button
-                    onClick={() => handleAction('APPROVE')}
+                    onClick={() => handleAction('VERIFY')} 
                     disabled={isLoading}
                     className="inline-flex items-center gap-2 py-2 px-5 bg-blue-600 text-white rounded-md font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-wait"
                 >
