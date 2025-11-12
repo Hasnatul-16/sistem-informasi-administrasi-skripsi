@@ -40,7 +40,7 @@ export default function SubmissionTable({ initialSubmissions }: { initialSubmiss
     setSubmissions(initialSubmissions);
   }, [initialSubmissions]);
 
-  const handleDownloadSK = async (submissionId: number, nim: string) => {
+  const handleDownloadSK = async (submissionId: number, nim: string, nama: string) => {
     setLoadingId(submissionId);
     try {
 
@@ -57,7 +57,7 @@ export default function SubmissionTable({ initialSubmissions }: { initialSubmiss
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `SK-${nim || submissionId}.pdf`; 
+      a.download = `SK-pembimbing-${nama}-${nim}.pdf`;
       document.body.appendChild(a);
       a.click();
 
@@ -131,7 +131,9 @@ export default function SubmissionTable({ initialSubmissions }: { initialSubmiss
 
                   {sub.status === 'DISETUJUI' && (
                     <button
-                      onClick={() => handleDownloadSK(sub.id, sub.student.nim)}
+                      onClick={() => handleDownloadSK(sub.id,
+                         sub.student.nim,
+                         sub.student.nama)}
                       disabled={loadingId === sub.id} 
                       className="inline-flex items-center gap-2 text-green-600 hover:text-green-900 font-semibold disabled:text-gray-400 disabled:cursor-wait"
                     >
