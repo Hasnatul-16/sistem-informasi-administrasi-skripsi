@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from 'react';
@@ -22,9 +21,29 @@ export default function ProposalActionSempro({ proposal }: { proposal: ProposalW
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
 
-    const handleAction = async (action: 'APPROVE' | 'REJECT') => {
-        let catatanAdmin = '';
+    const showSkPengujiInput = async () => {
+        const { value: skPengujiPrefix } = await MySwal.fire({
+            title: "Verifikasi Proposal & Masukkan Nomor SK Penguji",
+            text: "Masukkan angka awal pada nomor sk  (misalnya : B.XXX/Un.13/FST/PP.00.9/08/2025 )",
+            input: "text",
+            inputPlaceholder: "Masukkan angka unik (misal: 811)",
+            inputAttributes: { "aria-label": "Nomor urut SK Penguji" },
+            showCancelButton: true,
+            confirmButtonText: 'Verifikasi & Teruskan ke Kaprodi',
+            confirmButtonColor: '#28a745',
+            cancelButtonText: 'Batal',
+            inputValidator: (value) => {
+                if (!value || !/^\d+$/.test(value)) { 
+                    return "Nomor urut SK Penguji harus berupa angka dan tidak boleh kosong!";
+                }
+            }
+        });
 
+        if (skPengujiPrefix) {
+            processProposal('VERIFY', undefined, skPengujiPrefix);
+        }
+    };
+    const handleAction = async (action: 'VERIFY' | 'REJECT') => {
         if (action === 'REJECT') {
             
             const { value: rejectCatatan } = await MySwal.fire({
@@ -43,23 +62,21 @@ export default function ProposalActionSempro({ proposal }: { proposal: ProposalW
                     }
                 }
             });
-            if (!rejectCatatan) return; 
-            catatanAdmin = rejectCatatan;
-            
-        } else { 
-            const result = await MySwal.fire({
-                title: "Setujui Pengajuan Proposal?",
-                text: "Anda yakin data dan dokumen proposal ini sudah lengkap?",
-                icon: "question",
-                showCancelButton: true,
-                confirmButtonText: 'Ya, Setujui & Teruskan!',
-                confirmButtonColor: '#28a745',
-                cancelButtonText: 'Batal'
-            });
-            if (!result.isConfirmed) return;
-        }
+            if (!rejectCatatan) return;
+            processProposal(action, rejectCatatan);
 
-       
+        } else { 
+            showSkPengujiInput();
+        }
+    };
+    const processProposal = async (
+        action: 'VERIFY' | 'REJECT', 
+        catatan: string | undefined = undefined, 
+        skPengujiPrefix: string | undefined = undefined
+    ) => {
+    
+        if (action === 'VERIFY' && !skPengujiPrefix) return; 
+
         setIsLoading(true);
         try {
             const response = await fetch(`/api/proposal/status/${proposal.id}`, { 
@@ -67,7 +84,8 @@ export default function ProposalActionSempro({ proposal }: { proposal: ProposalW
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     action: action,
-                    catatan: catatanAdmin || undefined, 
+                    catatan: catatan, 
+                    skPengujiPrefix: skPengujiPrefix, 
                 }),
             });
 
@@ -78,7 +96,8 @@ export default function ProposalActionSempro({ proposal }: { proposal: ProposalW
 
             MySwal.fire({
                 icon: 'success',
-                title: `Proposal ${action === 'APPROVE' ? 'Disetujui' : 'Ditolak'}!`,
+                title: `Proposal ${action === 'VERIFY' ? 'Diverifikasi' : 'Ditolak'}!`,
+                text: `Proposal berhasil di-${action === 'VERIFY' ? 'teruskan ke Kaprodi' : 'kembalikan ke mahasiswa'}.`,
                 timer: 2000,
                 showConfirmButton: false
             });
@@ -98,7 +117,7 @@ export default function ProposalActionSempro({ proposal }: { proposal: ProposalW
         }
     };
     
-  
+   
     if (proposal.status !== 'TERKIRIM') {
         return (
             <div className="mt-6 border-t pt-4">
@@ -112,7 +131,7 @@ export default function ProposalActionSempro({ proposal }: { proposal: ProposalW
                         </p>
                     )}
                 </div>
-                
+             
                 <button
                     onClick={() => router.push(`/dashboard/admin/proposal/${proposal.judul.jurusan}`)}
                     className="inline-flex items-center gap-2 mt-4 py-2 px-5 bg-gray-200 text-gray-800 rounded-md font-semibold hover:bg-gray-300 transition-colors"
@@ -124,10 +143,10 @@ export default function ProposalActionSempro({ proposal }: { proposal: ProposalW
     }
 
 
- 
+
     return (
         <div className="flex justify-between items-center gap-4 pt-6 mt-6 border-t">
-            
+           
             <button
                 onClick={() => router.back()} 
                 className="inline-flex items-center gap-2 py-2 px-5 bg-gray-200 text-gray-800 rounded-md font-semibold hover:bg-gray-300 transition-colors"
@@ -135,7 +154,7 @@ export default function ProposalActionSempro({ proposal }: { proposal: ProposalW
                 <FiArrowLeft /> Kembali
             </button>
 
-           
+          
             <div className="flex items-center gap-4">
                 <button
                     onClick={() => handleAction('REJECT')}
@@ -145,7 +164,7 @@ export default function ProposalActionSempro({ proposal }: { proposal: ProposalW
                     {isLoading ? <FiClock className='animate-spin'/> : <FiXCircle />} Tolak & Kembalikan
                 </button>
                 <button
-                    onClick={() => handleAction('APPROVE')}
+                    onClick={() => handleAction('VERIFY')} 
                     disabled={isLoading}
                     className="inline-flex items-center gap-2 py-2 px-5 bg-blue-600 text-white rounded-md font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-wait"
                 >

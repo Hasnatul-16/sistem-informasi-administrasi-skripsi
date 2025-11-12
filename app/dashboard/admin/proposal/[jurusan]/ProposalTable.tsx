@@ -62,10 +62,10 @@ export default function ProposalTable({ initialProposals }: ProposalTableProps) 
 
     const [loadingId, setLoadingId] = useState<number | null>(null);
 
-    const handleDownloadSK = async (proposalId: number, nim: string) => {
+    const handleDownloadSK = async (proposalId: number, nim: string, nama: string) => {
         setLoadingId(proposalId);
         try {
-            const res = await fetch(`/api/sk-sempro/${proposalId}`);
+            const res = await fetch(`/api/sk_proposal/${proposalId}`);
 
             if (!res.ok) {
                 const json = await res.json().catch(() => ({}));
@@ -78,7 +78,7 @@ export default function ProposalTable({ initialProposals }: ProposalTableProps) 
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `SK-Sempro-${nim || proposalId}.pdf`;
+            a.download = `SK-Proposal-${nama}-${nim}.pdf`; 
             document.body.appendChild(a);
             a.click();
 
@@ -166,7 +166,10 @@ export default function ProposalTable({ initialProposals }: ProposalTableProps) 
 
                                     {prop.status === 'DISETUJUI' && (
                                         <button
-                                            onClick={() => handleDownloadSK(prop.id, prop.judul.mahasiswa.nim)}
+                                            onClick={() => handleDownloadSK(
+                                                prop.id,
+                                                prop.judul.mahasiswa.nim,
+                                                prop.judul.mahasiswa.nama)}
                                             disabled={loadingId === prop.id}
                                             className="inline-flex items-center gap-2 text-green-600 hover:text-green-900 font-semibold disabled:text-gray-400 disabled:cursor-wait"
                                         >
