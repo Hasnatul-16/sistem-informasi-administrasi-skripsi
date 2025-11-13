@@ -16,12 +16,11 @@ export async function PATCH(
         }
 
         const body = await request.json();
-       
-        const { penguji, jadwalSidang } = body;
+        const { penguji, jadwalSidang, tempat } = body;
 
        
-        if (!penguji || !jadwalSidang) {
-            return NextResponse.json({ message: 'Data Dosen Penguji dan Jadwal Sidang wajib diisi.' }, { status: 400 });
+        if (!penguji || !jadwalSidang || !tempat) {
+            return NextResponse.json({ message: 'Data Dosen Penguji, Jadwal Sidang dan tempat sidang wajib diisi.' }, { status: 400 });
         }
 
         const updatedProposal = await prisma.proposal.update({
@@ -29,7 +28,7 @@ export async function PATCH(
             data: {
                 penguji: penguji, 
                 jadwal_sidang: new Date(jadwalSidang), 
-                
+                catatan: tempat,
                 status: Status.DISETUJUI,
             },
         });

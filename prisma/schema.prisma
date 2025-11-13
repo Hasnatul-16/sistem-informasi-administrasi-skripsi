@@ -96,6 +96,7 @@ model Proposal {
   lampiran_5xseminar   String?       @map("lampiran_5xseminar") 
   catatan              String?       @db.Text 
   transkrip            String? 
+  tempat               String?
 
   judul                Judul         @relation(fields: [id_judul], references: [id])
 
@@ -120,6 +121,7 @@ model SeminarHasil {
   penguji2           String?       @map("penguji2")
   transkrip          String?
   catatan            String? 
+  tempat               String?
 
   judul              Judul         @relation(fields: [id_judul], references: [id])
 

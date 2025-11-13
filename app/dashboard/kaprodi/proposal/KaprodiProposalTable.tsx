@@ -56,6 +56,7 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
     const [actionData, setActionData] = useState({
         penguji: '',
         jadwalSidang: '',
+        tempat: '',
     });
 
     const [isLoading, setIsLoading] = useState(false);
@@ -110,6 +111,7 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
         setActionData({
             penguji: '',
             jadwalSidang: '',
+             tempat: '',
         });
     }, []);
 
@@ -131,6 +133,7 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
         setActionData({
             penguji: proposal.penguji || '',
             jadwalSidang: initialJadwal,
+            tempat: proposal.catatan || '',
         });
         setIsModalOpen(true);
     };
@@ -140,8 +143,8 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
     }
 
     const handleAssign = useCallback(async () => {
-        if (!selectedProposal || !actionData.penguji || !actionData.jadwalSidang) {
-            MySwal.fire({ icon: 'warning', title: 'Belum Lengkap', text: 'Harap lengkapi Dosen Penguji dan Jadwal Sidang.' });
+        if (!selectedProposal || !actionData.penguji || !actionData.jadwalSidang || !actionData.tempat) {
+            MySwal.fire({ icon: 'warning', title: 'Belum Lengkap', text: 'Harap lengkapi Dosen Penguji, Jadwal Sidang dan Tempat.' });
             return;
         }
 
@@ -165,6 +168,7 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
                 body: JSON.stringify({
                     penguji: actionData.penguji,
                     jadwalSidang: isoStringForDB, 
+                    tempat: actionData.tempat,
                     status: newStatus 
                 }),
             });
@@ -262,6 +266,8 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
                                             <ul className="text-xs text-gray-600 space-y-1">
                                                 <li>Penguji: <strong>{p.penguji}</strong></li>
                                                 <li>Jadwal: <strong>{new Date(p.jadwal_sidang!).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</strong></li>
+
+                                                 <li>Tempat: <strong>{p.catatan || 'Belum Ditetapkan'}</strong></li>
                                             </ul>
                                         ) : (
                                             <StatusBadge status={p.status} />
@@ -364,7 +370,7 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
 
                         <div className='mb-6'>
                             <h3 className="text-lg font-semibold text-green-600 mb-3">Update Penguji & Jadwal Seminar Proposal</h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Pilih Dosen Penguji </label>
@@ -393,6 +399,18 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
                                         name="jadwalSidang"
                                         value={actionData.jadwalSidang}
                                         onChange={handleActionChange}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
+                                        required
+                                    />
+                                </div>
+                                 <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Tempat Sidang</label>
+                                    <input
+                                        type="text"
+                                        name="tempat"
+                                        value={actionData.tempat}
+                                        onChange={handleActionChange}
+                                        placeholder="Masukkan tempat sidang"
                                         className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
                                         required
                                     />
