@@ -45,6 +45,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       undangan_munaqasah: true, 
       penguji1: true, 
       penguji2: true, 
+      tempat: true,
     
     },
   });
@@ -198,7 +199,9 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     seminarWaktu = `${startTime} s.d ${endTime} WIB`;
   }
 
-  if (skripsiRecord.catatan) {
+  if (skripsiRecord.tempat) {
+    seminarTempat = skripsiRecord.tempat;
+  } else if (skripsiRecord.catatan) {
     seminarTempat = skripsiRecord.catatan;
   }
 

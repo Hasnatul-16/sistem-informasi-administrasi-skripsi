@@ -23,7 +23,6 @@ interface KaprodiHasilTableProps {
 }
 
 const StatusBadge = ({ status }: { status: Status }) => {
-    // ... (Fungsi StatusBadge tetap sama) ...
     const statusConfig: { [key in Status]?: { text: string; color: string } } = {
         DIPROSES_KAPRODI: { text: "Menunggu Jadwal & Penguji", color: "bg-purple-100 text-purple-800" },
         DISETUJUI: { text: "Jadwal & Penguji Ditetapkan", color: "bg-green-100 text-green-800" },
@@ -58,6 +57,7 @@ export default function KaprodiHasilTable({ initialSeminarHasil, lecturers }: Ka
         penguji1: '',
         penguji2: '',
         jadwalSidang: '',
+        tempat: '',
     });
 
     const [isLoading, setIsLoading] = useState(false);
@@ -109,6 +109,7 @@ export default function KaprodiHasilTable({ initialSeminarHasil, lecturers }: Ka
             penguji1: '',
             penguji2: '',
             jadwalSidang: '',
+            tempat: '',
         });
     }, []);
 
@@ -125,11 +126,13 @@ export default function KaprodiHasilTable({ initialSeminarHasil, lecturers }: Ka
 
         const initialPenguji1 = sh.penguji1 || sh.pengujiSempro || ''; 
         const initialPenguji2 = sh.penguji2 || ''; 
+        const initialTempat = sh.tempat || '';
 
         setActionData({
             penguji1: initialPenguji1,
             penguji2: initialPenguji2,
             jadwalSidang: initialJadwal,
+            tempat: initialTempat,
         });
         setIsModalOpen(true);
     };
@@ -138,12 +141,13 @@ export default function KaprodiHasilTable({ initialSeminarHasil, lecturers }: Ka
         const p1 = actionData.penguji1.trim();
         const p2 = actionData.penguji2.trim();
         const jadwal = actionData.jadwalSidang.trim();
+        const tempat = actionData.tempat.trim();
 
-        if (!selectedSeminarHasil || !p1 || !p2 || !jadwal) {
+        if (!selectedSeminarHasil || !p1 || !p2 || !jadwal || !tempat) {
             MySwal.fire({ 
                 icon: 'warning', 
                 title: 'Belum Lengkap', 
-                text: 'Dosen Penguji 1, Dosen Penguji 2, dan Jadwal Sidang wajib diisi.',
+                text: 'Dosen Penguji 1, Dosen Penguji 2, Jadwal dan Tempat Sidang wajib diisi.',
                 confirmButtonText: 'OK' 
             });
             return;
@@ -176,6 +180,7 @@ export default function KaprodiHasilTable({ initialSeminarHasil, lecturers }: Ka
                     penguji1: p1,
                     penguji2: p2, 
                     jadwalSidang: isoStringForDB,
+                    tempat: tempat,
                     status: newStatus
                 }),
             });
@@ -280,6 +285,8 @@ export default function KaprodiHasilTable({ initialSeminarHasil, lecturers }: Ka
                                                 <li>Penguji 1: <strong>{sh.penguji1 || '-'}</strong></li>
                                                 <li>Penguji 2: <strong>{sh.penguji2 || '-'}</strong></li>
                                                 <li>Jadwal: <strong>{new Date(sh.jadwal_sidang!).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</strong></li>
+
+                                                 <li>Tempat: <strong>{sh.tempat || '-'}</strong></li>
                                             </ul>
                                         ) : (
                                             <StatusBadge status={sh.status} />
@@ -362,7 +369,7 @@ export default function KaprodiHasilTable({ initialSeminarHasil, lecturers }: Ka
                        
                         <div className='mb-6'>
                             <h3 className="text-lg font-semibold text-green-600 mb-3">Update Penguji & Jadwal Sidang skripsi </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Pilih Dosen Penguji 1</label>
@@ -413,6 +420,19 @@ export default function KaprodiHasilTable({ initialSeminarHasil, lecturers }: Ka
                                         name="jadwalSidang"
                                         value={actionData.jadwalSidang}
                                         onChange={handleActionChange}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
+                                        required
+                                    />
+                                </div>
+
+                                  <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Tempat Sidang</label>
+                                    <input
+                                        type="text"
+                                        name="tempat"
+                                        value={actionData.tempat}
+                                        onChange={handleActionChange}
+                                        placeholder="Masukkan tempat sidang"
                                         className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
                                         required
                                     />
