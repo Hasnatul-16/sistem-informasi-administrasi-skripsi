@@ -15,7 +15,7 @@ const saveFile = async (file: File, subfolder: string) => {
   try {
     await mkdir(uploadDir, { recursive: true });
     await writeFile(filePath, buffer);
-    return `/uploads/${subfolder}/${filename}`;
+    return `/uploads/proposal/${subfolder}/${filename}`;
   } catch (error) {
     console.error(`Gagal menyimpan file ke ${filePath}:`, error);
     throw new Error(`Gagal menyimpan file: ${file.name}`);
