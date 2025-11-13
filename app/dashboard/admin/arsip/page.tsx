@@ -46,8 +46,3 @@ export default async function ArsipPage() {
         </div>
     );
 }
-
-export const metadata = {
-    title: 'Arsip Data Mahasiswa',
-    description: 'Arsip lengkap pengajuan judul, seminar proposal, dan sidang skripsi.',
-};

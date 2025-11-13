@@ -1,5 +1,3 @@
-// app/api/auth/register/route.ts
-
 import { NextResponse } from 'next/server';
 import { hash } from 'bcryptjs';
 import prisma from '../../../../lib/prisma';
@@ -22,23 +20,23 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: 'Email sudah terdaftar.' }, { status: 400 });
     }
 
+     const existingMahasiswa = await prisma.mahasiswa.findUnique({ where: { nim } });
+    if (existingMahasiswa) {
+      return NextResponse.json({ message: 'NIM sudah terdaftar.' }, { status: 400 });
+    }
+
+
     const hashedPassword = await hash(password, 10);
 
-    // =======================================================
-    // ====           PERBAIKAN UTAMA ADA DI SINI         ====
-    // =======================================================
     const newUser = await prisma.user.create({
       data: {
         email,
         password: hashedPassword,
         role: Role.MAHASISWA,
-        nama: nama,       // <-- TAMBAHKAN BARIS INI
-        jurusan: jurusan, // <-- TAMBAHKAN BARIS INI
+        nama: nama,       
+        jurusan: jurusan, 
       },
     });
-    // =======================================================
-    // ====             AKHIR DARI PERBAIKAN              ====
-    // =======================================================
 
     await prisma.mahasiswa.create({
       data: {
