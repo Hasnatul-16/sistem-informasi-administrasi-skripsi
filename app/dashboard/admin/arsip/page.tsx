@@ -1,40 +1,53 @@
-// src/app/dashboard/admin/arsip/page.tsx
-
+import { getServerSession } from 'next-auth';
+import { redirect } from 'next/navigation';
+import { authOptions } from '@/app/api/auth/auth'; 
+import ArsipClient from './ArsipClient'; 
 import prisma from '@/lib/prisma';
-import ArsipTable from './ArsipTable';
+import { Role } from '@prisma/client'; 
 
-// Gunakan 'force-dynamic' untuk memastikan data selalu baru
-export const dynamic = 'force-dynamic';
+async function getInitialData() {
+    const session = await getServerSession(authOptions);
 
-async function getAllSubmissions() {
-  const submissions = await prisma.judul.findMany({
-    // --- PERUBAHAN UTAMA ADA DI SINI ---
-    where: {
-      // Filter ini memberitahu database untuk hanya mengambil
-      // data yang statusnya 'DISETUJUI'.
-      status: 'DISETUJUI',
-    },
-    include: {
-      mahasiswa: true,
-    },
-    orderBy: {
-      // Mengurutkan berdasarkan tanggal kapan status diubah menjadi 'DISETUJUI'
-      tanggal: 'desc',
-    },
-  });
-  return submissions;
+    if (!session?.user?.email) {
+        redirect('/login'); 
+    }
+
+    const user = await prisma.user.findUnique({
+        where: { email: session.user.email },
+        select: { 
+            role: true, 
+            jurusan: true 
+        },
+    });
+
+    if (!user || user.role === 'MAHASISWA') {
+       
+        redirect('/'); 
+    }
+
+    return {
+        initialJurusan: user.jurusan, 
+        userRole: user.role, 
+    };
 }
 
-export default async function ArsipSKPage() {
-  const submissions = await getAllSubmissions();
+export default async function ArsipPage() {
+   
+    const { initialJurusan, userRole } = await getInitialData();
+    const isKaprodi = userRole === Role.KAPRODI;
 
-  return (
-    <div>
-      <h1 className="text-3xl font-bold text-gray-900 mb-6">Arsip Skripsi Mahasiswa</h1>
-      
-      {/* Komponen ArsipTable akan menerima data yang sudah difilter */}
-      {/* Map `mahasiswa` -> `student` agar shape sesuai dengan yang diharapkan oleh `ArsipTable` */}
-      <ArsipTable initialSubmissions={submissions.map(s => ({ ...s, student: s.mahasiswa }))} />
-    </div>
-  );
+    return (
+        <div className="container mx-auto py-8">
+            
+            <ArsipClient 
+                initialJurusan={initialJurusan} 
+                isKaprodi={isKaprodi} 
+            />
+        </div>
+    );
 }
+
+export const metadata = {
+    title: 'Arsip Data Mahasiswa',
+    description: 'Arsip lengkap pengajuan judul, seminar proposal, dan sidang skripsi.',
+};

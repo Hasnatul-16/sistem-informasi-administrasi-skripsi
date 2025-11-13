@@ -55,8 +55,7 @@ export const menuItemsByRole: { [key: string]: MenuItem[] } = {
         { title: "Sistem Informasi", url: "/dashboard/admin/seminar-hasil/SISTEM_INFORMASI" },
       ],
     },
-    { title: "Monitoring", url: "/dashboard/admin/monitoring", icon: BarChart2 },
-    { title: "Arsip SK", url: "/dashboard/admin/arsip", icon: Archive },
+    { title: "Arsip ", url: "/dashboard/admin/arsip", icon: Archive },
     { 
       title: "Tabel Dosen", 
       icon: User,
