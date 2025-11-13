@@ -8,24 +8,20 @@ type AdminActionBody = {
     skNumberPrefix?: string; 
 };
 
-type KaprodiActionBody = {
-    pembimbing1: string;
-    pembimbing2: string;
-};
 
 export async function PATCH(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
+    request: Request,
+    { params }: { params: Promise<{ id: string }> }
 ) {
-try {
-    const { id } = await params;
-    const submissionId = parseInt(id, 10);
-    if (isNaN(submissionId)) {
-      return NextResponse.json({ message: 'ID pengajuan tidak valid' }, { status: 400 });
-    }
+    try {
+        const { id } = await params;
+        const submissionId = parseInt(id, 10);
+        if (isNaN(submissionId)) {
+            return NextResponse.json({ message: 'ID pengajuan tidak valid' }, { status: 400 });
+        }
 
-    const body = await request.json();
-
+        const body = await request.json(); 
+        
         const { 
             action, 
             catatanAdmin, 
@@ -53,20 +49,45 @@ try {
                 const today = new Date();
                 const month = (today.getMonth() + 1).toString().padStart(2, '0');
                 const year = today.getFullYear();
- 
+               
                 const fullSkNumber = `B.${skNumberPrefix}/Un.13/FST/PP.00.9/${month}/${year}`;
 
-                dataToUpdate.sk_number = fullSkNumber;
-                dataToUpdate.sk_tanggal = today; 
+                dataToUpdate.  sk_pembimbing   = fullSkNumber;
+
+                try {
+                    const skNomorParts = fullSkNumber.split('/');
+                    const basePart = skNomorParts[0];
+                    const match = basePart.match(/^([A-Za-z]+\.?)([\d]+)$/);
+
+                    if (match) {
+                        const prefix = match[1];
+                        const numberStr = match[2];
+                        const parsedInt = parseInt(numberStr);
+
+                        if (!isNaN(parsedInt)) {
+                            const nextInt = parsedInt + 1;
+                            const remainingParts = skNomorParts.slice(1).join('/');
+                            dataToUpdate.no_undangan = `${prefix}${nextInt}/${remainingParts}`;
+                        } else {
+                            dataToUpdate.no_undangan = `B.${parseInt(skNumberPrefix) + 1}/${skNomorParts.slice(1).join('/')}`;
+                        }
+                    } else {
+                        dataToUpdate.no_undangan = `B.${parseInt(skNumberPrefix) + 1}/Un.13/FST/PP.00.9/${month}/${year}`;
+                    }
+                } catch (error) {
+                    dataToUpdate.no_undangan = `B.${parseInt(skNumberPrefix) + 1}/Un.13/FST/PP.00.9/${month}/${year}`;
+                    console.error("Error parsing SK number for increment, using default fallback:", error);
+                }
 
             } else if (action === 'REJECT') {
                 newStatus = 'DITOLAK_ADMIN';
                 if (!catatanAdmin) {
                     return NextResponse.json({ message: 'Catatan penolakan wajib diisi' }, { status: 400 });
                 }
-
-                dataToUpdate.sk_number = null;
-                dataToUpdate.sk_tanggal = null;
+        
+                dataToUpdate.  sk_pembimbing   = null;
+                dataToUpdate.no_undangan = null;
+    
             } else {
                 return NextResponse.json({ message: 'Aksi admin tidak valid' }, { status: 400 });
             }
@@ -75,30 +96,30 @@ try {
 
             const updatedSubmission = await prisma.judul.update({
                 where: { id: submissionId },
-             data: dataToUpdate,
+                data: dataToUpdate,
             });
             return NextResponse.json(updatedSubmission, { status: 200 });
         }
 
         else if (pembimbing1) {
-            if (!pembimbing1 || !pembimbing2) {
-                return NextResponse.json({ message: 'Pembimbing 1 dan 2 wajib dipilih' }, { status: 400 });
-            }
-            if (pembimbing1 === pembimbing2) {
-                return NextResponse.json({ message: 'Pembimbing 1 dan 2 tidak boleh orang yang sama' }, { status: 400 });
-            }
+             if (!pembimbing1 || !pembimbing2) {
+                 return NextResponse.json({ message: 'Pembimbing 1 dan 2 wajib dipilih' }, { status: 400 });
+             }
+             if (pembimbing1 === pembimbing2) {
+                 return NextResponse.json({ message: 'Pembimbing 1 dan 2 tidak boleh orang yang sama' }, { status: 400 });
+             }
 
-            const updateDataKaprodi: Prisma.JudulUpdateInput = {
-                pembimbing1,
-                pembimbing2,
-                status: 'DISETUJUI',
-            };
-            
-            const updatedSubmission = await prisma.judul.update({
-                where: { id: submissionId },
-                data: updateDataKaprodi,
-            });
-            return NextResponse.json(updatedSubmission, { status: 200 });
+             const updateDataKaprodi: Prisma.JudulUpdateInput = {
+                 pembimbing1,
+                 pembimbing2,
+                 status: 'DISETUJUI',
+             };
+             
+             const updatedSubmission = await prisma.judul.update({
+                 where: { id: submissionId },
+                 data: updateDataKaprodi,
+             });
+             return NextResponse.json(updatedSubmission, { status: 200 });
         }
 
         else {

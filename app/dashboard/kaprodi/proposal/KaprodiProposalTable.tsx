@@ -145,6 +145,11 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
             return;
         }
 
+        if (actionData.penguji === selectedProposal.judul.pembimbing1 || actionData.penguji === selectedProposal.judul.pembimbing2) {
+            MySwal.fire({ icon: 'error', title: 'Kesalahan Input', text: 'Dosen Pembimbing tidak boleh menjadi Dosen Penguji.' });
+            return;
+        }
+
         setIsLoading(true);
 
         const newStatus = selectedProposal.status === 'DIPROSES_KAPRODI' ? 'DISETUJUI' : selectedProposal.status;
@@ -371,7 +376,12 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
                                         required
                                     >
                                         <option value="" disabled>-- Pilih Dosen Penguji --</option>
-                                        {lecturers.map(dosen => <option key={dosen.id} value={dosen.nama ?? ''}>{dosen.nama}</option>)}
+                                        {lecturers.map(dosen => (
+                                            (dosen.nama !== selectedProposal?.judul.pembimbing1 &&
+                                            dosen.nama !== selectedProposal?.judul.pembimbing2) && (
+                                                <option key={dosen.id} value={dosen.nama ?? ''}>{dosen.nama}</option>
+                                            )
+                                        ))}
                                     </select>
                                 </div>
 

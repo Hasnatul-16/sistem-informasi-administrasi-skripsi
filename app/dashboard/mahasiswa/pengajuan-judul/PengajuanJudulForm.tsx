@@ -73,9 +73,14 @@ export default function PengajuanJudulForm({ dosenList }: PengajuanJudulFormProp
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
+
     if (!formData.judul || !formData.topik || !formData.usulan_pembimbing1 || !formData.usulan_pembimbing2 || !files.transkrip || !files.ukt || !files.konsultasi) {
       MySwal.fire({ icon: 'warning', title: 'Form Belum Lengkap', text: 'Harap lengkapi semua field yang ditandai dengan *' });
+      return;
+    }
+
+    if (formData.usulan_pembimbing1 && formData.usulan_pembimbing2 && formData.usulan_pembimbing1 === formData.usulan_pembimbing2) {
+      MySwal.fire({ icon: 'error', title: 'Pembimbing Tidak Valid', text: 'Nama pembimbing tidak boleh sama' });
       return;
     }
 
@@ -97,8 +102,9 @@ export default function PengajuanJudulForm({ dosenList }: PengajuanJudulFormProp
       const result = await response.json();
       if (!response.ok) throw new Error(result.message || 'Gagal mengirim pengajuan.');
 
-      await MySwal.fire({ icon: 'success', title: 'Pengajuan Terkirim!', text: 'Data Anda telah berhasil dikirim dan akan segera diproses.' });
+      MySwal.fire({ icon: 'success', title: 'Berhasil!', text: 'pengajuan berhasil .', timer: 2000, showConfirmButton: false });
       router.push('/dashboard/mahasiswa');
+
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Terjadi kesalahan yang tidak diketahui';
       MySwal.fire({ icon: 'error', title: 'Gagal Mengirim', text: message });
@@ -156,7 +162,7 @@ export default function PengajuanJudulForm({ dosenList }: PengajuanJudulFormProp
                   </select>
                 </div>
                 <div>
-                  <label htmlFor="usulan_pembimbing3" className="block text-sm font-medium text-gray-700 mb-1">Usulan Calon Pembimbing 3 <span className="text-gray-500">(Opsional)</span></label>
+                  <label htmlFor="usulan_pembimbing3" className="block text-sm font-medium text-gray-700 mb-1">Usulan Calon Pembimbing 3 </label>
                   <select id="usulan_pembimbing3" name="usulan_pembimbing3" value={formData.usulan_pembimbing3} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white">
                     <option value="">Pilih Dosen</option>
                     {Array.isArray(dosenList) && dosenList.length > 0 ? (

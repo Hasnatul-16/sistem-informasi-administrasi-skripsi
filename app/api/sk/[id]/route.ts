@@ -36,31 +36,21 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   const pembimbing2 =  submission.pembimbing2 || '';
   const today = new Date();
 
-  let skDateObj = today;
-  if (submission.sk_tanggal) {
-    try {
-      const tempDate = new Date(submission.sk_tanggal);
-      if (!isNaN(tempDate.getTime())) {
-        skDateObj = tempDate;
-      }
-    } catch (e) {
-      console.error('Error parsing sk_tanggal:', e);
-    }
-  }
+   const skDateObj = today;
 
   const skDate = skDateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
   const skMonth = String(skDateObj.getMonth() + 1).padStart(2, '0');
   const skYear = skDateObj.getFullYear();
   const defaultSkNomor = `B.811/Un.13/FST/PP.00.9/${skMonth}/${skYear}`;
-  const skNomor = submission.sk_number || defaultSkNomor;
+  const skNomor = submission.  sk_pembimbing   || defaultSkNomor;
 
   console.log('SK Date:', {
-    raw: submission.sk_tanggal,
+   
     parsed: skDateObj,
     formatted: skDate
   });
   console.log('SK Number:', {
-    raw: submission.sk_number,
+    raw: submission.  sk_pembimbing  ,
     fallback: defaultSkNomor,
     final: skNomor
   });
@@ -99,23 +89,16 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   const suratDate = skDate;
   console.log('Surat Number:', suratNomor);
  
-  if (!submission.no_undangan) {
-    try {
-      await prisma.judul.update({
-        where: { id: submissionId },
-        data: {
-          no_undangan: suratNomor,
-        },
-      });
-      console.log(`SK Pembimbing (${suratNomor}) berhasil disimpan ke database.`);
-    } catch (dbError) {
-      console.error('Gagal menyimpan SK Pembimbing ke database:', dbError);
-
-    }
-  } else if (submission.no_undangan !== suratNomor) {
-  
-    console.warn(`Nomor SK Pembimbing di database berbeda. Menggunakan yang sudah ada: ${submission.no_undangan}`);
-
+  try {
+    await prisma.judul.update({
+      where: { id: submissionId },
+      data: {
+        no_undangan: suratNomor,
+      },
+    });
+    console.log(`SK Pembimbing (${suratNomor}) berhasil disimpan ke database.`);
+  } catch (dbError) {
+    console.error('Gagal menyimpan SK Pembimbing ke database:', dbError);
   }
   const html = `<!doctype html>
   <html>
