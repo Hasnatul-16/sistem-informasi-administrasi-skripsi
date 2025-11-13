@@ -149,7 +149,11 @@ export default function SubmissionTable({ initialSubmissions }: { initialSubmiss
                     </button>
                   )}
                   
-                  {sub.status !== 'TERKIRIM' && sub.status !== 'DISETUJUI' && (<span className="text-gray-400">Dalam Proses</span>)}
+                  {sub.status === 'DITOLAK_ADMIN' && (<span className="text-gray-400">Selesai</span>)}
+
+                  {sub.status !== 'TERKIRIM' && sub.status !== 'DISETUJUI' && sub.status !== 'DITOLAK_ADMIN' && (<span className="text-gray-400">Dalam Proses</span>)}
+
+                  
                 </td>
               </tr>
             ))

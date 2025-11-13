@@ -51,8 +51,8 @@ export default async function PersetujuanProposalPage() {
     return (
         <main className="space-y-6">
             <div>
-                <h1 className="text-3xl font-bold text-gray-900">Persetujuan Sidang Proposal</h1>
-                <p className="mt-1 text-gray-600">Tetapkan penguji dan jadwal sidang untuk proposal dari jurusan: <strong>{kaprodiJurusan.replace('_', ' ')}</strong></p>
+                <h1 className="text-3xl font-bold text-gray-900">Persetujuan Seminar Proposal</h1>
+                <p className="mt-1 text-gray-600">Tetapkan penguji dan jadwal seminar untuk proposal dari jurusan: <strong>{kaprodiJurusan.replace('_', ' ')}</strong></p>
             </div>
             <div className="bg-white p-6 rounded-lg shadow-md border">
                 <KaprodiProposalTable initialProposals={proposals} lecturers={lecturers} />

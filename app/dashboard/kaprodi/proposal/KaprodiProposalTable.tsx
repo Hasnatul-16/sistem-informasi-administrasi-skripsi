@@ -297,7 +297,7 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
                         <div className="flex justify-between items-start mb-4 pb-4 border-b">
                             <div>
                                 <h2 className="text-xl font-bold text-gray-800">
-                                    {selectedProposal.status === 'DISETUJUI' ? 'Edit' : 'Tetapkan'} Penguji & Jadwal Sidang Proposal
+                                    {selectedProposal.status === 'DISETUJUI' ? 'Edit' : 'Tetapkan'} Penguji & Jadwal Seminar Proposal
                                 </h2>
                                 <p className="text-sm text-gray-500 mt-1">
                                     {selectedProposal.status === 'DISETUJUI' ?
@@ -363,7 +363,7 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
 
 
                         <div className='mb-6'>
-                            <h3 className="text-lg font-semibold text-green-600 mb-3">Update Penguji & Jadwal Sidang Proposal</h3>
+                            <h3 className="text-lg font-semibold text-green-600 mb-3">Update Penguji & Jadwal Seminar Proposal</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                                 <div>

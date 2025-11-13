@@ -41,7 +41,7 @@ const FileUploadBox = ({ id, name, label, file, onChange }: {
             <>
               <FiUpload className="w-10 h-10 mb-2 text-gray-400" />
               <p className="font-semibold text-gray-700">{label} <span className="text-red-500">*</span></p>
-              <p className="text-xs text-gray-500">Klik untuk upload</p>
+              <p className="text-xs text-gray-500">Klik untuk upload (PDF)</p>
             </>
           )}
         </div>

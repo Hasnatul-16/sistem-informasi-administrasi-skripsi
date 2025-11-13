@@ -48,7 +48,7 @@ export const menuItemsByRole: { [key: string]: MenuItem[] } = {
       ],
     },
     { 
-      title: "Seminar Hasil", 
+      title: "Sidang Skripsi", 
       icon: Layers3, 
       subItems: [
         { title: "Matematika", url: "/dashboard/admin/seminar-hasil/MATEMATIKA" },
@@ -71,8 +71,7 @@ export const menuItemsByRole: { [key: string]: MenuItem[] } = {
     { title: "Dashboard", url: "/dashboard/kaprodi", icon: Home },
     { title: "Pengajuan Judul", url: "/dashboard/kaprodi/pengajuan_judul", icon: Edit },
     { title: "Seminar Proposal", url: "/dashboard/kaprodi/proposal", icon:  Layers2Icon },
-    { title: "Seminar hasil", url: "/dashboard/kaprodi/seminar-hasil", icon: Layers },
-    { title: "Jadwal Seminar", url: "/dashboard/kaprodi/jadwal-seminar", icon: Calendar }, 
+    { title: "Sidang Skripsi", url: "/dashboard/kaprodi/seminar-hasil", icon: Layers },
     { title: "Dosen Pembimbing", url: "/dashboard/kaprodi/dosen",icon: User },
       
   ],

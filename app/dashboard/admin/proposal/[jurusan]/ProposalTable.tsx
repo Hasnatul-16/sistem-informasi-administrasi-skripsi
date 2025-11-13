@@ -185,7 +185,12 @@ export default function ProposalTable({ initialProposals }: ProposalTableProps) 
                                         </button>
                                     )}
 
-                                    {prop.status !== 'TERKIRIM' && prop.status !== 'DISETUJUI' && (<span className="text-gray-400">Dalam Proses</span>)}
+                                     {prop.status === 'DITOLAK_ADMIN' && (<span className="text-gray-400">Selesai</span>)}
+
+                                    {prop.status !== 'TERKIRIM' && prop.status !== 'DISETUJUI'&& prop.status !== 'DITOLAK_ADMIN' && (<span className="text-gray-400">Dalam Proses</span>)}
+                                    
+
+                
                                 </td>
                             </tr>
                         ))

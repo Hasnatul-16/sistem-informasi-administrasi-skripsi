@@ -79,6 +79,7 @@ export default function SeminarHasilForm({ judulId, judulData }: SeminarHasilFor
         topik: judulData.topik,
         judul: judulData.judul,
     });
+    const [submissionStatus, setSubmissionStatus] = useState<'idle' | 'success' | 'in_process'>('idle');
 
     const handleJudulChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -136,6 +137,18 @@ export default function SeminarHasilForm({ judulId, judulData }: SeminarHasilFor
             const result = await response.json();
 
             if (!response.ok) {
+                if (response.status === 409) {
+                    setSubmissionStatus('in_process');
+                    MySwal.fire({
+                        icon: 'warning',
+                        title: 'Pengajuan Dalam Proses',
+                        text: 'Pengajuan Anda sedang dalam proses verifikasi.',
+                        timer: 3000,
+                        showConfirmButton: false
+                    });
+                    router.push('/dashboard/mahasiswa');
+                    return;
+                }
                 throw new Error(result.message || `Gagal mengirim: Status ${response.status}`);
             }
 
