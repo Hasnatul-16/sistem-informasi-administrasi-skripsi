@@ -4,7 +4,7 @@ import { useState, useMemo, useCallback, useEffect } from 'react';
 import type { SeminarHasil, Judul, Mahasiswa, User, Dosen, Status } from '@prisma/client';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
-import { FiX, FiCheckCircle, FiCalendar, FiUser, FiBook, FiUsers, FiHash, FiEdit,  FiSearch } from 'react-icons/fi';
+import { FiX, FiCheckCircle, FiCalendar, FiUser, FiBook, FiUsers, FiHash, FiEdit,  FiSearch, FiDownload, FiClock} from 'react-icons/fi';
 
 const MySwal = withReactContent(Swal);
 
@@ -61,6 +61,7 @@ export default function KaprodiHasilTable({ initialSeminarHasil, lecturers }: Ka
     });
 
     const [isLoading, setIsLoading] = useState(false);
+    const [loadingId, setLoadingId] = useState<number | null>(null);
     const currentMonth = new Date().getMonth() + 1;
     const currentYear = new Date().getFullYear();
     const [filters, setFilters] = useState({ month: currentMonth, year: currentYear });
@@ -213,6 +214,35 @@ export default function KaprodiHasilTable({ initialSeminarHasil, lecturers }: Ka
         }
     }, [selectedSeminarHasil, actionData, closeModal]);
 
+     const handleDownloadBeritaAcara = async (seminarHasilId: number, nim: string, nama: string) => {
+        setLoadingId(seminarHasilId);
+        try {
+            const response = await fetch(`/api/berita-acara-seminar-hasil/${seminarHasilId}`);
+            if (!response.ok) {
+                throw new Error('Failed to download Berita Acara');
+            }
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Berita_Acara_Seminar_Hasil_${nim}_${nama}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Error downloading Berita Acara:', error);
+            MySwal.fire({
+                icon: 'error',
+                title: 'Gagal Mengunduh',
+                text: 'Terjadi kesalahan saat mengunduh Berita Acara.',
+            });
+        } finally {
+            setLoadingId(null);
+        }
+    };
+
+
 
     return (
         <>
@@ -294,10 +324,34 @@ export default function KaprodiHasilTable({ initialSeminarHasil, lecturers }: Ka
                                     </td>
                                     {/* AKSI */}
                                     <td className="px-6 py-4">
-                                        {(sh.status === 'DIPROSES_KAPRODI' || sh.status === 'DISETUJUI') ? (
+                                        {sh.status === 'DIPROSES_KAPRODI' ? (
                                             <button onClick={() => openModal(sh)} className="text-blue-600 hover:text-blue-800 text-sm font-semibold flex items-center gap-1 transition-colors">
-                                                <FiEdit size={14} /> {sh.status === 'DISETUJUI' ? 'Edit' : 'Tetapkan'}
+                                                <FiEdit size={14} /> Tetapkan
                                             </button>
+                                        ) : sh.status === 'DISETUJUI' ? (
+                                            <div className="flex flex-col gap-1">
+                                                <button
+                                                    onClick={() => openModal(sh)}
+                                                    className="text-green-600 hover:text-green-800 text-sm font-semibold flex items-center gap-1 transition-colors"
+                                                >
+                                                    <FiEdit size={14} /> Edit
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDownloadBeritaAcara(sh.id, sh.judul.mahasiswa.nim, sh.judul.mahasiswa.nama)}
+                                                    disabled={loadingId === sh.id}
+                                                    className="text-green-800 hover:text-green-950 text-sm font-semibold flex items-center gap-1 transition-colors"
+                                                >
+                                                    {loadingId === sh.id ? (
+                                                        <>
+                                                            <FiClock className="animate-spin h-4 w-4" /> Mengunduh...
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <FiDownload size={14} /> Unduh
+                                                        </>
+                                                    )}
+                                                </button>
+                                            </div>
                                         ) : (
                                             <StatusBadge status={sh.status} />
                                         )}
