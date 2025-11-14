@@ -6,24 +6,25 @@ import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 
 // Impor semua ikon yang dibutuhkan dari CDN
 import {
-    FiEye, FiX, FiUsers, FiActivity, FiLoader,
+    FiEye, FiX, FiUsers, FiBookOpen, FiActivity, FiLoader,
     FiSearch, FiAlertTriangle, FiHash, FiUser, FiSettings
 } from 'react-icons/fi';
+import React from 'react';
 
-// --- Tipe Data ---
+// --- Tipe Data (Digabung dari semua file) ---
 
-// Tipe data dari API /api/dosen
+// Tipe untuk statistik di tabel utama
 type DosenStat = {
     nama: string;
     nip: string;
     totalPengujiSempro: number;
     totalPengujiSemhas: number;
-    totalPembimbing1: number;
-    totalPembimbing2: number;
+    totalPembimbing1: number; // Data ini ada, tapi tidak kita tampilkan
+    totalPembimbing2: number; // Data ini ada, tapi tidak kita tampilkan
     totalBeban: number;
 };
 
-// Tipe Riwayat (Umum)
+// Tipe untuk riwayat di modal
 type RiwayatItem = {
     mahasiswa: string;
     nim: string;
@@ -32,31 +33,33 @@ type RiwayatItem = {
     role: string;
 };
 
-// Tipe Modal Riwayat PEMBIMBING
-export type DosenPembimbingHistory = {
+// Tipe untuk data lengkap di modal (Hanya Penguji)
+export type DosenHistory = {
     namaDosen: string;
     nip: string;
-    totalBimbingan: number;
-    totalPembimbing1: number;
-    totalPembimbing2: number;
+    totalMenguji: number;
+    totalPengujiSempro: number;
+    totalPengujiSemhas: number;
     riwayat: RiwayatItem[];
 };
 
 // Tipe untuk Props dari page.tsx
 interface DosenStatsClientProps {
+    isKaprodi: boolean;
     initialTahun: number;
     initialSemester: 'GANJIL' | 'GENAP';
     initialJurusan: Jurusan;
 }
 
-
+const ALL_JURUSAN: Jurusan[] = ['SISTEM_INFORMASI', 'MATEMATIKA'];
 
 // --- Komponen Utama (All-in-One) ---
 
-export default function PembimbingStatsClient({
-    initialTahun,
-    initialSemester,
-    initialJurusan
+export default function DosenStatsClient({ 
+    isKaprodi, 
+    initialTahun, 
+    initialSemester, 
+    initialJurusan 
 }: DosenStatsClientProps) {
     
     // --- STATE ---
@@ -79,7 +82,7 @@ export default function PembimbingStatsClient({
     
     // State untuk Modal
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [modalData, setModalData] = useState<DosenPembimbingHistory | null>(null);
+    const [modalData, setModalData] = useState<DosenHistory | null>(null);
     const [isModalLoading, setIsModalLoading] = useState(false);
     const [selectedDosen, setSelectedDosen] = useState<DosenStat | null>(null);
 
@@ -109,7 +112,19 @@ export default function PembimbingStatsClient({
         }));
     };
 
+    // Handler khusus untuk tombol Jurusan (Admin)
+    const handleJurusanChange = (newJurusan: Jurusan) => {
+        // Update URL
+        const params = new URLSearchParams(searchParams.toString());
+        params.set('jurusan', newJurusan);
+        router.push(`${pathname}?${params.toString()}`);
 
+        // Update state lokal
+        setFilters(prev => ({
+            ...prev,
+            jurusan: newJurusan
+        }));
+    };
 
 
     // --- LOGIKA FETCH DATA ---
@@ -129,12 +144,11 @@ export default function PembimbingStatsClient({
                 params.append('search', filters.search);
             }
             
-            // API-nya sama, kita panggil /api/dosen
             const res = await fetch(`/api/dosen?${params.toString()}`);
             
             if (!res.ok) {
                 const errorData = await res.json();
-                throw new Error(errorData.details || errorData.message || 'Gagal memuat data statistik dosen.');
+                throw new Error(errorData.details || errorData.message || 'Gagal memuat data tabel dosen.');
             }
 
             const data: DosenStat[] = await res.json();
@@ -142,7 +156,8 @@ export default function PembimbingStatsClient({
 
         } catch (err: unknown) {
             console.error("Error fetching data:", err);
-            setError(err instanceof Error ? err.message : 'Terjadi kesalahan saat mengambil data.');
+            const errorMessage = err instanceof Error ? err.message : 'Terjadi kesalahan saat mengambil data.';
+            setError(errorMessage);
             setDosenStats([]);
         } finally {
             setIsTableLoading(false);
@@ -162,7 +177,7 @@ export default function PembimbingStatsClient({
                 tahun: filters.tahun,
                 semester: filters.semester,
                 jurusan: filters.jurusan,
-                role: 'pembimbing' // --- PENTING: Minta data PEMBIMBING ---
+                role: 'penguji' // --- PENTING: Minta data PENGUJI ---
             });
 
             const res = await fetch(`/api/dosen/riwayat?${params.toString()}`);
@@ -172,17 +187,18 @@ export default function PembimbingStatsClient({
                 throw new Error(errorData.details || errorData.message || 'Gagal memuat detail riwayat dosen.');
             }
 
-            const data: DosenPembimbingHistory = await res.json();
+            const data: DosenHistory = await res.json();
             setModalData(data);
 
         } catch (err: unknown) {
             console.error("Error fetching detail:", err);
             // Menampilkan error di modal
+            const errorMessage = err instanceof Error ? err.message : 'Gagal memuat detail riwayat dosen.';
             setModalData({
                 namaDosen: `Error Dosen (${dosen.nip})`,
                 nip: dosen.nip,
-                totalBimbingan: 0, totalPembimbing1: 0, totalPembimbing2: 0,
-                riwayat: [{mahasiswa: 'Error', nim: 'N/A', judul: `Gagal memuat: ${err instanceof Error ? err.message : 'Unknown error'}`, tanggal: new Date(), role: 'Error'}]
+                totalMenguji: 0, totalPengujiSempro: 0, totalPengujiSemhas: 0,
+                riwayat: [{mahasiswa: 'Error', nim: 'N/A', judul: `Gagal memuat: ${errorMessage}`, tanggal: new Date(), role: 'Error'}]
             });
         } finally {
             setIsModalLoading(false);
@@ -197,16 +213,19 @@ export default function PembimbingStatsClient({
     };
 
     // Ambil data tabel utama setiap kali filter (dari state) berubah
+    // Kita juga tambahkan debounce untuk search
     useEffect(() => {
+        // Debounce: Tunda fetch 500ms setelah user berhenti mengetik
         const handler = setTimeout(() => {
             fetchTableData();
         }, 500); // 500ms delay
 
+        // Bersihkan timeout jika user mengetik lagi
         return () => {
             clearTimeout(handler);
         };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [filters]); 
+    }, [filters]); // Dijalankan setiap kali state 'filters' berubah
 
 
     // --- Helper Function untuk Modal ---
@@ -243,14 +262,17 @@ export default function PembimbingStatsClient({
     // --- RENDER ---
     return (
         <main className="space-y-6">
-            <h1 className="text-3xl font-bold text-gray-900">📊 Statistik Dosen Pembimbing</h1>
-            <p className="mt-0 text-gray-600">Menampilkan total dosen menjadi pembimbing skripsi.</p>
+            <h1 className="text-3xl font-bold text-gray-900"> Daftar Dosen Penguji</h1>
+            <p className="mt-0 text-gray-600">menampilkan total dosen menjadi penguji pada seminar proposal dan sidang skripsi </p>
             
             <div className="bg-white p-6 rounded-lg shadow-md border space-y-4">
                 
-                {/* --- 1. BAGIAN FILTER (TIDAK BERUBAH) --- */}
+                {/* --- 1. BAGIAN FILTER (STYLING DIPERBARUI) --- */}
                 <div className="bg-gradient-to-r from-blue-600 to-cyan-500 p-4 rounded-lg shadow-md flex flex-wrap items-center justify-between gap-4">
+                    
+                    {/* Filter Group */}
                     <div className="flex items-center gap-4">
+                        {/* Kolom Semester */}
                         <div className="flex flex-col">
                             <label htmlFor="semester" className="text-sm font-semibold text-white mb-1">
                                 Periode Semester
@@ -266,6 +288,8 @@ export default function PembimbingStatsClient({
                                 <option value="GENAP" className='text-gray-800'>Genap</option>
                             </select>
                         </div>
+                        
+                        {/* Kolom Tahun */}
                         <div className="flex flex-col">
                             <label htmlFor="tahun" className="text-sm font-semibold text-white mb-1">
                                 Tahun Akademik
@@ -283,6 +307,8 @@ export default function PembimbingStatsClient({
                             </select>
                         </div>
                     </div>
+
+                    {/* Kolom Search */}
                     <div className="relative self-end">
                         <input
                             type="text"
@@ -296,8 +322,35 @@ export default function PembimbingStatsClient({
                     </div>
                 </div>
 
-                
+            </div>
+            <div className="bg-white p-6 rounded-lg shadow-md border space-y-4">
+                {/* --- AKHIR BAGIAN FILTER --- */}
 
+
+                {/* --- 2. BAGIAN TABEL (KHUSUS PENGUJI) --- */}
+                <p className="mt-1 text-gray-600">
+                    Data ditampilkan untuk Jurusan:{' '}
+                    <strong className='text-indigo-700'>{filters.jurusan.replace('_', ' ')}</strong>
+                </p>
+                
+                {!isKaprodi && (
+                    <div className='flex items-center gap-4'>
+                        <label className="text-sm font-medium text-gray-700">Filter Jurusan:</label>
+                        {ALL_JURUSAN.map(j => (
+                            <button
+                                key={j}
+                                onClick={() => handleJurusanChange(j)}
+                                className={`px-4 py-2 text-sm font-semibold rounded-full transition duration-150 ${
+                                    filters.jurusan === j
+                                        ? 'bg-indigo-600 text-white shadow-md'
+                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                }`}
+                            >
+                                {j.replace('_', ' ')}
+                            </button>
+                        ))}
+                    </div>
+                )}
 
                 
                 <div className="mt-6">
@@ -320,17 +373,17 @@ export default function PembimbingStatsClient({
                                         <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[35%]">
                                             <div className="flex items-center gap-2"><FiUsers size={16} className="text-blue-600" /><span>Dosen</span></div>
                                         </th>
-                                        {/* Header Pembimbing 1 */}
+                                        {/* Header Penguji Sempro */}
                                         <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[20%]">
-                                            <div className="flex items-center gap-2"><FiUser size={16} className="text-blue-600" /><span>Pembimbing 1</span></div>
+                                            <div className="flex items-center gap-2"><FiBookOpen size={16} className="text-blue-600" /><span>Penguji Sempro</span></div>
                                         </th>
-                                        {/* Header Pembimbing 2 */}
+                                        {/* Header Penguji Semhas */}
                                         <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[20%]">
-                                            <div className="flex items-center gap-2"><FiUser size={16} className="text-blue-600" /><span>Pembimbing 2</span></div>
+                                            <div className="flex items-center gap-2"><FiBookOpen size={16} className="text-blue-600" /><span>Penguji Semhas</span></div>
                                         </th>
-                                        {/* Header Total Bimbingan */}
+                                        {/* Header Total Beban */}
                                         <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[15%]">
-                                            <div className="flex items-center gap-2"><FiActivity size={16} className="text-blue-600" /><span>Total Bimbingan</span></div>
+                                            <div className="flex items-center gap-2"><FiActivity size={16} className="text-blue-600" /><span>Total Menguji</span></div>
                                         </th>
                                         {/* Header Aksi */}
                                         <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[10%]">
@@ -363,24 +416,24 @@ export default function PembimbingStatsClient({
                                                         </div>
                                                     </div>
                                                 </td>
-                                                {/* Kolom Pembimbing 1 */}
+                                                {/* Kolom Sempro */}
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-medium">
-                                                    {dosen.totalPembimbing1} kali
+                                                    {dosen.totalPengujiSempro} kali
                                                 </td>
-                                                {/* Kolom Pembimbing 2 */}
+                                                {/* Kolom Semhas */}
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-medium">
-                                                    {dosen.totalPembimbing2} kali
+                                                    {dosen.totalPengujiSemhas} kali
                                                 </td>
-                                                {/* Kolom Total Bimbingan */}
+                                                {/* Kolom Total Beban */}
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-bold">
-                                                    {dosen.totalPembimbing1 + dosen.totalPembimbing2} kali
+                                                    {dosen.totalPengujiSempro + dosen.totalPengujiSemhas} kali
                                                 </td>
                                                 {/* Kolom Aksi */}
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                     <button
                                                         onClick={() => handleOpenDetail(dosen)}
                                                         className="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-900 font-semibold"
-                                                        title="Lihat Detail Riwayat Pembimbing"
+                                                        title="Lihat Detail Riwayat Penguji"
                                                     >
                                                         <FiEye className="h-4 w-4" /> Lihat
                                                     </button>
@@ -395,7 +448,8 @@ export default function PembimbingStatsClient({
                 </div>
             </div> 
 
-            {/* --- 3. BAGIAN MODAL (KHUSUS PEMBIMBING) --- */}
+
+            {/* --- 3. BAGIAN MODAL (KHUSUS PENGUJI) --- */}
             {isModalOpen && (
                 <div className="fixed inset-0 z-50 overflow-y-auto bg-gray-900/50 backdrop-blur-sm flex justify-center items-center p-4">
                     <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl m-4 transform transition-all animate-fade-in-scale">
@@ -403,7 +457,7 @@ export default function PembimbingStatsClient({
                         {/* Header Modal */}
                         <div className="p-4 border-b flex justify-between items-center">
                             <h2 className="text-xl font-bold text-gray-800">
-                                Riwayat Pembimbing - {selectedDosen?.nama || 'Memuat...'}
+                                Riwayat Penguji - {selectedDosen?.nama || 'Memuat...'}
                             </h2>
                             <button onClick={handleCloseModal} className="p-2 text-gray-500 hover:text-gray-800">
                                 <FiX className="h-6 w-6" />
@@ -421,9 +475,9 @@ export default function PembimbingStatsClient({
                                 <>
                                     {/* Summary Cards */}
                                     <div className="grid grid-cols-3 gap-4">
-                                        {renderSummaryCard('Total Bimbingan', modalData.totalBimbingan, 'bg-purple-100 text-purple-800')}
-                                        {renderSummaryCard('Total Pembimbing 1', modalData.totalPembimbing1, 'bg-green-100 text-green-800')}
-                                        {renderSummaryCard('Total Pembimbing 2', modalData.totalPembimbing2, 'bg-teal-100 text-teal-800')}
+                                        {renderSummaryCard('Total Keseluruhan Menguji', modalData.totalMenguji, 'bg-purple-100 text-purple-800')}
+                                        {renderSummaryCard('Total Penguji Sempro', modalData.totalPengujiSempro, 'bg-blue-100 text-blue-800')}
+                                        {renderSummaryCard('Total Penguji Semhas', modalData.totalPengujiSemhas, 'bg-green-100 text-green-800')}
                                     </div>
 
                                     <p className="text-sm font-semibold text-gray-600 pt-2">
@@ -463,7 +517,7 @@ export default function PembimbingStatsClient({
                                                 ) : (
                                                     <tr>
                                                         <td colSpan={4} className="text-center py-8 text-gray-500">
-                                                            Tidak ada riwayat bimbingan pada periode akademik ini.
+                                                            Tidak ada riwayat pengujian pada periode akademik ini.
                                                         </td>
                                                     </tr>
                                                 )}

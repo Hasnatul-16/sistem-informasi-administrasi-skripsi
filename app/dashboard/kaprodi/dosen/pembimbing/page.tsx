@@ -1,11 +1,11 @@
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/auth';
-import DosenStatsClient from './tabelPenguji';
+import PembimbingStatsClient from './tabelPembimbing'; 
 import { Jurusan, Role } from '@prisma/client';
 
 export const dynamic = 'force-dynamic';
 
-export default async function DosenStatsPage({ 
+export default async function DosenPembimbingPage({ 
   searchParams, 
 }: { 
   searchParams: Promise<{ tahun?: string, semester?: string, jurusan?: string }>
@@ -22,7 +22,7 @@ export default async function DosenStatsPage({
       <main className="p-8"><h1 className="text-2xl font-bold text-red-600">Akses Ditolak</h1></main>
     );
   }
-  const params = await searchParams;
+   const params = await searchParams;
 
   let targetJurusan: Jurusan;
   
@@ -38,19 +38,16 @@ export default async function DosenStatsPage({
       targetJurusan = (queryJurusan in Jurusan) ? queryJurusan : Jurusan.SISTEM_INFORMASI;
   }
 
-
   const currentYear = new Date().getFullYear();
   const currentMonth = new Date().getMonth();
   const defaultSemester = (currentMonth >= 7 || currentMonth === 0) ? 'GANJIL' : 'GENAP';
 
   const initialTahun = parseInt(params.tahun || String(currentYear), 10);
   const initialSemester = (params.semester === 'GANJIL' || params.semester === 'GENAP') ? params.semester : defaultSemester;
-
   return (
-    <DosenStatsClient 
-      isKaprodi={isKaprodi}
-      initialTahun={initialTahun} 
-      initialSemester={initialSemester} 
+    <PembimbingStatsClient
+      initialTahun={initialTahun}
+      initialSemester={initialSemester}
       initialJurusan={targetJurusan}
     />
   );

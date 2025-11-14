@@ -72,7 +72,7 @@ export const menuItemsByRole: { [key: string]: MenuItem[] } = {
     { title: "Pengajuan Judul", url: "/dashboard/kaprodi/pengajuan_judul", icon: Edit },
     { title: "Seminar Proposal", url: "/dashboard/kaprodi/proposal", icon:  Layers2Icon },
     { title: "Sidang Skripsi", url: "/dashboard/kaprodi/seminar-hasil", icon: Layers },
-    { title: "Dosen Pembimbing", url: "/dashboard/kaprodi/dosen",icon: User },
+    { title: "Dosen Pembimbing", url: "/dashboard/kaprodi/dosen/pembimbing",icon: User },
     { title: "Dosen penguji", url: "/dashboard/kaprodi/dosen", icon: Layers },
       
   ],

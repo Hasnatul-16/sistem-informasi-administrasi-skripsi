@@ -149,7 +149,7 @@ export default function PembimbingStatsClient({
             
             if (!res.ok) {
                 const errorData = await res.json();
-                throw new Error(errorData.details || errorData.message || 'Gagal memuat data statistik dosen.');
+                throw new Error(errorData.details || errorData.message || 'Gagal memuat data tabel dosen dosen.');
             }
 
             const data: DosenStat[] = await res.json();
@@ -260,7 +260,7 @@ export default function PembimbingStatsClient({
     // --- RENDER ---
     return (
         <main className="space-y-6">
-            <h1 className="text-3xl font-bold text-gray-900">📊 Statistik Dosen Pembimbing</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Daftar Dosen Pembimbing</h1>
             <p className="mt-0 text-gray-600">Menampilkan total dosen menjadi pembimbing skripsi.</p>
             
             <div className="bg-white p-6 rounded-lg shadow-md border space-y-4">
