@@ -163,8 +163,8 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     seminarWaktu = `${startTime} s.d ${endTime} WIB`;
   }
 
-  if (proposal.catatan) {
-    seminarTempat = proposal.catatan;
+  if (proposal.tempat) {
+    seminarTempat = proposal.tempat;
   }
 
   const templateData = {

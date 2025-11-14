@@ -134,7 +134,7 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
         setActionData({
             penguji: proposal.penguji || '',
             jadwalSidang: initialJadwal,
-            tempat: proposal.catatan || '',
+            tempat: proposal.tempat || '',
         });
         setIsModalOpen(true);
     };
@@ -296,7 +296,7 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
                                                 <li>Penguji: <strong>{p.penguji}</strong></li>
                                                 <li>Jadwal: <strong>{new Date(p.jadwal_sidang!).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</strong></li>
 
-                                                 <li>Tempat: <strong>{p.catatan || 'Belum Ditetapkan'}</strong></li>
+                                                <li>Tempat: <strong>{p.tempat || 'Belum Ditetapkan'}</strong></li>
                                             </ul>
                                         ) : (
                                             <StatusBadge status={p.status} />

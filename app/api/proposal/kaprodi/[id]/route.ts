@@ -26,9 +26,9 @@ export async function PATCH(
         const updatedProposal = await prisma.proposal.update({
             where: { id: proposalId },
             data: {
-                penguji: penguji, 
-                jadwal_sidang: new Date(jadwalSidang), 
-                catatan: tempat,
+                penguji: penguji,
+                jadwal_sidang: new Date(jadwalSidang),
+                tempat: tempat,
                 status: Status.DISETUJUI,
             },
         });
