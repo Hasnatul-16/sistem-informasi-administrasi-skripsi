@@ -83,16 +83,16 @@ const CustomSelect = ({ id, value, onChange, options }: CustomSelectProps) => {
   );
 };
 
-const FeatureItem = ({ icon: Icon, title, description, colorClass }:
-  { icon: React.ElementType, title: string, description: string, colorClass: string }) => (
-  <li className="flex items-start bg-white/20 p-2 rounded-lg text-white backdrop-blur-sm transition duration-300 hover:bg-white/30">
-    <Icon className={`w-4 h-4 mr-3 mt-1 ${colorClass} flex-shrink-0`} />
-    <div>
-      <strong className="text-base">{title}</strong>
-      <p className="text-xs opacity-90">{description}</p>
-    </div>
-  </li>
-);
+// const FeatureItem = ({ icon: Icon, title, description, colorClass }:
+//   { icon: React.ElementType, title: string, description: string, colorClass: string }) => (
+//   <li className="flex items-start bg-white/20 p-2 rounded-lg text-white backdrop-blur-sm transition duration-300 hover:bg-white/30">
+//     <Icon className={`w-4 h-4 mr-3 mt-1 ${colorClass} flex-shrink-0`} />
+//     <div>
+//       <strong className="text-base">{title}</strong>
+//       <p className="text-xs opacity-90">{description}</p>
+//     </div>
+//   </li>
+// );
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({

@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Jurusan } from '@prisma/client';
 import {
   FiUser, FiHash, FiEdit, FiTrash2, FiPlus, FiSearch,
   FiLoader, FiAlertTriangle, FiCheckCircle, FiX, FiUsers, FiSettings,
-  FiUserPlus, FiMail, FiBookOpen
+  FiUserPlus, FiBookOpen
 } from 'react-icons/fi';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
@@ -39,7 +39,7 @@ export default function DosenManagementClient() {
     jurusan: 'SISTEM_INFORMASI' as Jurusan,
   });
 
-  const fetchDosen = async () => {
+  const fetchDosen = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
@@ -56,11 +56,11 @@ export default function DosenManagementClient() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [selectedJurusan, searchTerm]);
 
   useEffect(() => {
     fetchDosen();
-  }, [selectedJurusan, searchTerm]);
+  }, [fetchDosen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

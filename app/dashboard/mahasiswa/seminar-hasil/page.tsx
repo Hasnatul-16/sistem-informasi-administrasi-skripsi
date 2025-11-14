@@ -3,7 +3,7 @@ import { authOptions } from '@/app/api/auth/auth';
 import prisma from "@/lib/prisma";
 import SeminarHasilForm from "./SeminarHasilForm"; 
 import Link from "next/link";
-import { FiAlertTriangle, FiCheckCircle } from "react-icons/fi";
+import { FiAlertTriangle } from "react-icons/fi";
 import { Status } from '@prisma/client'; 
 
 export const revalidate = 0;

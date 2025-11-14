@@ -1,30 +1,15 @@
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/auth';
-import { FiFileText, FiUsers, FiCheckSquare, FiLayers, FiBell, FiArrowRight } from 'react-icons/fi';
+import { FiFileText, FiCheckSquare, FiLayers, FiBell, FiArrowRight } from 'react-icons/fi';
 import prisma from '@/lib/prisma';
 import { Jurusan, Judul, Proposal, SeminarHasil } from '@prisma/client';
 import Link from 'next/link';
+import KaprodiStatisticsClient from './KaprodiStatisticsClient';
 
 
 type TitleSubmissionWithStudent = Judul & { mahasiswa: { nama: string; jurusan: Jurusan; } };
 type ProposalWithStudent = Proposal & { judul: { mahasiswa: { nama: string; jurusan: Jurusan; } } };
 type HasilWithStudent = SeminarHasil & { judul: { mahasiswa: { nama: string; jurusan: Jurusan; } } };
-
-
-const StatCard = ({ title, value, icon, color }: { title: string, value: number, icon: React.ReactNode, color: string }) => (
-    
-    <div className={`bg-white p-5 rounded-lg shadow-md border-l-4 ${color}`}>
-        <div className="flex items-center justify-between">
-            <div>
-                <p className="text-sm font-medium text-gray-500">{title}</p>
-                
-                <p className="text-2xl font-bold text-gray-800">{value}</p>
-            </div>
-            <div className="text-gray-400">{icon}</div>
-        </div>
-    </div>
-);
-
 
 const ActionCard = ({ title, linkBase, icon, iconBgColor, submissions }: {
     title: string;
@@ -33,7 +18,7 @@ const ActionCard = ({ title, linkBase, icon, iconBgColor, submissions }: {
     iconBgColor: string;
     submissions: (TitleSubmissionWithStudent | ProposalWithStudent | HasilWithStudent)[];
 }) => {
-   const getStudentDetails = (sub: TitleSubmissionWithStudent | ProposalWithStudent | HasilWithStudent) => ({
+    const getStudentDetails = (sub: TitleSubmissionWithStudent | ProposalWithStudent | HasilWithStudent) => ({
         id: sub.id,
         fullName: 'mahasiswa' in sub ? sub.mahasiswa.nama : sub.judul.mahasiswa.nama,
         jurusan: 'mahasiswa' in sub ? sub.mahasiswa.jurusan : sub.judul.mahasiswa.jurusan,
@@ -47,7 +32,6 @@ const ActionCard = ({ title, linkBase, icon, iconBgColor, submissions }: {
                    
                     <div className={`p-2.5 rounded-lg ${iconBgColor}`}>{icon}</div>
                     <div>
-                       
                         <h3 className="font-bold text-gray-800 text-base">{title}</h3>
                         <p className="text-sm text-gray-600 mt-1">
                             Ada <span className="font-bold text-blue-600">{submissions.length}</span> pengajuan baru.
@@ -56,7 +40,7 @@ const ActionCard = ({ title, linkBase, icon, iconBgColor, submissions }: {
                 </div>
                 {submissions.length > 0 ? (
                     <div className="mt-3 pt-3 border-t">
-                     
+                        
                         <ul className="space-y-2 max-h-40 overflow-y-auto pr-2">
                             {submissions.map((sub) => {
                                 const { id, fullName, jurusan } = getStudentDetails(sub);
@@ -90,14 +74,15 @@ const ActionCard = ({ title, linkBase, icon, iconBgColor, submissions }: {
 
 
 async function getDashboardData(jurusan: Jurusan) {
-    const [titleSubmissions, proposalSubmissions, hasilSubmissions, totalDisetujui, totalDosen] = await Promise.all([
+    const [titleSubmissions, proposalSubmissions, hasilSubmissions, allTitles, allProposals, allHasils] = await Promise.all([
         prisma.judul.findMany({ where: { jurusan: jurusan, status: 'DIPROSES_KAPRODI' }, include: { mahasiswa: { select: { nama: true, jurusan: true } } }, orderBy: { tanggal: 'desc' }, take: 5 }),
         prisma.proposal.findMany({ where: { judul: { jurusan: jurusan }, status: 'DIPROSES_KAPRODI' }, include: { judul: { include: { mahasiswa: { select: { nama: true, jurusan: true } } } } }, orderBy: { tanggal: 'desc' }, take: 5 }),
         prisma.seminarHasil.findMany({ where: { judul: { jurusan: jurusan }, status: 'DIPROSES_KAPRODI' }, include: { judul: { include: { mahasiswa: { select: { nama: true, jurusan: true } } } } }, orderBy: { tanggal: 'desc' }, take: 5 }),
-        prisma.judul.count({ where: { jurusan: jurusan, status: 'DISETUJUI' } }),
-        prisma.dosen.count({ where: { jurusan: jurusan } })
+        prisma.judul.findMany({ where: { jurusan: jurusan }, include: { mahasiswa: { select: { nama: true, jurusan: true } } } }),
+        prisma.proposal.findMany({ where: { judul: { jurusan: jurusan } }, include: { judul: { include: { mahasiswa: { select: { nama: true, jurusan: true } } } } } }),
+        prisma.seminarHasil.findMany({ where: { judul: { jurusan: jurusan } }, include: { judul: { include: { mahasiswa: { select: { nama: true, jurusan: true } } } } } })
     ]);
-    return { titleSubmissions, proposalSubmissions, hasilSubmissions, totalDisetujui, totalDosen };
+    return { titleSubmissions, proposalSubmissions, hasilSubmissions, allTitles, allProposals, allHasils };
 }
 
 
@@ -110,70 +95,47 @@ export default async function KaprodiDashboardPage() {
         return <div className="p-4">Data jurusan tidak ditemukan untuk akun ini.</div>
     }
 
-    const { titleSubmissions, proposalSubmissions, hasilSubmissions, totalDisetujui, totalDosen } = await getDashboardData(kaprodiJurusan);
+    const { titleSubmissions, proposalSubmissions, hasilSubmissions, allTitles, allProposals, allHasils } = await getDashboardData(kaprodiJurusan);
 
     return (
         
         <main className="space-y-6">
             <div className="bg-gradient-to-r from-blue-600 to-cyan-500 p-6 rounded-xl shadow-lg text-white">
-              
                 <h1 className="text-xl font-bold">Selamat datang, {kaprodiName}!</h1>
                 <p className="mt-1 opacity-90 text-sm">Dashboard Ketua Program Studi {kaprodiJurusan.replace('_', ' ')}.</p>
             </div>
 
+            <KaprodiStatisticsClient
+                titleSubmissions={allTitles}
+                proposalSubmissions={allProposals}
+                hasilSubmissions={allHasils}
+            />
+
             <div>
-                
                 <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                     <FiBell /> Notifikasi Pengajuan Baru
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <ActionCard 
+                    <ActionCard
                         title="Pengajuan Judul"
                         linkBase="/dashboard/kaprodi/pengajuan_judul"
-                        
                         icon={<FiFileText className="text-yellow-700" size={20}/>}
                         iconBgColor="bg-yellow-100"
                         submissions={titleSubmissions}
                     />
-                    <ActionCard 
+                    <ActionCard
                         title="Seminar Proposal"
                         linkBase="/dashboard/kaprodi/proposal"
                         icon={<FiLayers className="text-green-700" size={20}/>}
                         iconBgColor="bg-green-100"
                         submissions={proposalSubmissions}
                     />
-                    <ActionCard 
+                    <ActionCard
                         title="Seminar Hasil"
                         linkBase="/dashboard/kaprodi/seminar-hasil"
                         icon={<FiCheckSquare className="text-purple-700" size={20}/>}
                         iconBgColor="bg-purple-100"
                         submissions={hasilSubmissions}
-                    />
-                </div>
-            </div>
-
-            <div>
-                
-                <h2 className="text-lg font-bold text-gray-800 mb-4">Ringkasan Statistik Prodi</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <StatCard 
-                        title="Judul Perlu Diproses" 
-                        value={titleSubmissions.length} 
-                        
-                        icon={<FiFileText size={28} />}
-                        color="border-yellow-500"
-                    />
-                    <StatCard 
-                        title="Judul Telah Disetujui" 
-                        value={totalDisetujui} 
-                        icon={<FiCheckSquare size={28} />}
-                        color="border-green-500"
-                    />
-                    <StatCard 
-                        title="Total Dosen Prodi" 
-                        value={totalDosen} 
-                        icon={<FiUsers size={28} />}
-                        color="border-blue-500"
                     />
                 </div>
             </div>
