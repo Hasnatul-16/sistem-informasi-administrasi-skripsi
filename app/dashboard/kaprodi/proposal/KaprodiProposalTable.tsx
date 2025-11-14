@@ -5,7 +5,7 @@ import type { Proposal, Judul, Mahasiswa, User, Dosen, Status } from '@prisma/cl
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 
-import { FiX, FiCheckCircle, FiCalendar, FiUser, FiBook, FiUsers, FiHash, FiSearch, FiEdit, FiSave } from 'react-icons/fi';
+import { FiX, FiCheckCircle, FiCalendar, FiUser, FiBook, FiUsers, FiHash, FiSearch, FiEdit, FiSave, FiDownload, FiClock } from 'react-icons/fi';
 
 const MySwal = withReactContent(Swal);
 
@@ -60,6 +60,7 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
     });
 
     const [isLoading, setIsLoading] = useState(false);
+    const [loadingId, setLoadingId] = useState<number | null>(null);
 
 
     const currentMonth = new Date().getMonth() + 1;
@@ -200,6 +201,34 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
         }
     }, [selectedProposal, actionData, closeModal]);
 
+     const handleDownloadBeritaAcara = async (proposalId: number, nim: string, nama: string) => {
+        setLoadingId(proposalId);
+        try {
+            const response = await fetch(`/api/berita-acara-proposal/${proposalId}`);
+            if (!response.ok) {
+                throw new Error('Failed to download Berita Acara');
+            }
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Berita_Acara_Proposal_${nim}_${nama}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Error downloading Berita Acara:', error);
+            MySwal.fire({
+                icon: 'error',
+                title: 'Gagal Mengunduh',
+                text: 'Terjadi kesalahan saat mengunduh Berita Acara.',
+            });
+        } finally {
+            setLoadingId(null);
+        }
+    };
+
 
     return (
         <>
@@ -273,18 +302,35 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
                                             <StatusBadge status={p.status} />
                                         )}
                                     </td>
-                                    <td className="px-6 py-4">
-                                        {p.status === 'DIPROSES_KAPRODI' ? (
+                             <td className="px-6 py-4">
+                                    {p.status === 'DIPROSES_KAPRODI' ? (
                                             <button onClick={() => openModal(p)} className="text-blue-600 hover:text-blue-800 text-sm font-semibold flex items-center gap-1 transition-colors">
                                                 <FiSave size={14} /> Tetapkan
                                             </button>
-                                        ) : p.status === 'DISETUJUI' ? ( 
-                                            <button
-                                                onClick={() => openModal(p)}
-                                                className="text-green-600 hover:text-green-800 text-sm font-semibold flex items-center gap-1 transition-colors"
-                                            >
-                                                <FiEdit size={14} /> Edit 
-                                            </button>
+                                        ) : p.status === 'DISETUJUI' ? (
+                                            <div className="flex flex-col gap-1">
+                                                <button
+                                                    onClick={() => openModal(p)}
+                                                    className="text-green-600 hover:text-green-800 text-sm font-semibold flex items-center gap-1 transition-colors"
+                                                >
+                                                    <FiEdit size={14} /> Edit
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDownloadBeritaAcara(p.id, p.judul.mahasiswa.nim, p.judul.mahasiswa.nama)}
+                                                    disabled={loadingId === p.id}
+                                                  className="text-green-800 hover:text-green-950 text-sm font-semibold flex items-center gap-1 transition-colors"
+                                                >
+                                                    {loadingId === p.id ? (
+                                                        <>
+                                                            <FiClock className="animate-spin h-4 w-4"  /> Mengunduh...
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <FiDownload size={14} /> Unduh 
+                                                        </>
+                                                    )}
+                                                </button>
+                                            </div>
                                         ) : (
                                             <StatusBadge status={p.status} />
                                         )}
