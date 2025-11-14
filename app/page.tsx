@@ -11,7 +11,7 @@ const Logo = () => (
     <div className="flex items-center mb-6">
   
         <Image
-            src="/Logo_UIN_Imam_Bonjol.png"
+            src="/Logo FST Teks Hitam.png"
             alt="Logo FST"
             width={72}
             height={72}
