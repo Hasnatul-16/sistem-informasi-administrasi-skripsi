@@ -55,6 +55,7 @@ export const menuItemsByRole: { [key: string]: MenuItem[] } = {
       ],
     },
     { title: "Arsip ", url: "/dashboard/admin/arsip", icon: Archive },
+    { title: "Manajemen Dosen", url: "/dashboard/admin/dosen/add", icon: Archive },
     { 
       title: "Tabel Dosen", 
       icon: User,
@@ -72,6 +73,7 @@ export const menuItemsByRole: { [key: string]: MenuItem[] } = {
     { title: "Seminar Proposal", url: "/dashboard/kaprodi/proposal", icon:  Layers2Icon },
     { title: "Sidang Skripsi", url: "/dashboard/kaprodi/seminar-hasil", icon: Layers },
     { title: "Dosen Pembimbing", url: "/dashboard/kaprodi/dosen",icon: User },
+    { title: "Dosen penguji", url: "/dashboard/kaprodi/dosen", icon: Layers },
       
   ],
 };
