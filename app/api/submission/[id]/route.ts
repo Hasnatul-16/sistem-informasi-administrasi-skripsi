@@ -2,12 +2,6 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { Status, Prisma } from '@prisma/client';
 
-type AdminActionBody = {
-    action: 'VERIFY' | 'REJECT';
-    catatanAdmin?: string;
-    skNumberPrefix?: string; 
-};
-
 
 export async function PATCH(
     request: Request,

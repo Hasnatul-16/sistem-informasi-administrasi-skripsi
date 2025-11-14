@@ -1,8 +1,7 @@
-import { 
-    Home, Edit, Layers, User, BarChart2, Archive, 
-    ClipboardCheck, Layers2Icon, Layers3, LayersIcon, 
-    Calendar 
-} from "lucide-react"; 
+import {
+    Home, Edit, Layers, User, Archive,
+    ClipboardCheck, Layers2Icon, Layers3, LayersIcon
+} from "lucide-react";
 
 export type SubMenuItem = {
   title: string;

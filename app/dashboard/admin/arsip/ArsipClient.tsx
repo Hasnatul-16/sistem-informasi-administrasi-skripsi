@@ -6,7 +6,7 @@ import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import {
     FiEye, FiCalendar, FiDownload, FiCheckCircle, FiClock,
     FiBookOpen, FiUser, FiCode, FiUsers, FiX, FiXCircle,
-    FiSearch, FiInbox, FiLoader, FiAlertTriangle, FiHash, FiSettings, FiActivity, FiTag
+    FiSearch, FiLoader, FiAlertTriangle, FiHash, FiSettings
 } from 'react-icons/fi';
 import React from 'react';
 import { ArsipData } from '@/app/api/arsip/route';
@@ -42,7 +42,7 @@ const formatDate = (date: Date | string | null | undefined): string => {
 };
 
 const getTimelineStatus = (item: ArsipData) => {
-    let steps = [
+    const steps = [
         { label: 'Pengajuan Judul', date: item.tanggal_pengajuan_judul, isDone: !!item.tanggal_pengajuan_judul },
         { label: 'Pengajuan Seminar Proposal', date: item.proposal?.tanggal, isDone: !!item.proposal?.tanggal },
         { label: 'Pengajuan Sidang Skripsi', date: item.seminar_hasil?.tanggal, isDone: !!item.seminar_hasil?.tanggal },
@@ -317,16 +317,16 @@ const ArsipClient: React.FC<ArsipClientProps> = ({ initialJurusan, isKaprodi }) 
         } else {
             newParams.delete('search');
         }
-        
-        router.replace(`${pathname}?${newParams.toString()}`); 
-        
+
+        router.replace(`${pathname}?${newParams.toString()}`);
+
         const handler = setTimeout(() => {
             fetchArsip();
-        }, 500); 
+        }, 500);
         return () => {
             clearTimeout(handler);
         };
-    }, [filters, router, pathname, fetchArsip]);
+    }, [filters, router, pathname, fetchArsip, searchParams]);
 
     const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;

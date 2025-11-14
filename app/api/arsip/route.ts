@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import type { Jurusan } from '@prisma/client';
+import type { Prisma, Jurusan } from '@prisma/client';
 
 export type ArsipData = {
     id: number;
@@ -80,7 +80,7 @@ export async function GET(request: Request) {
 
         const jurusanFilter = selectedJurusan ? { jurusan: selectedJurusan } : {};
 
-        let whereClause: any = {
+        const whereClause: Prisma.JudulWhereInput = {
             ...jurusanFilter,
             ...dateFilter,
   
