@@ -84,7 +84,7 @@ const fetchSeminarHasilData = async (seminarHasilId: number): Promise<SeminarHas
 };
 
 const prepareTemplateData = async (seminarHasil: SeminarHasilWithIncludes): Promise<TemplateData> => {
- 
+   
     const judul = seminarHasil.judul!;
     const student = judul.mahasiswa;
     const studentJurusan = formatJurusanToProdi(student.jurusan);
@@ -163,6 +163,7 @@ const prepareTemplateData = async (seminarHasil: SeminarHasilWithIncludes): Prom
     };
 };
 
+// Function to generate HTML template
 const generateHTML = (templateData: TemplateData, studentJurusan: string): string => {
     return `<!doctype html>
 <html>
@@ -195,7 +196,7 @@ const generateHTML = (templateData: TemplateData, studentJurusan: string): strin
     .font-bold { font-weight: 700; }
     .uppercase { text-transform: uppercase; }
     p { margin: 0 0 5px 0; }
-   
+    /* Kop Surat Styles */
     .kop-header {
       position: relative;
       min-height: 90px;
@@ -254,7 +255,7 @@ const generateHTML = (templateData: TemplateData, studentJurusan: string): strin
     .content-section {
       margin-bottom: 25px;
     }
-
+    /* Info Table Styles */
     table.info-table {
       width: 85%;
       border-collapse: collapse;
@@ -299,12 +300,12 @@ const generateHTML = (templateData: TemplateData, studentJurusan: string): strin
     .decision-text {
       font-size: 12pt;
     }
-
+    /* Closing Statement */
     .closing-statement {
       margin: 5px 0 5px 0;
       text-align: justify;
     }
-
+    /* Signature Styles */
     .signature-section {
       margin-top: 10px;
       margin-left: 50px;
@@ -342,6 +343,88 @@ const generateHTML = (templateData: TemplateData, studentJurusan: string): strin
       text-align: left;
       font-size: 11pt;
       margin: 0;
+    }
+    /* Page Break */
+    .page-break {
+      page-break-before: always;
+    }
+    /* Attendance Table Styles */
+    table.attendance-table {
+      width: 90%;
+      border-collapse: collapse;
+      margin: 20px auto;
+      font-size: 12pt;
+    }
+    table.attendance-table th {
+      border: 1px solid #000;
+      padding: 8px;
+      text-align: center;
+      vertical-align: middle;
+      font-weight: bold;
+    }
+    table.attendance-table td {
+      border: 1px solid #000;
+      padding: 20px;
+      text-align: center;
+      vertical-align: middle;
+    }
+    .attendance-title {
+      text-align: center;
+      font-size: 14pt;
+      font-weight: bold;
+      margin: 2px 0;
+      text-transform: uppercase;
+    }
+    /* Revision Table Styles */
+    table.revision-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 12pt;
+    }
+    table.revision-table th, table.revision-table td {
+      border: 1px solid #000;
+      padding: 8px;
+      vertical-align: top;
+      text-align: left;
+    }
+    table.revision-table tbody td {
+      padding: 180px 8px;
+    }
+    .revision-title {
+      text-align: center;
+      font-size: 12pt;
+      margin: 20px 0;
+      font-weight: bold;
+    }
+    /* Third Page Signature Styles */
+    .third-page-signatures {
+      margin-top: 20px;
+      text-align: right;
+      font-size: 12pt;
+    }
+    .third-page-signatures .date-line {
+      margin-bottom: 10px;
+    }
+    .third-page-signatures .signature-grid {
+      display: flex;
+      justify-content: flex-end;
+      width: 100%;
+    }
+    .third-page-signatures .signature-item {
+      text-align: center;
+      margin: 0 10px;
+    }
+    .third-page-signatures .signature-role {
+      margin-bottom: 50px;
+      font-size: 12pt;
+    }
+    .third-page-signatures .signature-name {
+      margin-bottom: 2px;
+      font-size: 12pt;
+    }
+    .third-page-signatures .signature-nip {
+      font-size: 11pt;
     }
   </style>
 </head>
@@ -438,6 +521,179 @@ const generateHTML = (templateData: TemplateData, studentJurusan: string): strin
         </div>
       </div>
     </div>
+
+    <!-- Page Break -->
+    <div class="page-break"></div>
+
+    <!-- Second Page -->
+    <div class="page-container">
+      <!-- Kop Surat -->
+      <div class="kop-header">
+        ${templateData.logoDataUri ? `<img class="kop-logo-left" src="${templateData.logoDataUri}" alt="logo" />` : ''}
+        <div class="kop-text-center">
+          <p class="kop-title">KEMENTERIAN AGAMA REPUBLIK INDONESIA</p>
+          <p class="kop-title">UNIVERSITAS ISLAM NEGERI (UIN) IMAM BONJOL PADANG</p>
+          <p class="kop-fakultas">FAKULTAS SAINS DAN TEKNOLOGI</p>
+          <p class="kop-address">
+            Alamat: Sungai Bangek Kelurahan Balai Gadang Kecamatan Koto Tangah Kota Padang<br/>
+            Website: https://saintek.uinib.ac.id - e-mail: admin-fst@uinib.ac.id
+          </p>
+        </div>
+      </div>
+
+      <!-- Title -->
+      <div class="revision-title">
+       <p class="title-main uppercase">DAFTAR HADIR TIM PENGUJI</p>
+       <p class="uppercase">SIDANG SKRIPSI</p>
+
+      </div>
+
+      <!-- Student Information -->
+      <table class="info-table">
+        <tr>
+          <td class="label">Nama</td>
+          <td class="colon">:</td>
+          <td class="value font uppercase">${templateData.studentName}</td>
+        </tr>
+        <tr>
+          <td class="label">NIM</td>
+          <td class="colon">:</td>
+          <td class="value">${templateData.studentNIM}</td>
+        </tr>
+        <tr>
+          <td class="label" style="vertical-align: top;">Judul</td>
+          <td class="colon" style="vertical-align: top;">:</td>
+          <td class="value text-justify" style="line-height: 1.4;">${templateData.judul}</td>
+        </tr>
+      </table>
+
+      <!-- Attendance Table -->
+      <table class="attendance-table">
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>Nama/NIP</th>
+            <th>Jabatan</th>
+            <th>Tanda Tangan</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>${templateData.penguji1Name}</td>
+            <td>Ketua Majelis/Penguji 1</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>${templateData.penguji2Name}</td>
+            <td>Penguji 2</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>${templateData.penguji3Name}</td>
+            <td>Penguji 3</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>${templateData.penguji4Name}</td>
+            <td>Penguji 4</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Signature Section -->
+      <div class="third-page-signatures">
+        <div class="signature-grid">
+          <div class="signature-item">
+            <div class="signature-role">Ketua Majelis</div>
+            <div class="signature-name">(.......................................)</div>
+            <div class="signature-nip">NIP.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Page Break -->
+    <div class="page-break"></div>
+
+    <!-- Third Page -->
+    <div class="page-container">
+      <!-- Kop Surat -->
+      <div class="kop-header">
+        ${templateData.logoDataUri ? `<img class="kop-logo-left" src="${templateData.logoDataUri}" alt="logo" />` : ''}
+        <div class="kop-text-center">
+          <p class="kop-title">KEMENTERIAN AGAMA REPUBLIK INDONESIA</p>
+          <p class="kop-title">UNIVERSITAS ISLAM NEGERI (UIN) IMAM BONJOL PADANG</p>
+          <p class="kop-fakultas">FAKULTAS SAINS DAN TEKNOLOGI</p>
+          <p class="kop-address">
+            Alamat: Sungai Bangek Kelurahan Balai Gadang Kecamatan Koto Tangah Kota Padang<br/>
+            Website: https://saintek.uinib.ac.id - e-mail: admin-fst@uinib.ac.id
+          </p>
+        </div>
+      </div>
+
+      <!-- Title -->
+      <div class="revision-title">
+       <p class="title-main uppercase">LAMPIRAN BERITA ACARA UJIAN</p>
+      <p class="uppercase">SIDANG SKRIPSI</p>
+      </div>
+
+      <!-- Student Information -->
+      <table class="info-table">
+        <tr>
+          <td class="label">Nama</td>
+          <td class="colon">:</td>
+          <td class="value font uppercase">${templateData.studentName}</td>
+        </tr>
+        <tr>
+          <td class="label">NIM</td>
+          <td class="colon">:</td>
+          <td class="value">${templateData.studentNIM}</td>
+        </tr>
+        <tr>
+          <td class="label" style="vertical-align: top;">Judul</td>
+          <td class="colon" style="vertical-align: top;">:</td>
+          <td class="value text-justify" style="line-height: 1.4;">${templateData.judul}</td>
+        </tr>
+      </table>
+
+      <P>Catata /Daftar Revisi
+
+      <!-- Revision Table -->
+      <table class="revision-table">
+        <thead>
+          <tr>
+            <th class="no-column">No</th>
+            <th class="description-column">Catatan/Uraian</th>
+          </tr>
+        </thead>
+        <tbody>
+            <tr >
+              <td class="no-column"></td>
+              <td class="description-column"></td>
+            </tr>
+
+        </tbody>
+      </table>
+
+      <!-- Third Page Signatures -->
+      <div class="third-page-signatures">
+        <div class="date-line">Padang, ${templateData.seminarTanggal}</div>
+        <div class="signature-grid">
+          <div class="signature-item">
+            <div class="signature-role">Penguji/Pembimbing</div>
+            <div class="signature-name">(.......................................)</div>
+            <div class="signature-nip">NIP.</div>
+          </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </body>
 </html>`;
@@ -455,7 +711,6 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
         const templateData = await prepareTemplateData(seminarHasil);
         const html = generateHTML(templateData, templateData.studentJurusan);
 
-      
         let browser: Browser | null = null;
         try {
             browser = await puppeteer.launch({
