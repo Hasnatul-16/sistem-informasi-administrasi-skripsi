@@ -49,7 +49,37 @@ export async function PATCH(
      
             const fullSkPenguji = `B.${skPengujiPrefix}/Un.13/FST/PP.00.9/${month}/${year}`;
 
+            const existingSKByPrefix = await prisma.proposal.findFirst({
+                where: {
+                    sk_penguji: {
+                        startsWith: `B.${skPengujiPrefix}/`
+                    }
+                }
+            });
+            
+            if (existingSKByPrefix) {
+                return NextResponse.json({ 
+                    message: `Nomor urut (${skPengujiPrefix}) sudah pernah dipakai sebagai SK Penguji sebelumnya. Harap gunakan nomor urut yang berbeda.` 
+                }, { status: 409 }); 
+            }
+
+            const existingAsUndangan = await prisma.proposal.findFirst({
+                where: {
+                    undangan_penguji: {
+                        startsWith: `B.${skPengujiPrefix}/`
+                    }
+                }
+            });
+            
+            if (existingAsUndangan) {
+                return NextResponse.json({ 
+                    message: `Nomor urut (${skPengujiPrefix}) sudah terdaftar sebagai Undangan Penguji di dalam sistem. Harap gunakan nomor urut yang berbeda.` 
+                }, { status: 409 }); 
+            }
+
             dataToUpdate.sk_penguji = fullSkPenguji;
+
+               let fullUndanganPenguji = '';
 
             try {
                 const skNomorParts = fullSkPenguji.split('/');
@@ -64,18 +94,48 @@ export async function PATCH(
                     if (!isNaN(parsedInt)) {
                         const nextInt = parsedInt + 1;
                         const remainingParts = skNomorParts.slice(1).join('/');
-                        dataToUpdate.undangan_penguji = `${prefix}${nextInt}/${remainingParts}`;
+                        fullUndanganPenguji = `${prefix}${nextInt}/${remainingParts}`;
                     } else {
-                        dataToUpdate.undangan_penguji = `B.${parseInt(skPengujiPrefix) + 1}/${skNomorParts.slice(1).join('/')}`;
+                        fullUndanganPenguji = `B.${parseInt(skPengujiPrefix) + 1}/${skNomorParts.slice(1).join('/')}`;
                     }
                 } else {
-                  
-                  dataToUpdate.undangan_penguji = `B.${parseInt(skPengujiPrefix) + 1}/Un.13/FST/PP.00.9/${month}/${year}`;
+                    fullUndanganPenguji = `B.${parseInt(skPengujiPrefix) + 1}/Un.13/FST/PP.00.9/${month}/${year}`;
                 }
             } catch (error) {
-                dataToUpdate.undangan_penguji = `B.${parseInt(skPengujiPrefix) + 1}/Un.13/FST/PP.00.9/${month}/${year}`;
+                fullUndanganPenguji = `B.${parseInt(skPengujiPrefix) + 1}/Un.13/FST/PP.00.9/${month}/${year}`;
                 console.error("Error parsing SK number for increment, using default fallback:", error);
             }
+
+            const undanganPrefix = parseInt(skPengujiPrefix) + 1;
+            const existingUndanganByPrefix = await prisma.proposal.findFirst({
+                where: {
+                    undangan_penguji: {
+                        startsWith: `B.${undanganPrefix}/`
+                    }
+                }
+            });
+            
+            if (existingUndanganByPrefix) {
+                return NextResponse.json({ 
+                    message: `Nomor urut (${undanganPrefix}) sudah pernah dipakai sebagai Undangan Penguji sebelumnya. Harap gunakan nomor urut yang berbeda.` 
+                }, { status: 409 });
+            }
+
+            const existingAsSkPenguji = await prisma.proposal.findFirst({
+                where: {
+                    sk_penguji: {
+                        startsWith: `B.${undanganPrefix}/`
+                    }
+                }
+            });
+            
+            if (existingAsSkPenguji) {
+                return NextResponse.json({ 
+                    message: `Nomor urut (${undanganPrefix}) sudah terdaftar sebagai SK Penguji di dalam sistem. Harap gunakan nomor urut yang berbeda.` 
+                }, { status: 409 });
+            }
+
+            dataToUpdate.undangan_penguji = fullUndanganPenguji;
 
         } else { 
           
