@@ -368,15 +368,17 @@ const ArsipClient: React.FC<ArsipClientProps> = ({ initialJurusan, isKaprodi }) 
     }, []);
 
     return (
-        <main className="space-y-6">
-            <h1 className="text-3xl font-bold text-gray-900">Arsip Skripsi Mahasiswa</h1>
-            <p className="mt-0 text-gray-600">Menampilkan seluruh data pengajuan mahasiswa yang telah selesai atau sedang berjalan.</p>
+              <main className="space-y-4 sm:space-y-6">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 break-words">Arsip Skripsi Mahasiswa</h1>
+            <p className="text-xs sm:text-sm text-gray-600">Menampilkan seluruh data pengajuan mahasiswa yang telah selesai atau sedang berjalan.</p>
             
             <div className="bg-white p-6 rounded-lg shadow-md border space-y-4">
 
-                <div className="bg-gradient-to-r from-blue-600 to-cyan-500 p-4 rounded-lg shadow-md flex flex-wrap items-center justify-between gap-4">
-                    
-                    <div className="flex items-center gap-4">
+                {/* --- 1. BAGIAN FILTER (Style dari DosenStatsClient) --- */}
+                <div className="bg-gradient-to-r from-blue-600 to-cyan-500 p-4 rounded-lg shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+
+                    {/* Filter Group: Bulan & Tahun (Logika Arsip) */}
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:w-auto">
                         <div className="flex flex-col">
                             <label htmlFor="month" className="text-sm font-semibold text-white mb-1">
                                 Bulan Pengajuan judul
@@ -386,14 +388,14 @@ const ArsipClient: React.FC<ArsipClientProps> = ({ initialJurusan, isKaprodi }) 
                                 name="month"
                                 value={currentMonthNum}
                                 onChange={handleFilterChange}
-                                className="p-2 border border-white/30 rounded-md bg-white/20 text-white focus:ring-2 focus:ring-white/50 transition duration-150 appearance-none min-w-[120px] font-sans"
+                                className="p-2 border border-white/30 rounded-md bg-white/20 text-white focus:ring-2 focus:ring-white/50 transition duration-150 appearance-none min-w-[120px] font-sans w-full sm:w-auto"
                             >
                                 {BULAN_FILTER.map(bulan => (
                                     <option key={bulan.value} value={bulan.value} className='text-gray-800'>{bulan.label}</option>
                                 ))}
                             </select>
                         </div>
-                        
+
                         <div className="flex flex-col">
                             <label htmlFor="year" className="text-sm font-semibold text-white mb-1">
                                 Tahun Pengajuan
@@ -403,7 +405,7 @@ const ArsipClient: React.FC<ArsipClientProps> = ({ initialJurusan, isKaprodi }) 
                                 name="year"
                                 value={currentYear}
                                 onChange={handleFilterChange}
-                                className="p-2 border border-white/30 rounded-md bg-white/20 text-white focus:ring-2 focus:ring-white/50 transition duration-150 appearance-none min-w-[100px] font-sans"
+                                className="p-2 border border-white/30 rounded-md bg-white/20 text-white focus:ring-2 focus:ring-white/50 transition duration-150 appearance-none min-w-[100px] font-sans w-full sm:w-auto"
                             >
                                 {availableYears.map(year => (
                                     <option key={year} value={year} className='text-gray-800'>{year}</option>
@@ -412,19 +414,19 @@ const ArsipClient: React.FC<ArsipClientProps> = ({ initialJurusan, isKaprodi }) 
                         </div>
                     </div>
 
-                    <div className="relative self-end">
+                    {/* Kolom Search (Style dari DosenStatsClient) */}
+                    <div className="relative w-full sm:w-auto sm:self-end">
                         <input
                             type="text"
                             name="search"
                             placeholder="Cari nama atau NIM..."
                             value={filters.search}
                             onChange={handleFilterChange}
-                            className="w-64 bg-white/30 text-white placeholder-white/70 rounded-full py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-white/50 font-sans"
+                            className="w-full sm:w-64 bg-white/30 text-white placeholder-white/70 rounded-full py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-white/50 font-sans"
                         />
                         <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-white/70 h-5 w-5" />
                     </div>
                 </div>
-
                 {!isKaprodi && (
                     <div className='flex items-center gap-4 pt-2'>
                         <label className="text-sm font-medium text-gray-700">Filter Jurusan:</label>
@@ -463,34 +465,40 @@ const ArsipClient: React.FC<ArsipClientProps> = ({ initialJurusan, isKaprodi }) 
                             <p className='font-medium'>Error terjadi saat memuat data: {error}</p>
                         </div>
                     ) : (
-                        <div className="overflow-x-auto">
-                            <table className="min-w-full w-full bg-white border divide-y divide-gray-200 table-fixed">
+                         <div className="overflow-x-auto -mx-4 sm:mx-0">
+                            <table className="min-w-full w-full bg-white border divide-y divide-gray-200">
                                 <thead className="bg-slate-50">
                                     <tr>
-                                        <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[20%]">
-                                            <div className="flex items-center gap-2"><FiUsers size={16} className="text-blue-600" /><span>Mahasiswa</span></div>
+                                        {/* Header Mahasiswa */}
+                                        <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
+                                            <div className="flex items-center gap-1 sm:gap-2"><FiUsers size={14} className="text-blue-600" /><span>Mahasiswa</span></div>
                                         </th>
                                         
-                                        <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[15%]">
-                                            <div className="flex items-center gap-2"><FiCalendar size={16} className="text-blue-600" /><span>Timeline</span></div>
+                                        {/* Header Tanggal */}
+                                        <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
+                                            <div className="flex items-center gap-1 sm:gap-2"><FiCalendar size={14} className="text-blue-600" /><span>Timeline</span></div>
                                         </th>
-                                        <th className="px-6 py-4 font-bold text-slate-800 text-sm text-center w-[15%]">
-                                            <div className="flex items-center gap-2 justify-center"><FiDownload size={16} className="text-blue-600" /><span>SK Pembimbing</span></div>
+                                        {/* Header SK Pembimbing */}
+                                        <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-center whitespace-nowrap">
+                                            <div className="flex items-center gap-1 sm:gap-2 justify-center"><FiDownload size={14} className="text-blue-600" /><span>SK Pembimbing</span></div>
                                         </th>
-                                        <th className="px-6 py-4 font-bold text-slate-800 text-sm text-center w-[15%]">
-                                            <div className="flex items-center gap-2 justify-center"><FiDownload size={16} className="text-blue-600" /><span>SK Seminar Proposal</span></div>
+                                        {/* Header SK Sempro */}
+                                        <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-center whitespace-nowrap">
+                                            <div className="flex items-center gap-1 sm:gap-2 justify-center"><FiDownload size={14} className="text-blue-600" /><span>SK Sempro</span></div>
                                         </th>
-                                        <th className="px-6 py-4 font-bold text-slate-800 text-sm text-center w-[15%]">
-                                            <div className="flex items-center gap-2 justify-center"><FiDownload size={16} className="text-blue-600" /><span>SK Sidang Skripsi</span></div>
+                                        {/* Header SK Sidang */}
+                                        <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-center whitespace-nowrap">
+                                            <div className="flex items-center gap-1 sm:gap-2 justify-center"><FiDownload size={14} className="text-blue-600" /><span>SK Sidang</span></div>
                                         </th>
-                                        <th className="px-6 py-4 font-bold text-slate-800 text-sm text-center w-[10%]">
-                                            <div className="flex items-center gap-2 justify-center"><FiSettings size={16} className="text-blue-600" /><span>Aksi</span></div>
+                                        {/* Header Aksi */}
+                                        <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-center whitespace-nowrap">
+                                            <div className="flex items-center gap-1 sm:gap-2 justify-center"><FiSettings size={14} className="text-blue-600" /><span>Aksi</span></div>
                                         </th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-200">
                                     {arsipData.length === 0 ? (
-                                        <tr><td colSpan={8} className="px-6 py-10 text-center text-gray-500">Tidak ada data arsip yang ditemukan.</td></tr>
+                                        <tr><td colSpan={8} className="px-4 sm:px-6 py-8 sm:py-10 text-center text-gray-500 text-sm">Tidak ada data arsip yang ditemukan.</td></tr>
                                     ) : (
                                         arsipData.map((item) => {
                                             const { steps } = getTimelineStatus(item);

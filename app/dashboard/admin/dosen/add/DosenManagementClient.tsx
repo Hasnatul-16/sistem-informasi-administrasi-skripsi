@@ -176,29 +176,32 @@ export default function DosenManagementClient() {
   );
 
   return (
-    <main className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-900">Manajemen Dosen</h1>
+   <main className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 break-words">Manajemen Dosen</h1>
       </div>
 
-      <p className="text-gray-600">Kelola data dosen Fakultas Sains dan Teknologi</p>
+      <p className="text-sm sm:text-base text-gray-600 break-words">Kelola data dosen Fakultas Sains dan Teknologi</p>
 
-      <div className="bg-white p-6 rounded-lg shadow-md border space-y-4">
+      {/* Filters */}
+      <div className="bg-white p-3 sm:p-6 rounded-lg shadow-md border space-y-3 sm:space-y-4">
 
-        <div className="bg-gradient-to-r from-blue-600 to-cyan-500 p-4 rounded-lg shadow-md flex flex-wrap items-center justify-between gap-4">
+        {/* --- FILTER SECTION RESPONSIF --- */}
+        <div className="bg-gradient-to-r from-blue-600 to-cyan-500 p-3 sm:p-4 rounded-lg shadow-md flex flex-col gap-3 sm:gap-4">
 
-          <div className="flex items-center gap-4">
-        
-            <div className="flex flex-col">
-              <label className="text-sm font-semibold text-white mb-1">
+          {/* Filter Jurusan + Tambah Dosen - Mobile Stacked, Desktop Horizontal */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-end gap-3 sm:gap-4">
+            {/* Filter Jurusan Buttons */}
+            <div className="flex flex-col w-full sm:w-auto">
+              <label className="text-xs sm:text-sm font-semibold text-white mb-2">
                 Filter Jurusan
               </label>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 {ALL_JURUSAN.map(j => (
                   <button
                     key={j}
                     onClick={() => setSelectedJurusan(j)}
-                    className={`px-4 py-2 text-sm font-semibold rounded-full transition duration-150 ${
+                    className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold rounded-full transition duration-150 whitespace-nowrap ${
                       selectedJurusan === j
                         ? 'bg-white text-blue-600 shadow-md'
                         : 'bg-white/20 text-white hover:bg-white/30'
@@ -210,36 +213,35 @@ export default function DosenManagementClient() {
               </div>
             </div>
 
-        
-            <div className="flex flex-col">
-              <label className="text-sm font-semibold text-white mb-1 opacity-0">
-                Action
-              </label>
-              <button
-                onClick={openAddModal}
-                className="flex items-center gap-2 bg-white text-blue-600 px-4 py-2 rounded-full hover:bg-gray-100 transition duration-150 font-semibold"
-              >
-                <FiPlus className="h-4 w-4" />
-                Tambah Dosen Baru
-              </button>
-            </div>
+            {/* Tambah Dosen Button */}
+            <button
+              onClick={openAddModal}
+              className="flex items-center justify-center gap-2 bg-white text-blue-600 px-3 sm:px-4 py-2 rounded-full hover:bg-gray-100 transition duration-150 font-semibold text-xs sm:text-sm w-full sm:w-auto"
+            >
+              <FiPlus className="h-4 w-4 flex-shrink-0" />
+              <span className="break-words">Tambah Dosen Baru</span>
+            </button>
           </div>
 
-          <div className="relative self-end">
+          {/* Search - Full Width di Mobile, Auto Width di Desktop */}
+          <div className="relative w-full sm:w-auto sm:self-end">
             <input
               type="text"
               placeholder="Cari berdasarkan nama atau NIP..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-64 bg-white/30 text-white placeholder-white/70 rounded-full py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-white/50 font-sans"
+              className="w-full sm:w-64 bg-white/30 text-white placeholder-white/70 rounded-full py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-white/50 font-sans text-xs sm:text-sm"
             />
-            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-white/70 h-5 w-5" />
+            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-white/70 h-4 w-4 sm:h-5 sm:w-5" />
           </div>
         </div>
 
       </div>
       <div className="bg-white p-6 rounded-lg shadow-md border space-y-4">
-        
+        {/* --- AKHIR BAGIAN FILTER --- */}
+
+
+        {/* --- 2. BAGIAN TABEL (STYLING DIPERBARUI) --- */}
         <p className="mt-1 text-gray-600">
           Data ditampilkan untuk Jurusan:{' '}
           <strong className='text-indigo-700'>{selectedJurusan.replace('_', ' ')}</strong>
@@ -257,31 +259,31 @@ export default function DosenManagementClient() {
               <p className='font-medium'>Error: {error}</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full w-full bg-white border divide-y divide-gray-200 table-fixed">
+            <div className="overflow-x-auto -mx-4 sm:mx-0">
+              <table className="min-w-full w-full bg-white border divide-y divide-gray-200">
                 <thead className="bg-slate-50">
                   <tr>
-                    
-                    <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[40%]">
-                      <div className="flex items-center gap-2"><FiUsers size={16} className="text-blue-600" /><span>Dosen</span></div>
+                    {/* Header Dosen */}
+                    <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left">
+                      <div className="flex items-center gap-1 sm:gap-2"><FiUsers size={14} className="text-blue-600" /><span>Dosen</span></div>
                     </th>
-                  
-                    <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[25%]">
-                      <div className="flex items-center gap-2"><FiHash size={16} className="text-blue-600" /><span>NIP</span></div>
+                    {/* Header NIP */}
+                    <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
+                      <div className="flex items-center gap-1 sm:gap-2"><FiHash size={14} className="text-blue-600" /><span>NIP</span></div>
                     </th>
-                   
-                    <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[20%]">
-                      <div className="flex items-center gap-2"><FiCheckCircle size={16} className="text-blue-600" /><span>Jurusan</span></div>
+                    {/* Header Jurusan */}
+                    <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
+                      <div className="flex items-center gap-1 sm:gap-2"><FiCheckCircle size={14} className="text-blue-600" /><span>Jurusan</span></div>
                     </th>
-                  
-                    <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[15%]">
-                      <div className="flex items-center gap-2"><FiSettings size={16} className="text-blue-600" /><span>Aksi</span></div>
+                    {/* Header Aksi */}
+                    <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
+                      <div className="flex items-center gap-1 sm:gap-2"><FiSettings size={14} className="text-blue-600" /><span>Aksi</span></div>
                     </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   {filteredDosen.length === 0 ? (
-                    <tr><td colSpan={4} className="px-6 py-10 text-center text-gray-500">Tidak ada data dosen ditemukan.</td></tr>
+                    <tr><td colSpan={4} className="px-4 sm:px-6 py-8 sm:py-10 text-center text-gray-500 text-sm">Tidak ada data dosen ditemukan.</td></tr>
                   ) : (
                     filteredDosen.map((dosen) => (
                       <tr key={dosen.id} className="hover:bg-gray-50 transition-colors">
@@ -351,7 +353,7 @@ export default function DosenManagementClient() {
             <form onSubmit={handleSubmit} className="p-8 space-y-6">
              
               <div className="space-y-2">
-                <label htmlFor="nama" className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                <label htmlFor="nama"  className="flex text-xs sm:text-sm font-semibold text-gray-700 items-center gap-2">
                   <FiUser className="h-4 w-4 text-blue-600" />
                   Nama Lengkap
                 </label>
@@ -369,7 +371,7 @@ export default function DosenManagementClient() {
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="nip" className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                <label htmlFor="nip" className="flex text-xs sm:text-sm font-semibold text-gray-700 items-center gap-2">
                   <FiHash className="h-4 w-4 text-blue-600" />
                   NIP (Nomor Induk Pegawai)
                 </label>
@@ -387,7 +389,7 @@ export default function DosenManagementClient() {
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="jurusan" className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                <label htmlFor="jurusan"  className="flex text-xs sm:text-sm font-semibold text-gray-700 items-center gap-2" >
                   <FiBookOpen className="h-4 w-4 text-blue-600" />
                   Jurusan
                 </label>

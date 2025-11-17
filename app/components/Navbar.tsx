@@ -31,26 +31,26 @@ export function Navbar() {
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-800 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-blue-700"
+         className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-blue-800 text-xs sm:text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-blue-700 flex-shrink-0"
       >
         {getInitials(userName)}
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+       <div className="absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
           <Link
             href="/dashboard/profile" // Arahkan ke halaman profil nanti
             className="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
             onClick={() => setIsOpen(false)}
           >
-            <User className="mr-2 h-4 w-4" />
+            <User className="mr-2 h-4 w-4 flex-shrink-0" />
             <span>Profil Saya</span>
           </Link>
           <button
             onClick={() => signOut({ callbackUrl: '/' })}
             className="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
           >
-            <LogOut className="mr-2 h-4 w-4" />
+            <LogOut className="mr-2 h-4 w-4 flex-shrink-0" />
             <span>Logout</span>
           </button>
         </div>

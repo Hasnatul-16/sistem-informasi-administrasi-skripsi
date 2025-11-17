@@ -223,7 +223,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
         .sig-value { flex: 1; }
         
         .sig-title { margin-top: 5px; margin-bottom: 0; }
-        .sig-space { height: 60px; /* Ruang untuk TTE */ }
+        .sig-space { height: 60px;  }
         .sig-name { margin-bottom: 0; font-weight: bold; }
         .sig-nip { margin-top: 0; }
 
@@ -543,6 +543,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
             </div>
             <p class="sig-title">Dekan,</p>
             <div class="sig-space">
+            <p style = "margin-top : 25px; font-size: 15px "> $ </p> 
               </div> 
             <p class="sig-name">Yulia</p>
             <p class="sig-nip">NIP. 198105052009012008</p>
@@ -616,6 +617,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
           </div>
           <p class="sig-title">Dekan,</p>
           <div class="sig-space">
+          <p style = "margin-top : 25px; font-size: 15px "> $ </p> 
             </div> 
           <p class="sig-name">Yulia</p>
           <p class="sig-nip">NIP. 198105052009012008</p>
@@ -729,13 +731,14 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
           <p>Wakil Dekan Bidang</p>
           <p>Akademik dan Kemahasiswaan</p>
           <div class="sig-space">
+          <p style = "margin-top : 25px; font-size: 15px "> # </p> 
             </div> 
           <p class="sig-name">Subhan Ajrin Sudirman</p>
           <p class="sig-nip">NIP. 198109282011011006</p>
         </div>
 
         <div class="tembusan" style="margin-top: 20px;">
-          <p">Tembusan Yth;:</p>
+          <p">Tembusan Yth:</p>
           <p>Dekan Fakultas Sains dan Teknologi UIN Imam Bonjol Padang</p>
         </div>
 

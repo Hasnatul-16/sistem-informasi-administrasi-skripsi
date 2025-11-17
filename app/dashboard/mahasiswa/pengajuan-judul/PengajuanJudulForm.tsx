@@ -79,8 +79,17 @@ export default function PengajuanJudulForm({ dosenList }: PengajuanJudulFormProp
       return;
     }
 
-    if (formData.usulan_pembimbing1 && formData.usulan_pembimbing2 && formData.usulan_pembimbing1 === formData.usulan_pembimbing2) {
-      MySwal.fire({ icon: 'error', title: 'Pembimbing Tidak Valid', text: 'Nama pembimbing tidak boleh sama' });
+    const pembimbing1 = formData.usulan_pembimbing1.trim();
+    const pembimbing2 = formData.usulan_pembimbing2.trim();
+    const pembimbing3 = formData.usulan_pembimbing3.trim();
+
+    if (pembimbing1 === pembimbing2) {
+      MySwal.fire({ icon: 'error', title: 'Pembimbing Tidak Valid', text: 'Usulan Pembimbing 1 dan Pembimbing 2 tidak boleh sama' });
+      return;
+    }
+
+    if (pembimbing3 && (pembimbing1 === pembimbing3 || pembimbing2 === pembimbing3)) {
+      MySwal.fire({ icon: 'error', title: 'Pembimbing Tidak Valid', text: 'Usulan Pembimbing 3 tidak boleh sama dengan Pembimbing 1 atau Pembimbing 2' });
       return;
     }
 

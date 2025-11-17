@@ -94,64 +94,66 @@ export default function ProposalTable({ initialProposals }: ProposalTableProps) 
     };
 
     return (
-        <div className="overflow-x-auto">
-            <table className="min-w-full w-full bg-white border divide-y divide-gray-200 table-fixed">
+        <div className="overflow-x-auto -mx-4 sm:mx-0">
+            <table className="min-w-full w-full bg-white border divide-y divide-gray-200">
                 <thead className="bg-slate-50">
                     <tr>
-                        <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[20%]">
-                            <div className="flex items-center gap-2"><FiUsers size={16} className="text-blue-600" /><span>Mahasiswa</span></div>
+                        <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left">
+                            <div className="flex items-center gap-1 sm:gap-2"><FiUsers size={14} className="text-blue-600" /><span>Mahasiswa</span></div>
                         </th>
-                        <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[15%]">
-                            <div className="flex items-center gap-2"><FiCalendar size={16} className="text-blue-600" /><span>Tanggal Pengajuan</span></div>
+                         <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
+                            <div className="flex items-center gap-1 sm:gap-2"><FiCalendar size={14} className="text-blue-600" /><span>Tanggal Pengajuan</span></div>
                         </th>
-                        <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[15%]">
-                            <div className="flex items-center gap-2"><FiTag size={16} className="text-blue-600" /><span>Topik</span></div>
+                          <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
+                            <div className="flex items-center gap-1 sm:gap-2"><FiTag size={14} className="text-blue-600" /><span>Topik</span></div>
                         </th>
-                        <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[25%]">
-                            <div className="flex items-center gap-2"><FiFileText size={16} className="text-blue-600" /> <span>Judul</span></div>
+                        <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left">
+                            <div className="flex items-center gap-1 sm:gap-2"><FiFileText size={14} className="text-blue-600" /> <span>Judul</span></div>
                         </th>
-                        <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[15%]">
-                            <div className="flex items-center gap-2"><FiActivity size={16} className="text-blue-600" /> <span>Status</span></div>
+                        <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
+                            <div className="flex items-center gap-1 sm:gap-2"><FiActivity size={14} className="text-blue-600" /> <span>Status</span></div>
                         </th>
-                        <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[10%]">
-                            <div className="flex items-center gap-2"><FiSettings size={16} className="text-blue-600" /> <span>Aksi</span></div>
+                        <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
+                            <div className="flex items-center gap-1 sm:gap-2"><FiSettings size={14} className="text-blue-600" /> <span>Aksi</span></div>
                         </th>
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                     {proposals.length === 0 ? (
-                        <tr><td colSpan={6} className="px-6 py-10 text-center text-gray-500">Tidak ada pengajuan pada periode yang dipilih.</td></tr>
+                        <tr><td colSpan={6} className="px-4 sm:px-6 py-8 sm:py-10 text-center text-gray-500 text-sm">Tidak ada pengajuan pada periode yang dipilih.</td></tr>
                     ) : (
                         proposals.map(prop => (
                             <tr key={prop.id} className="hover:bg-gray-50 transition-colors">
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    <div className="flex flex-col gap-1.5">
+                                 <td className="px-4 sm:px-6 py-3 sm:py-4">
+                                    <div className="flex flex-col gap-1">
                                         <div className="flex items-center gap-2">
                                             <FiUser size={14} className="text-blue-600" />
                                             <span className="text-sm text-gray-700">
-                                                <span className="font-semibold">Nama: </span>
+                                                <span className="font-semibold hidden sm:inline">Nama: </span>
                                                 {prop.judul.mahasiswa.nama}
                                             </span>
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <FiHash size={14} className="text-blue-600" />
                                             <span className="text-sm text-gray-700">
-                                                <span className="font-semibold">NIM: </span>
+                                                <span className="font-semibold hidden sm:inline">NIM: </span>
                                                 {prop.judul.mahasiswa.nim}
                                             </span>
                                         </div>
                                     </div>
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-600">
                                     {new Date(prop.tanggal).toLocaleDateString('id-ID', {
                                         day: '2-digit', month: 'long', year: 'numeric'
                                     })}
                                 </td>
-                                <td className="px-6 py-4 text-sm text-gray-600">{prop.judul.topik || '-'}</td>
-                                <td className="px-6 py-4">
-                                    <p className="text-sm text-gray-800 whitespace-normal break-words" title={prop.judul.judul}>{prop.judul.judul}</p>
+                                <td className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-600 max-w-[100px] truncate">
+                                    {prop.judul.topik || '-'}
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
+                                <td className="px-4 sm:px-6 py-3 sm:py-4">
+                                    <p className="text-xs sm:text-sm text-gray-800 line-clamp-2" title={prop.judul.judul}>{prop.judul.judul}</p>
+                                </td>
+                                <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm font-medium">
                                     <StatusBadge status={prop.status} />
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -160,7 +162,7 @@ export default function ProposalTable({ initialProposals }: ProposalTableProps) 
                                             href={`/dashboard/admin/proposal/detail/${prop.id}`}
                                             className="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-900 font-semibold"
                                         >
-                                            Verifikasi <FiArrowRight className="h-4 w-4" />
+                                             <FiArrowRight className="h-4 w-4" /> <span className="hidden sm:inline">Verifikasi</span>
                                         </Link>
                                     )}
 
@@ -171,23 +173,23 @@ export default function ProposalTable({ initialProposals }: ProposalTableProps) 
                                                 prop.judul.mahasiswa.nim,
                                                 prop.judul.mahasiswa.nama)}
                                             disabled={loadingId === prop.id}
-                                            className="inline-flex items-center gap-2 text-green-600 hover:text-green-900 font-semibold disabled:text-gray-400 disabled:cursor-wait"
+                                            className="inline-flex items-center gap-1 text-green-600 hover:text-green-900 font-semibold disabled:text-gray-400 disabled:cursor-wait"
                                         >
                                             {loadingId === prop.id ? (
                                                 <>
-                                                    <FiClock className="animate-spin h-4 w-4" /> Mengunduh...
+                                                    <FiClock className="animate-spin h-4 w-4" /> <span className="hidden sm:inline">Mengunduh</span>
                                                 </>
                                             ) : (
                                                 <>
-                                                    <FiDownload /> Unduh SK
+                                                     <FiDownload /> <span className="hidden sm:inline">Unduh SK</span>
                                                 </>
                                             )}
                                         </button>
                                     )}
 
-                                     {prop.status === 'DITOLAK_ADMIN' && (<span className="text-gray-400">Selesai</span>)}
+                                     {prop.status === 'DITOLAK_ADMIN' && (<span className="text-gray-400 text-xs sm:text-sm">Selesai</span>)}
 
-                                    {prop.status !== 'TERKIRIM' && prop.status !== 'DISETUJUI'&& prop.status !== 'DITOLAK_ADMIN' && (<span className="text-gray-400">Dalam Proses</span>)}
+                                    {prop.status !== 'TERKIRIM' && prop.status !== 'DISETUJUI'&& prop.status !== 'DITOLAK_ADMIN' && (<span className="text-gray-400 text-xs sm:text-sm">Dalam Proses</span>)}
                                     
 
                 

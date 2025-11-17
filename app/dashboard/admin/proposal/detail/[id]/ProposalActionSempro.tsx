@@ -145,28 +145,28 @@ export default function ProposalActionSempro({ proposal }: { proposal: ProposalW
 
 
     return (
-        <div className="flex justify-between items-center gap-4 pt-6 mt-6 border-t">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6 mt-6 border-t">
            
             <button
                 onClick={() => router.back()} 
-                className="inline-flex items-center gap-2 py-2 px-5 bg-gray-200 text-gray-800 rounded-md font-semibold hover:bg-gray-300 transition-colors"
+                 className="inline-flex items-center justify-center gap-2 py-2 px-5 bg-gray-200 text-gray-800 rounded-md font-semibold hover:bg-gray-300 transition-colors w-full sm:w-auto"
             >
                 <FiArrowLeft /> Kembali
             </button>
 
           
-            <div className="flex items-center gap-4">
+           <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
                 <button
                     onClick={() => handleAction('REJECT')}
                     disabled={isLoading}
-                    className="inline-flex items-center gap-2 py-2 px-5 border border-red-500 text-red-500 rounded-md font-semibold hover:bg-red-50 transition-colors disabled:opacity-50 disabled:cursor-wait"
+                   className="inline-flex items-center justify-center gap-2 py-2 px-5 border border-red-500 text-red-500 rounded-md font-semibold hover:bg-red-50 transition-colors disabled:opacity-50 disabled:cursor-wait w-full sm:w-auto"
                 >
                     {isLoading ? <FiClock className='animate-spin'/> : <FiXCircle />} Tolak & Kembalikan
                 </button>
                 <button
                     onClick={() => handleAction('VERIFY')} 
                     disabled={isLoading}
-                    className="inline-flex items-center gap-2 py-2 px-5 bg-blue-600 text-white rounded-md font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-wait"
+                    className="inline-flex items-center justify-center gap-2 py-2 px-5 bg-blue-600 text-white rounded-md font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-wait w-full sm:w-auto"
                 >
                     {isLoading ? <FiClock className='animate-spin'/> : <><FiCheckCircle /> Lengkap & Teruskan</>}
                 </button>

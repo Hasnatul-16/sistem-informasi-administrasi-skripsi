@@ -365,8 +365,8 @@ export default function KaprodiHasilTable({ initialSeminarHasil, lecturers }: Ka
 
 
             {isModalOpen && selectedSeminarHasil && (
-                <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm flex justify-center items-center z-50 p-4">
-                    <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-4xl animate-fade-in-scale">
+                <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm flex justify-center items-center z-50 p-2 sm:p-4 md:p-6 overflow-y-auto sm:overflow-hidden">
+                    <div className="bg-white p-4 sm:p-6 rounded-lg shadow-xl w-full max-w-[95vw] sm:max-w-2xl md:max-w-3xl lg:max-w-4xl animate-fade-in-scale h-full sm:max-h-[90vh] overflow-y-auto">
                         <div className="flex justify-between items-start mb-4 pb-4 border-b">
                             <div>
                                 <h2 className="text-xl font-bold text-gray-800">

@@ -46,6 +46,91 @@ export async function PATCH(
                
                 const fullSkNumber = `B.${skNumberPrefix}/Un.13/FST/PP.00.9/${month}/${year}`;
 
+                
+                const existingSKByPrefix = await prisma.judul.findFirst({
+                    where: {
+                        sk_pembimbing: {
+                            startsWith: `B.${skNumberPrefix}/`
+                        }
+                    }
+                });
+
+                if (existingSKByPrefix) {
+                    return NextResponse.json({
+                        message: `Nomor urut (${skNumberPrefix}) sudah pernah dipakai sebagai SK Pembimbing sebelumnya. Harap gunakan nomor urut yang berbeda.`
+                    }, { status: 409 });
+                }
+
+                const existingAsUndangan = await prisma.judul.findFirst({
+                    where: {
+                        no_undangan: {
+                            startsWith: `B.${skNumberPrefix}/`
+                        }
+                    }
+                });
+
+                if (existingAsUndangan) {
+                    return NextResponse.json({
+                        message: `Nomor urut (${skNumberPrefix}) sudah terdaftar sebagai Undangan di dalam sistem. Harap gunakan nomor urut yang berbeda.`
+                    }, { status: 409 });
+                }
+
+                const existingInProposalSK = await prisma.proposal.findFirst({
+                    where: {
+                        sk_penguji: {
+                            startsWith: `B.${skNumberPrefix}/`
+                        }
+                    }
+                });
+
+                if (existingInProposalSK) {
+                    return NextResponse.json({
+                        message: `Nomor urut (${skNumberPrefix}) sudah terdaftar sebagai SK Penguji di proposal. Harap gunakan nomor urut yang berbeda.`
+                    }, { status: 409 }); 
+                }
+
+                const existingInProposalUndangan = await prisma.proposal.findFirst({
+                    where: {
+                        undangan_penguji: {
+                            startsWith: `B.${skNumberPrefix}/`
+                        }
+                    }
+                });
+
+                if (existingInProposalUndangan) {
+                    return NextResponse.json({
+                        message: `Nomor urut (${skNumberPrefix}) sudah terdaftar sebagai Undangan Penguji di proposal. Harap gunakan nomor urut yang berbeda.`
+                    }, { status: 409 }); 
+                }
+
+                const existingInSeminarHasilSK = await prisma.seminarHasil.findFirst({
+                    where: {
+                        sk_penguji: {
+                            startsWith: `B.${skNumberPrefix}/`
+                        }
+                    }
+                });
+
+                if (existingInSeminarHasilSK) {
+                    return NextResponse.json({
+                        message: `Nomor urut (${skNumberPrefix}) sudah terdaftar sebagai SK Penguji di seminar hasil. Harap gunakan nomor urut yang berbeda.`
+                    }, { status: 409 }); 
+                }
+
+                const existingInSeminarHasilUndangan = await prisma.seminarHasil.findFirst({
+                    where: {
+                        undangan_penguji: {
+                            startsWith: `B.${skNumberPrefix}/`
+                        }
+                    }
+                });
+
+                if (existingInSeminarHasilUndangan) {
+                    return NextResponse.json({
+                        message: `Nomor urut (${skNumberPrefix}) sudah terdaftar sebagai Undangan Penguji di seminar hasil. Harap gunakan nomor urut yang berbeda.`
+                    }, { status: 409 });
+                }
+
                 dataToUpdate.  sk_pembimbing   = fullSkNumber;
 
                 try {

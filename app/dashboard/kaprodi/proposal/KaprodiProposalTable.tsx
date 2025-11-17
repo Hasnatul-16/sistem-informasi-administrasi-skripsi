@@ -345,7 +345,7 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
 
             {isModalOpen && selectedProposal && (
                 <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm flex justify-center items-center z-50 p-4">
-                    <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-4xl animate-fade-in-scale">
+                   <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto animate-fade-in-scale">
                         <div className="flex justify-between items-start mb-4 pb-4 border-b">
                             <div>
                                 <h2 className="text-xl font-bold text-gray-800">

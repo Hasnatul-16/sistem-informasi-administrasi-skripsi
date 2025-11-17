@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import type { Judul, Mahasiswa, User, Dosen, Status } from '@prisma/client';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
-import { FiX, FiClock, FiCheckCircle, FiFileText, FiUsers, FiBook, FiTag, FiSettings, FiCalendar, FiUser, FiHash, FiSearch } from 'react-icons/fi';
+import { FiX, FiClock, FiCheckCircle, FiFileText, FiUsers, FiBook, FiTag, FiSettings, FiCalendar, FiUser, FiHash, FiSearch, FiSave  } from 'react-icons/fi';
 
 const MySwal = withReactContent(Swal);
 
@@ -207,8 +207,8 @@ export default function KaprodiSubmissionTable({ initialSubmissions, lecturers }
                   </td>
                   <td className="px-6 py-4">
                     {sub.status === 'DIPROSES_KAPRODI' ? (
-                      <button onClick={() => openModal(sub)} className="px-3 py-1.5 text-sm bg-blue-600 text-white font-semibold rounded-md shadow-sm hover:bg-blue-700">
-                        Tetapkan
+                      <button onClick={() => openModal(sub)} className="text-blue-600 hover:text-blue-800 text-sm font-semibold flex items-center gap-1 transition-colors">
+                        <FiSave size={14} /> Tetapkan
                       </button>
                     ) : (
                       <StatusBadge status={sub.status} />
@@ -222,8 +222,8 @@ export default function KaprodiSubmissionTable({ initialSubmissions, lecturers }
       </div>
 
       {isModalOpen && selectedSubmission && (
-        <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm flex justify-center items-center z-50 p-4">
-          <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-3xl animate-fade-in-scale">
+        <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm flex justify-center items-center z-50 p-2 sm:p-4">
+          <div className="bg-white p-4 sm:p-6 rounded-lg shadow-xl w-full max-w-lg sm:max-w-2xl md:max-w-3xl animate-fade-in-scale max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-start mb-4 pb-4 border-b">
               <div>
                 <h2 className="text-2xl font-bold text-gray-800">Tetapkan Dosen Pembimbing</h2>

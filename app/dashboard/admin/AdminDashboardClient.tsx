@@ -24,15 +24,15 @@ const StatCard = ({ title, value, subtitle, icon, iconBgColor, iconColor }: {
   iconBgColor: string,
   iconColor: string
 }) => (
-  <div className="bg-white p-5 rounded-xl shadow-md border flex flex-col items-center text-center gap-2 justify-between transition-transform hover:scale-105 hover:shadow-lg min-h-[160px]">
-    <div className={`flex-shrink-0 p-2.5 rounded-full ${iconBgColor}`}>
-      <div className={iconColor}>
+  <div className="bg-white p-4 sm:p-5 rounded-xl shadow-md border flex flex-col items-center text-center gap-2 sm:gap-3 justify-between transition-transform hover:scale-105 hover:shadow-lg min-h-[140px] sm:min-h-[160px]">
+    <div className={`flex-shrink-0 p-2 sm:p-2.5 rounded-full ${iconBgColor}`}>
+      <div className={`${iconColor} flex items-center justify-center`}>
         {icon}
       </div>
     </div>
     <div className='flex flex-col'>
-      <p className="text-xs font-semibold text-gray-700">{title}</p>
-      <p className={`text-3xl font-bold ${iconColor}`}>{value}</p>
+     <p className="text-xs sm:text-sm font-semibold text-gray-700">{title}</p>
+      <p className={`text-2xl sm:text-3xl font-bold ${iconColor}`}>{value}</p>
     </div>
     <p className="text-xs text-gray-500">{subtitle}</p>
   </div>
@@ -57,14 +57,14 @@ const ActionCard = ({ title, icon, iconBgColor, iconColor, notifications, emptyT
   };
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow-sm border h-full flex flex-col">
-      <div className="flex items-start gap-3">
-        <div className={`p-2.5 rounded-lg ${iconBgColor}`}>
+    <div className="bg-white p-3 sm:p-4 rounded-lg shadow-sm border h-full flex flex-col">
+      <div className="flex items-start gap-2 sm:gap-3">
+        <div className={`p-2 rounded-lg ${iconBgColor} flex-shrink-0`}>
           <div className={iconColor}>{icon}</div>
         </div>
-        <div>
-          <h3 className={`font-bold ${iconColor}`}>{title}</h3>
-          <p className="text-sm text-gray-500">
+        <div className="min-w-0 flex-1">
+          <h3 className={`font-bold text-sm sm:text-base ${iconColor}`}>{title}</h3>
+          <p className="text-xs sm:text-sm text-gray-500 truncate">
             {notifications.length > 0
               ? `Ada ${notifications.length} pengajuan baru.`
               : `Tidak ada pengajuan baru.`
@@ -73,29 +73,29 @@ const ActionCard = ({ title, icon, iconBgColor, iconColor, notifications, emptyT
         </div>
 
       </div>
-      <hr className="my-4" />
+      <hr className="my-3 sm:my-4" />
       <div className="flex-grow">
         {notifications.length > 0 ? (
-          <ul className="space-y-3 max-h-48 overflow-y-auto pr-2">
+          <ul className="space-y-2 sm:space-y-3 max-h-48 overflow-y-auto pr-2">
             {notifications.map(item => {
               const { id, nama, jurusan } = getNotificationDetails(item);
               return (
-                <li key={id} className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium text-sm text-gray-800">{nama}</p>
+                <li key={id} className="flex items-center justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="font-medium text-xs sm:text-sm text-gray-800 truncate">{nama}</p>
                     <p className="text-xs text-gray-500">{jurusan.replace('_', ' ')}</p>
                   </div>
-                  <Link href={`${viewLink}/${jurusan}`} className="text-sm font-semibold text-blue-600 hover:underline flex items-center gap-1">
-                    Lihat <FiArrowRight size={14} />
+                  <Link href={`${viewLink}/${jurusan}`} className="text-xs sm:text-sm font-semibold text-blue-600 hover:underline flex items-center gap-1 flex-shrink-0">
+                    <span className="hidden sm:inline">Lihat</span> <FiArrowRight size={14} />
                   </Link>
                 </li>
               );
             })}
           </ul>
         ) : (
-          <div className="flex flex-col items-center justify-center text-center text-gray-400 h-full py-8">
-            <FiBell className="w-8 h-8 mb-2" />
-            <p className="text-sm font-medium">{emptyText}</p>
+          <div className="flex flex-col items-center justify-center text-center text-gray-400 h-full py-6 sm:py-8">
+            <FiBell className="w-6 h-6 sm:w-8 sm:h-8 mb-2" />
+            <p className="text-xs sm:text-sm font-medium">{emptyText}</p>
           </div>
         )}
       </div>
@@ -202,19 +202,21 @@ export default function AdminDashboardClient({ titleSubmissions, proposalSubmiss
 
 
   return (
-    <div className="space-y-6">
+  <div className="space-y-4 sm:space-y-6">
 
-      <div className="bg-white p-6 rounded-lg shadow-sm border">
-        <h3 className="font-semibold text-gray-800 mb-4 flex items-center gap-2"><FiFilter size={18} /> Filter Data Statistik</h3>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-          <div><label className="text-sm font-medium text-gray-600">Jenis Periode</label><select name="periode" value={filters.periode} onChange={handleFilterChange} className="w-full mt-1 p-2 border rounded-md bg-white text-sm"><option value="harian">Harian</option><option value="bulanan">Bulanan</option><option value="ajaran">Tahun Ajaran</option><option value="tahunan">Tahunan</option></select></div>
-          {filters.periode !== 'tahunan' && (<div><label className="text-sm font-medium text-gray-600 capitalize">Pilih {filters.periode === 'ajaran' ? 'Semester' : filters.periode.replace(/an$/, '')}</label>{renderFilterInputs()}</div>)}
-          <div><label className="text-sm font-medium text-gray-600">Pilih Tahun</label><select name="tahun" value={filters.tahun} onChange={handleFilterChange} className="w-full mt-1 p-2 border rounded-md bg-white text-sm"><option value="2025">2025</option><option value="2024">2024</option><option value="2023">2023</option></select></div>
-          <div><button onClick={handleApplyFilters} className="w-full bg-blue-600 text-white font-semibold p-2 rounded-md hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 text-sm"><FiFilter size={16} /> Terapkan</button></div>
+      {/* --- BAGIAN FILTER STATISTIK TETAP SAMA SEPERTI SEBELUMNYA --- */}
+      <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border">
+        <h3 className="font-semibold text-gray-800 mb-3 sm:mb-4 flex items-center gap-2 text-sm sm:text-base"><FiFilter size={18} /> Filter Data Statistik</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 items-end">
+          <div><label className="text-xs sm:text-sm font-medium text-gray-600">Jenis Periode</label><select name="periode" value={filters.periode} onChange={handleFilterChange} className="w-full mt-1 p-2 border rounded-md bg-white text-xs sm:text-sm"><option value="harian">Harian</option><option value="bulanan">Bulanan</option><option value="ajaran">Tahun Ajaran</option><option value="tahunan">Tahunan</option></select></div>
+          {filters.periode !== 'tahunan' && (<div><label className="text-xs sm:text-sm font-medium text-gray-600 capitalize">Pilih {filters.periode === 'ajaran' ? 'Semester' : filters.periode.replace(/an$/, '')}</label>{renderFilterInputs()}</div>)}
+          <div><label className="text-xs sm:text-sm font-medium text-gray-600">Pilih Tahun</label><select name="tahun" value={filters.tahun} onChange={handleFilterChange} className="w-full mt-1 p-2 border rounded-md bg-white text-xs sm:text-sm"><option value="2025">2025</option><option value="2024">2024</option><option value="2023">2023</option></select></div>
+          <div><button onClick={handleApplyFilters} className="w-full bg-blue-600 text-white font-semibold p-2 rounded-md hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 text-xs sm:text-sm"><FiFilter size={16} /> Terapkan</button></div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        
         <StatCard
           title="Total Judul Terverifikasi"
           value={stats.totalJudul}
@@ -242,10 +244,10 @@ export default function AdminDashboardClient({ titleSubmissions, proposalSubmiss
       </div>
 
       <div>
-        <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+        <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-3 sm:mb-4 flex items-center gap-2">
           <FiBell /> Notifikasi Pengajuan Baru
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           <ActionCard
             title="Pengajuan Judul"
             icon={<FiFilePlus size={20} />}

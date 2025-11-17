@@ -73,61 +73,61 @@ export default function SubmissionTable({ initialSubmissions }: { initialSubmiss
   };
 
   return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full w-full bg-white border divide-y divide-gray-200 table-fixed">
+     <div className="overflow-x-auto -mx-4 sm:mx-0">
+      <table className="min-w-full w-full bg-white border divide-y divide-gray-200">
         <thead className="bg-slate-50">
           <tr>
-            <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[20%]"><div className="flex items-center gap-2"><FiUsers size={16} className="text-blue-600"/> 
+            <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap"><div className="flex items-center gap-1 sm:gap-2"><FiUsers size={14} className="text-blue-600"/>
             <span>Mahasiswa</span></div></th>
-            <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[15%]"><div className="flex items-center gap-2"><FiCalendar size={16} className="text-blue-600"/> 
+           <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap"><div className="flex items-center gap-1 sm:gap-2"><FiCalendar size={14} className="text-blue-600"/> 
             <span>Tanggal Pengajuan</span></div></th>
-            <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[15%]"><div className="flex items-center gap-2"><FiTag size={16} className="text-blue-600"/>
+            <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap"><div className="flex items-center gap-1 sm:gap-2"><FiTag size={14} className="text-blue-600"/>
             <span>Topik</span></div></th>
-            <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[25%]"><div className="flex items-center gap-2"><FiFileText size={16} className="text-blue-600"/> <span>Judul</span></div></th>
-            <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[15%]"><div className="flex items-center gap-2"><FiActivity size={16} className="text-blue-600"/> <span>Status</span></div></th>
-            <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[10%]"><div className="flex items-center gap-2"><FiSettings size={16} className="text-blue-600"/> <span>Aksi</span></div></th>
+            <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left"><div className="flex items-center gap-1 sm:gap-2"><FiFileText size={14} className="text-blue-600"/> <span>Judul</span></div></th>
+            <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap"><div className="flex items-center gap-1 sm:gap-2"><FiActivity size={14} className="text-blue-600"/> <span>Status</span></div></th>
+            <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap"><div className="flex items-center gap-1 sm:gap-2"><FiSettings size={14} className="text-blue-600"/> <span>Aksi</span></div></th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200">
           {submissions.length === 0 ? (
-            <tr><td colSpan={6} className="px-6 py-10 text-center text-gray-500">Tidak ada pengajuan pada periode yang dipilih.</td></tr>
+            <tr><td colSpan={6} className="px-4 sm:px-6 py-8 sm:py-10 text-center text-gray-500 text-sm">Tidak ada pengajuan pada periode yang dipilih.</td></tr>
           ) : (
             submissions.map(sub => (
               <tr key={sub.id} className="hover:bg-gray-50">
                 
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex flex-col gap-1.5">
+                <td className="px-4 sm:px-6 py-3 sm:py-4">
+                  <div className="flex flex-col gap-1">
                     <div className="flex items-center gap-2">
                         <FiUser size={14} className="text-blue-600"/>
                         <span className="text-sm text-gray-700">
-                            <span className="font-semibold">Nama: </span>
+                            <span  className="text-xs text-gray-600 hidden sm:inline">Nama: </span>
                             {sub.student.nama}
                         </span>
                     </div>
                     <div className="flex items-center gap-2">
                         <FiHash size={14} className="text-blue-600"/>
                         <span className="text-sm text-gray-700">
-                            <span className="font-semibold">NIM: </span>
+                            <span className="text-xs text-gray-600 hidden sm:inline">NIM: </span>
                             {sub.student.nim}
                         </span>
                     </div>
                   </div>
                 </td>
 
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-600">
                   {new Date(sub.tanggal).toLocaleDateString('id-ID', {
                     day: '2-digit', month: 'long', year: 'numeric'
                   })}
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-600">{sub.topik}</td>
-                <td className="px-6 py-4"><p className="text-sm text-gray-800 whitespace-normal break-words" title={sub.judul}>{sub.judul}</p></td>
+                <td className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-600 max-w-[100px] truncate">{sub.topik}</td>
+                <td className="px-4 sm:px-6 py-3 sm:py-4"><p className="text-xs sm:text-sm text-gray-800 line-clamp-2">{sub.judul}</p></td>
                 
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                     <StatusBadge status={sub.status}/>
                 </td>
 
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  {sub.status === 'TERKIRIM' && (<Link href={`/dashboard/admin/verifikasi/detail/${sub.id}`} className="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-900 font-semibold">Verifikasi <FiArrowRight className="h-4 w-4"/></Link>)}
+                <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm font-medium">
+                  {sub.status === 'TERKIRIM' && (<Link href={`/dashboard/admin/verifikasi/detail/${sub.id}`} className="inline-flex items-center gap-1 text-indigo-600 hover:text-indigo-900 font-semibold"><span className="hidden sm:inline">Verifikasi</span> <FiArrowRight size={14}/></Link>)}
 
                   {sub.status === 'DISETUJUI' && (
                     <button
@@ -135,15 +135,15 @@ export default function SubmissionTable({ initialSubmissions }: { initialSubmiss
                          sub.student.nim,
                          sub.student.nama)}
                       disabled={loadingId === sub.id} 
-                      className="inline-flex items-center gap-2 text-green-600 hover:text-green-900 font-semibold disabled:text-gray-400 disabled:cursor-wait"
+                      className="inline-flex items-center gap-1 text-green-600 hover:text-green-900 font-semibold disabled:text-gray-400 disabled:cursor-wait"
                     >
                       {loadingId === sub.id ? (
                         <>
-                          <FiClock className="animate-spin h-4 w-4"/> Mengunduh...
+                           <FiClock className="animate-spin h-4 w-4 flex-shrink-0"/> <span className="hidden sm:inline">Mengunduh...</span>
                         </>
                       ) : (
                         <>
-                          <FiDownload/> Unduh SK
+                          <FiDownload size={14} className="flex-shrink-0"/> <span className="hidden sm:inline">Unduh SK</span>
                         </>
                       )}
                     </button>
@@ -151,7 +151,7 @@ export default function SubmissionTable({ initialSubmissions }: { initialSubmiss
                   
                   {sub.status === 'DITOLAK_ADMIN' && (<span className="text-gray-400">Selesai</span>)}
 
-                  {sub.status !== 'TERKIRIM' && sub.status !== 'DISETUJUI' && sub.status !== 'DITOLAK_ADMIN' && (<span className="text-gray-400">Dalam Proses</span>)}
+                  {sub.status !== 'TERKIRIM' && sub.status !== 'DISETUJUI' && sub.status !== 'DITOLAK_ADMIN' && (<span className="text-gray-400 text-xs">Dalam Proses</span>)}
 
                   
                 </td>

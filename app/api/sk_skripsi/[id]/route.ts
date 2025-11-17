@@ -354,6 +354,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         
         .sig-title { margin-top: 5px; margin-bottom: 0; }
         .sig-space { height: 60px; }
+        .sig-space-wakil { height: 40px; }
         .sig-name { margin-bottom: 0; font-weight: bold; }
         .sig-nip { margin-top: 0; }
 
@@ -692,6 +693,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
             </div>
             <p class="sig-title">Dekan,</p>
             <div class="sig-space">
+            <p style = "margin-top : 25px; font-size: 15px "> $ </p> 
               </div> 
             <p class="sig-name">Yulia</p>
             <p class="sig-nip">NIP. 198105052009012008</p>
@@ -782,6 +784,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
           </div>
           <p class="sig-title">Dekan,</p>
           <div class="sig-space">
+          <p style = "margin-top : 25px; font-size: 15px "> $ </p> 
             </div>
              <p class="sig-name">Yulia</p>
             <p class="sig-nip">NIP. 198105052009012008</p>
@@ -964,7 +967,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
           <p>An. Dekan</p>
           <p>Wakil Dekan Bidang</p>
           <p>Akademik dan Kemahasiswaan</p>
-          <div class="sig-space">
+          <div class="sig-space-wakil">
+          <p style = "margin-top : 25px; font-size: 15px "> # </p> 
             </div>
           <p class="sig-name">Subhan Ajrin Sudirman</p>
             <p class="sig-nip">NIP. 198109282011011006</p>
@@ -1136,7 +1140,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
           <p>An. Dekan</p>
           <p>Wakil Dekan Bidang</p>
           <p>Akademik dan Kemahasiswaan</p>
-          <div class="sig-space">
+          <div class="sig-space-wakil">
+          <p style = "margin-top : 25px; font-size: 15px "> # </p> 
             </div>
             <p class="sig-name">Subhan Ajrin Sudirman</p>
             <p class="sig-nip">NIP. 198109282011011006</p>
