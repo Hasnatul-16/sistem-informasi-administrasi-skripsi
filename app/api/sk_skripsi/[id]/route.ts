@@ -14,6 +14,52 @@ const getSkDateInfo = (date: Date) => {
   return { skDate, skMonth, skYear };
 };
 
+const indonesianHolidays = [
+  '2024-01-01', // Tahun Baru
+  '2024-02-08', // Imlek
+  '2024-03-11', // Nyepi
+  '2024-03-29', // Jumat Agung
+  '2024-04-10', // Idul Fitri
+  '2024-04-11', // Idul Fitri
+  '2024-05-09', // Kenaikan Isa Almasih
+  '2024-05-23', // Idul Adha
+  '2024-06-17', // Hari Lahir Pancasila
+  '2024-07-07', // Idul Adha
+  '2024-08-17', // Kemerdekaan RI
+  '2024-09-16', // Maulid Nabi
+  '2024-12-25', // Natal
+  '2025-01-01', // Tahun Baru
+  '2025-01-29', // Imlek
+  '2025-03-29', // Nyepi
+  '2025-04-18', // Jumat Agung
+  '2025-04-29', // Idul Fitri
+  '2025-04-30', // Idul Fitri
+  '2025-05-29', // Kenaikan Isa Almasih
+  '2025-06-06', // Idul Adha
+  '2025-07-07', // Hari Lahir Pancasila
+  '2025-08-17', // Kemerdekaan RI
+  '2025-09-05', // Maulid Nabi
+  '2025-12-25', // Natal
+];
+
+// Fungsi untuk mengecek apakah tanggal adalah hari libur
+const isHoliday = (date: Date): boolean => {
+  const dateStr = date.toISOString().split('T')[0];
+  return indonesianHolidays.includes(dateStr);
+};
+
+// Fungsi untuk menghitung tanggal SK berdasarkan jadwal sidang (H-1, bukan tanggal merah, sabtu, atau minggu)
+const getSkDateFromSeminarSchedule = (seminarDate: Date): Date => {
+  let skDate = new Date(seminarDate);
+  skDate.setDate(skDate.getDate() - 1); 
+
+  while (isHoliday(skDate) || skDate.getDay() === 0 || skDate.getDay() === 6) {
+    skDate.setDate(skDate.getDate() - 1);
+  }
+
+  return skDate;
+};
+
 const formatJurusanToProdi = (jurusanEnum: Jurusan): string => {
   return jurusanEnum.toString().split('_').map(word =>
     word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
@@ -94,37 +140,70 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     }
   }
 
+   if (skripsiRecord.jadwal_sidang) {
+    skDateObj = getSkDateFromSeminarSchedule(skripsiRecord.jadwal_sidang);
+  }
+
+
   const { skDate, skMonth, skYear } = getSkDateInfo(skDateObj);
 
   const baseNumberSk = manualSkNumber || '684';
   const baseNumberInt = parseInt(baseNumberSk);
 
-  const defaultSkSkripsiNomor = `B.${baseNumberSk}/Un.13/FST/PP.00.9/${skMonth}/${skYear}`;
-  const skSkripsiNomor = manualSkNumber ? defaultSkSkripsiNomor : (skripsiRecord.sk_penguji || defaultSkSkripsiNomor);
-
+  let skSkripsiNomor: string;
   let parsedSkNumber: number | null = null;
   let skPrefix: string = '';
-  let skRemainingParts: string = '';
+  let skBaseParts: string = '';
 
-  try {
-    const skNomorParts = skSkripsiNomor.split('/');
-    const basePart = skNomorParts[0];
-    const match = basePart.match(/^([A-Za-z]+\.?)([\d]+)$/);
+  if (manualSkNumber) {
+    // Jika manual, gunakan langsung dengan bulan/tahun dari tanggal SK
+    skSkripsiNomor = `B.${baseNumberSk}/Un.13/FST/PP.00.9/${skMonth}/${skYear}`;
+  } else if (skripsiRecord.sk_penguji) {
+    // Jika dari database, parse nomor base dan ganti bulan/tahun dengan yang baru
+    try {
+      const skNomorParts = skripsiRecord.sk_penguji.split('/');
+      const basePart = skNomorParts[0];
+      const match = basePart.match(/^([A-Za-z]+\.?)([\d]+)$/);
 
-    if (match) {
-      skPrefix = match[1];
-      const numberStr = match[2];
-      parsedSkNumber = parseInt(numberStr);
-      skRemainingParts = skNomorParts.slice(1).join('/');
+      if (match && skNomorParts.length >= 5) {
+        skPrefix = match[1];
+        const numberStr = match[2];
+        parsedSkNumber = parseInt(numberStr);
+        // Ambil bagian tetap: Un.13/FST/PP.00.9
+        skBaseParts = skNomorParts.slice(1, -2).join('/');
+        // Buat ulang nomor dengan bulan/tahun dari tanggal SK
+        skSkripsiNomor = `${skPrefix}${parsedSkNumber}/${skBaseParts}/${skMonth}/${skYear}`;
+      } else {
+        // Jika format tidak sesuai, gunakan default
+        skSkripsiNomor = `B.${baseNumberSk}/Un.13/FST/PP.00.9/${skMonth}/${skYear}`;
+      }
+    } catch (e) {
+      console.error("Error parsing existing SK number:", e);
+      skSkripsiNomor = `B.${baseNumberSk}/Un.13/FST/PP.00.9/${skMonth}/${skYear}`;
     }
-  } catch (e) {
-    console.error("Error during SK parsing preparation:", e);
+  } else {
+    // Default
+    skSkripsiNomor = `B.${baseNumberSk}/Un.13/FST/PP.00.9/${skMonth}/${skYear}`;
+  }
+
+  // Parse untuk mendapatkan parsedSkNumber jika belum ada
+  if (parsedSkNumber === null) {
+    try {
+      const skNomorParts = skSkripsiNomor.split('/');
+      const basePart = skNomorParts[0];
+      const match = basePart.match(/^([A-Za-z]+\.?)([\d]+)$/);
+      if (match) {
+        parsedSkNumber = parseInt(match[2]);
+      }
+    } catch (e) {
+      console.error("Error parsing SK number for increment:", e);
+    }
   }
 
   let undanganPengujiNomor: string;
   if (parsedSkNumber !== null && !isNaN(parsedSkNumber)) {
     const nextInt = parsedSkNumber + 1; 
-    undanganPengujiNomor = `${skPrefix}${nextInt}/${skRemainingParts}`;
+      undanganPengujiNomor = `${skPrefix}${nextInt}/${skBaseParts}/${skMonth}/${skYear}`;
   } else {
     undanganPengujiNomor = `B.${baseNumberInt + 1}/Un.13/FST/PP.00.9/${skMonth}/${skYear}`;
   }
@@ -132,7 +211,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   let undanganMunaqasahNomor: string;
   if (parsedSkNumber !== null && !isNaN(parsedSkNumber)) {
     const nextNextInt = parsedSkNumber + 2; 
-    undanganMunaqasahNomor = `${skPrefix}${nextNextInt}/${skRemainingParts}`;
+    undanganMunaqasahNomor = `${skPrefix}${nextNextInt}/${skBaseParts}/${skMonth}/${skYear}`;
   } else {
     undanganMunaqasahNomor = `B.${baseNumberInt + 2}/Un.13/FST/PP.00.9/${skMonth}/${skYear}`;
   }
@@ -354,7 +433,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         
         .sig-title { margin-top: 5px; margin-bottom: 0; }
         .sig-space { height: 60px; }
-        .sig-space-wakil { height: 40px; }
+        .sig-space-wakil { height: 38px; }
         .sig-name { margin-bottom: 0; font-weight: bold; }
         .sig-nip { margin-top: 0; }
 

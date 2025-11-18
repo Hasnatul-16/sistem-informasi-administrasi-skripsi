@@ -19,6 +19,53 @@ const formatJurusanToProdi = (jurusanEnum: Jurusan): string => {
   ).join(' ');
 };
 
+const indonesianHolidays = [
+  '2024-01-01', // Tahun Baru
+  '2024-02-08', // Imlek
+  '2024-03-11', // Nyepi
+  '2024-03-29', // Jumat Agung
+  '2024-04-10', // Idul Fitri
+  '2024-04-11', // Idul Fitri
+  '2024-05-09', // Kenaikan Isa Almasih
+  '2024-05-23', // Idul Adha
+  '2024-06-17', // Hari Lahir Pancasila
+  '2024-07-07', // Idul Adha
+  '2024-08-17', // Kemerdekaan RI
+  '2024-09-16', // Maulid Nabi
+  '2024-12-25', // Natal
+  '2025-01-01', // Tahun Baru
+  '2025-01-29', // Imlek
+  '2025-03-29', // Nyepi
+  '2025-04-18', // Jumat Agung
+  '2025-04-29', // Idul Fitri
+  '2025-04-30', // Idul Fitri
+  '2025-05-29', // Kenaikan Isa Almasih
+  '2025-06-06', // Idul Adha
+  '2025-07-07', // Hari Lahir Pancasila
+  '2025-08-17', // Kemerdekaan RI
+  '2025-09-05', // Maulid Nabi
+  '2025-12-25', // Natal
+];
+
+// Fungsi untuk mengecek apakah tanggal adalah hari libur
+const isHoliday = (date: Date): boolean => {
+  const dateStr = date.toISOString().split('T')[0];
+  return indonesianHolidays.includes(dateStr);
+};
+
+// Fungsi Helper untuk mendapatkan tanggal SK (H-1 dari jadwal seminar, bukan tanggal merah)
+const getSkDateFromSeminarSchedule = (jadwalSidang: Date): Date => {
+  let skDate = new Date(jadwalSidang);
+  skDate.setDate(skDate.getDate() - 1); // Mulai dari H-1
+
+  // Jika H-1 adalah tanggal merah, sabtu, atau minggu, mundur ke hari sebelumnya sampai bukan tanggal merah, sabtu, atau minggu
+  while (isHoliday(skDate) || skDate.getDay() === 0 || skDate.getDay() === 6) {
+    skDate.setDate(skDate.getDate() - 1);
+  }
+
+  return skDate;
+};
+
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -84,11 +131,14 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     }
   }
 
+   if (proposal.jadwal_sidang) {
+    skDateObj = getSkDateFromSeminarSchedule(proposal.jadwal_sidang);
+  }
+
   const { skDate, skMonth, skYear } = getSkDateInfo(skDateObj);
 
   const baseNumberSk = '775';
-  const defaultSkPengujiNomor = `B.${baseNumberSk}/Un.13/FST/PP.00.9/${skMonth}/${skYear}`;
-  const skPengujiNomor = proposal.sk_penguji || defaultSkPengujiNomor;
+  const skPengujiNomor = `B.${baseNumberSk}/Un.13/FST/PP.00.9/${skMonth}/${skYear}`;
 
   let suratUndanganNomor: string;
 
@@ -119,18 +169,16 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
 
   const suratDate = skDate;
 
-  if (!proposal.sk_penguji || !proposal.undangan_penguji) {
-    try {
-      await prisma.proposal.update({
-        where: { id: proposal.id },
-        data: {
-          sk_penguji: skPengujiNomor,
-          undangan_penguji: suratUndanganNomor,
-        },
-      });
-    } catch (dbError) {
-      console.error('Gagal menyimpan nomor SK Penguji/Surat Undangan ke database:', dbError);
-    }
+ try {
+    await prisma.proposal.update({
+      where: { id: proposal.id },
+      data: {
+        sk_penguji: skPengujiNomor,
+        undangan_penguji: suratUndanganNomor,
+      },
+    });
+  } catch (dbError) {
+    console.error('Gagal menyimpan nomor SK Penguji/Surat Undangan ke database:', dbError);
   }
 
   const penguji1Name = proposal.penguji || 'Nama Penguji 1 (Ketua)';
@@ -530,11 +578,11 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
               </div>
               <div class="list-item">
                 <span class="list-label">3.</span>
-                <span class="list-text">Undang-Undang Nomor 5 Tahun 2014 tentang Aparatur Sipil Negara (Lembaran Negara Republik Indonesia Tahun 2014 Nomor 6, Tambahan Lembaran Negara Republik Indonesia Nomor 5494);</span>
+                <span class="list-text">Undang-Undang Nomor 5 Tahun 2014 tentang Aparatur Sipil Negara (Lembaran Negara Indonesia Tahun 2014 Nomor 6, Tambahan Lembaran Negara Republik Indonesia Nomor 5494);</span>
               </div>
               <div class="list-item">
                 <span class="list-label">4.</span>
-                <span class="list-text">Peraturan Pemerintah Nomor 19 Tahun 2005 tentang Standar Nasional Pendidikan (Lembaran Negara Indonesia Tahun 2005 Nomor 41, Tambahan Lembaran Negara Republik Indonesia Nomor 4496); sebagaimana telah beberapa kali diubah terakhir dengan Peraturan Pemerintah Nomor 13 Tahun 2015 tentang Perubahan Kedua atas Peraturan Pemerintah Nomor 19 Tahun 2005 tentang Standar Nasional Pendidikan (Lembaran Negara Indonesia Tahun 2015 Nomor 45, Tambahan Lembaran Negara Republik Indonesia Nomor 5670);</span>
+                <span class="list-text">Peraturan Pemerintah Nomor 19 Tahun 2005 tentang Standar Nasional Pendidikan (Lembaran Negara Indonesia Tahun 2005 Nomor 41, Tambahan Lembaran Negara Republik Indonesia Nomor 4496); sebagaimana telah beberapa kali diubah terakhir dengan Peraturan Pemerintah Nomor 13 Tahun 2015 tentang Perubahan Kedua atas Peraturan Pemerintah Nomor 19 Tahun 2015 tentang Standar Nasional Pendidikan (Lembaran Negara Indonesia Tahun 2015 Nomor 45, Tambahan Lembaran Negara Republik Indonesia Nomor 5670);</span>
               </div>
               <div class="list-item">
                 <span class="list-label">5.</span>
@@ -791,8 +839,8 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
 
         <div class="surat-body">
             <p class="salam"><em>Assalamu'alaikum Wr.Wb.</em></p>
-            <p>
-                Bersama ini dengan hormat disampaikan, kepada Bapak/Ibu/Saudara bahwa seminar proposal mahasiswa :
+           <p style="margin-top: 1 px; margin-bottom: 1px ">
+                Dengan hormat, bersama ini kami sampaikan kepada Bapak/Ibu/Saudara bahwa Seminar Proposal mahasiswa :
             </p>
 
             <table class="no-border" style="width: 100%; margin-left: 20px; margin-top: 3px;">
@@ -800,12 +848,12 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
                     <tr>
                         <td style="width: 130px;">Nama</td>
                         <td style="width: 10px;">:</td>
-                        <td class="font-bold uppercase">${templateData.studentName}</td>
+                       <td class="font-bold uppercase">${student?.nama || ''}</td>
                     </tr>
                     <tr>
                         <td>NIM</td>
                         <td>:</td>
-                        <td class="font">${templateData.studentNIM}</td>
+                        <td class="font">${student?.nim || ''}</td>
                     </tr>
                     <tr>
                         <td>Program Studi</td>
@@ -815,9 +863,9 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
                     <tr>
                         <td style="vertical-align: top;">Judul Penelitian</td>
                         <td style="vertical-align: top;">:</td>
-                        <td class="text-justify">"${templateData.judul}"</td>
+                        <td class="text-justify">"${submission.judul}"</td>
                     </tr>
-                  </body>
+                  </tbody>
             </table><br/>
 
                 <p class= "margin-top:3px">Insyaallah akan diadakan pada :</p>
@@ -841,7 +889,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
                 </tbody>
             </table>
 
-            <p style="margin-top: 3 px;">Sehubungan dengan itu kami harapkan kesedian Bapak/Ibu/Saudara yang nama-namanya tercantumdi bawah ini sebagai Tim Seminar Proposal sesuai jadwal di atas.</p>
+            <p style="margin-top: 3 px;">Sehubungan dengan itu kami harapkan kesedian Bapak/Ibu/Saudara yang nama-namanya tercantumdi bawah ini sebagai Tim Penguji Seminar Proposal sesuai jadwal di atas.</p>
 
            <table class="lampiran-table">
           <thead>
