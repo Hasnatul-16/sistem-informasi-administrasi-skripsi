@@ -75,6 +75,7 @@ export default function PembimbingStatsClient({
     const [isModalLoading, setIsModalLoading] = useState(false);
     const [selectedDosen, setSelectedDosen] = useState<DosenStat | null>(null);
     const [isDownloading, setIsDownloading] = useState(false);
+    const [isDownloadingModal, setIsDownloadingModal] = useState(false);
 
     const currentYear = new Date().getFullYear();
     const yearOptions = Array.from({ length: 6 }, (_, i) => String(currentYear - i));
@@ -141,6 +142,45 @@ export default function PembimbingStatsClient({
             setIsDownloading(false);
         }
     };
+
+     const handleDownloadModalReport = async () => {
+        if (!selectedDosen || !modalData) return;
+
+        setIsDownloadingModal(true);
+        try {
+            const params = new URLSearchParams({
+                nip: selectedDosen.nip,
+                tahun: filters.tahun,
+                semester: filters.semester,
+                jurusan: filters.jurusan,
+                role: 'pembimbing'
+            });
+
+            const res = await fetch(`/api/dosen/laporan-pembimbing-detail?${params.toString()}`);
+
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.details || errorData.message || 'Gagal mengunduh laporan detail.');
+            }
+
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Detail_Pembimbing_${selectedDosen.nama}_${filters.semester}_${filters.tahun}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        } catch (err: unknown) {
+            console.error("Error downloading modal report:", err);
+            const errorMessage = err instanceof Error ? err.message : 'Terjadi kesalahan saat mengunduh laporan detail.';
+            alert(`Error: ${errorMessage}`);
+        } finally {
+            setIsDownloadingModal(false);
+        }
+    };
+
 
     const fetchTableData = async () => {
         setIsTableLoading(true);
@@ -470,9 +510,24 @@ export default function PembimbingStatsClient({
                             <h2 className="text-xl font-bold text-gray-800">
                                 Riwayat Pembimbing - {selectedDosen?.nama || 'Memuat...'}
                             </h2>
-                            <button onClick={handleCloseModal} className="p-2 text-gray-500 hover:text-gray-800">
-                                <FiX className="h-6 w-6" />
-                            </button>
+                           <div className="flex items-center gap-2">
+                                <button
+                                    onClick={handleDownloadModalReport}
+                                    disabled={isDownloadingModal}
+                                    className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    title="Unduh Detail Riwayat Pembimbing"
+                                >
+                                    {isDownloadingModal ? (
+                                        <FiLoader className="animate-spin" size={16} />
+                                    ) : (
+                                        <FiDownload size={16} />
+                                    )}
+                                    <span>Unduh Detail</span>
+                                </button>
+                                <button onClick={handleCloseModal} className="p-2 text-gray-500 hover:text-gray-800">
+                                    <FiX className="h-6 w-6" />
+                                </button>
+                            </div>
                         </div>
 
                         <div className="p-6 space-y-6 max-h-[80vh] overflow-y-auto">
