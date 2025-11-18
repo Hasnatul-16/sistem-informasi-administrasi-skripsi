@@ -6,7 +6,7 @@ import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 
 import {
     FiEye, FiX, FiUsers, FiBookOpen, FiActivity, FiLoader,
-    FiSearch, FiAlertTriangle, FiHash, FiUser, FiSettings
+    FiSearch, FiAlertTriangle, FiHash, FiUser, FiSettings, FiDownload
 } from 'react-icons/fi';
 import React from 'react';
 
@@ -73,6 +73,7 @@ export default function DosenStatsClient({
     const [modalData, setModalData] = useState<DosenHistory | null>(null);
     const [isModalLoading, setIsModalLoading] = useState(false);
     const [selectedDosen, setSelectedDosen] = useState<DosenStat | null>(null);
+    const [isDownloading, setIsDownloading] = useState(false);
 
     const currentYear = new Date().getFullYear();
     const yearOptions = Array.from({ length: 6 }, (_, i) => String(currentYear - i));
@@ -105,6 +106,41 @@ export default function DosenStatsClient({
             jurusan: newJurusan
         }));
     };
+
+    const handleDownloadReport = async () => {
+        setIsDownloading(true);
+        try {
+            const params = new URLSearchParams({
+                tahun: filters.tahun,
+                semester: filters.semester,
+                jurusan: filters.jurusan,
+            });
+
+            const res = await fetch(`/api/dosen/laporan-penguji?${params.toString()}`);
+
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.details || errorData.message || 'Gagal mengunduh laporan.');
+            }
+
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Laporan_Penguji_${filters.jurusan}_${filters.semester}_${filters.tahun}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        } catch (err: unknown) {
+            console.error("Error downloading report:", err);
+            const errorMessage = err instanceof Error ? err.message : 'Terjadi kesalahan saat mengunduh laporan.';
+            alert(`Error: ${errorMessage}`);
+        } finally {
+            setIsDownloading(false);
+        }
+    };
+
 
     const fetchTableData = async () => {
         setIsTableLoading(true);
@@ -231,15 +267,15 @@ export default function DosenStatsClient({
 
     return (
               <main className="space-y-6">
-            <h1 className="text-3xl font-bold text-gray-900"> Daftar Dosen Penguji</h1>
-            <p className="mt-0 text-gray-600">menampilkan total dosen menjadi penguji pada seminar proposal dan sidang skripsi </p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 break-words"> Daftar Dosen Penguji</h1>
+            <p  className="mt-0 text-sm sm:text-base text-gray-600 break-words">menampilkan total dosen menjadi penguji pada seminar proposal dan sidang skripsi </p>
             
-            <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md border space-y-3 sm:space-y-4">
+            <div className="bg-white p-3 sm:p-6 rounded-lg shadow-md border space-y-3 sm:space-y-4">
                
                 <div className="bg-gradient-to-r from-blue-600 to-cyan-500 p-3 sm:p-4 rounded-lg shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
                     
                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 w-full sm:w-auto">
-                        {/* Kolom Semester */}
+                     
                         <div className="flex flex-col w-full sm:w-auto">
                             <label htmlFor="semester" className="text-xs sm:text-sm font-semibold text-white mb-1">
                                 Periode Semester
@@ -273,16 +309,34 @@ export default function DosenStatsClient({
                             </select>
                         </div>
                     </div>
-                    <div className="relative w-full sm:w-auto sm:self-end">
-                        <input
-                            type="text"
-                            name="search"
-                            placeholder="Cari berdasarkan nama..."
-                            value={filters.search}
-                            onChange={handleFilterChange}
-                            className="w-full sm:w-64 bg-white/30 text-white placeholder-white/70 rounded-full py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-white/50 font-sans text-sm"
-                        />
-                        <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-white/70 h-5 w-5" />
+
+                   <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 w-full sm:w-auto">
+                     
+                        <div className="relative w-full sm:w-auto">
+                            <input
+                                type="text"
+                                name="search"
+                                placeholder="Cari berdasarkan nama..."
+                                value={filters.search}
+                                onChange={handleFilterChange}
+                                className="w-full sm:w-64 bg-white/30 text-white placeholder-white/70 rounded-full py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-white/50 font-sans text-sm"
+                            />
+                            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-white/70 h-5 w-5" />
+                        </div>
+
+                        <button
+                            onClick={handleDownloadReport}
+                            disabled={isDownloading}
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 text-white font-semibold rounded-lg hover:bg-white/30 transition duration-150 disabled:opacity-50 disabled:cursor-not-allowed border border-white/30"
+                            title="Unduh Laporan PDF"
+                        >
+                            {isDownloading ? (
+                                <FiLoader className="animate-spin" size={16} />
+                            ) : (
+                                <FiDownload size={16} />
+                            )}
+                            <span>{isDownloading ? 'Mengunduh...' : 'Unduh Laporan'}</span>
+                        </button>
                     </div>
                 </div>
 
