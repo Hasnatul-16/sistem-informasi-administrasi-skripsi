@@ -41,28 +41,8 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   const skDate = skDateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
   const skMonth = String(skDateObj.getMonth() + 1).padStart(2, '0');
   const skYear = skDateObj.getFullYear();
-
-  // Query for the latest SK number in the current month/year
-  const latestSk = await prisma.judul.findFirst({
-    where: {
-      sk_pembimbing: {
-        contains: `/${skMonth}/${skYear}`,
-      },
-    },
-    orderBy: {
-      sk_pembimbing: 'desc',
-    },
-  });
-
-  let nextNumber = 811; // Default starting number
-  if (latestSk?.sk_pembimbing) {
-    const match = latestSk.sk_pembimbing.match(/^B\.(\d+)\//);
-    if (match) {
-      nextNumber = parseInt(match[1]) + 1;
-    }
-  }
-
-  const skNomor = `B.${nextNumber}/Un.13/FST/PP.00.9/${skMonth}/${skYear}`;
+  const defaultSkNomor = `B.811/Un.13/FST/PP.00.9/${skMonth}/${skYear}`;
+  const skNomor = submission.  sk_pembimbing   || defaultSkNomor;
 
   console.log('SK Date:', {
 
@@ -70,6 +50,8 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     formatted: skDate
   });
   console.log('SK Number:', {
+    raw: submission.  sk_pembimbing  ,
+    fallback: defaultSkNomor,
     final: skNomor
   });
 

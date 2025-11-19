@@ -67,12 +67,16 @@ const getSkDateFromSeminarSchedule = (jadwalSidang: Date): Date => {
 };
 
 
-export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
+
   const { id } = await params;
   if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 });
 
   const proposalId = Number(id);
   if (isNaN(proposalId)) return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
+  const { searchParams } = new URL(req.url);
+  const manualSkNumber = searchParams.get('sk_number');
+
 
   const proposal = await prisma.proposal.findUnique({
     where: { id: proposalId },
@@ -137,34 +141,69 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
 
   const { skDate, skMonth, skYear } = getSkDateInfo(skDateObj);
 
-  const baseNumberSk = '775';
-  const skPengujiNomor = `B.${baseNumberSk}/Un.13/FST/PP.00.9/${skMonth}/${skYear}`;
+  const baseNumberSk = manualSkNumber || '775';
+  const baseNumberInt = parseInt(baseNumberSk);
 
-  let suratUndanganNomor: string;
+  // Nomor SK Penguji (Nomor Base) - Gunakan bulan dan tahun dari tanggal SK
+  let skPengujiNomor: string;
+  let parsedSkNumber: number | null = null;
+  let skPrefix: string = '';
+  let skBaseParts: string = '';
 
-  try {
-    const skNomorParts = skPengujiNomor.split('/');
-    const basePart = skNomorParts[0];
-    const match = basePart.match(/^([A-Za-z]+\.?)([\d]+)$/);
+  if (manualSkNumber) {
+    // Jika manual, gunakan langsung dengan bulan/tahun dari tanggal SK
+    skPengujiNomor = `B.${baseNumberSk}/Un.13/FST/PP.00.9/${skMonth}/${skYear}`;
+  } else if (proposal.sk_penguji) {
+    // Jika dari database, parse nomor base dan ganti bulan/tahun dengan yang baru
+    try {
+      const skNomorParts = proposal.sk_penguji.split('/');
+      const basePart = skNomorParts[0];
+      const match = basePart.match(/^([A-Za-z]+\.?)([\d]+)$/);
 
-    if (match) {
-      const prefix = match[1];
-      const numberStr = match[2];
-      const parsedInt = parseInt(numberStr);
-
-      if (!isNaN(parsedInt)) {
-        const nextInt = parsedInt + 1;
-        const remainingParts = skNomorParts.slice(1).join('/');
-        suratUndanganNomor = `${prefix}${nextInt}/${remainingParts}`;
+      if (match && skNomorParts.length >= 5) {
+        skPrefix = match[1];
+        const numberStr = match[2];
+        parsedSkNumber = parseInt(numberStr);
+        // Ambil bagian tetap: Un.13/FST/PP.00.9
+        skBaseParts = skNomorParts.slice(1, -2).join('/');
+        // Buat ulang nomor dengan bulan/tahun dari tanggal SK
+        skPengujiNomor = `${skPrefix}${parsedSkNumber}/${skBaseParts}/${skMonth}/${skYear}`;
       } else {
-        suratUndanganNomor = `B.${parseInt(baseNumberSk) + 1}/${skNomorParts.slice(1).join('/')}`;
+        // Jika format tidak sesuai, gunakan default
+        skPengujiNomor = `B.${baseNumberSk}/Un.13/FST/PP.00.9/${skMonth}/${skYear}`;
       }
-    } else {
-      suratUndanganNomor = `B.${parseInt(baseNumberSk) + 1}/Un.13/FST/PP.00.9/${skMonth}/${skYear}`;
+    } catch (e) {
+      console.error("Error parsing existing SK number:", e);
+      skPengujiNomor = `B.${baseNumberSk}/Un.13/FST/PP.00.9/${skMonth}/${skYear}`;
     }
-  } catch (error) {
-    suratUndanganNomor = `B.${parseInt(baseNumberSk) + 1}/Un.13/FST/PP.00.9/${skMonth}/${skYear}`;
-    console.error("Error parsing SK number for increment, using default fallback:", error);
+  } else {
+    // Default
+    skPengujiNomor = `B.${baseNumberSk}/Un.13/FST/PP.00.9/${skMonth}/${skYear}`;
+  }
+
+  // Parse untuk mendapatkan parsedSkNumber jika belum ada
+  if (parsedSkNumber === null) {
+    try {
+      const skNomorParts = skPengujiNomor.split('/');
+      const basePart = skNomorParts[0];
+      const match = basePart.match(/^([A-Za-z]+\.?)([\d]+)$/);
+      if (match) {
+        parsedSkNumber = parseInt(match[2]);
+        skPrefix = match[1];
+        skBaseParts = skNomorParts.slice(1, -2).join('/');
+      }
+    } catch (e) {
+      console.error("Error parsing SK number for increment:", e);
+    }
+  }
+
+  // Hitung Surat Undangan (SK + 1)
+  let suratUndanganNomor: string;
+  if (parsedSkNumber !== null && !isNaN(parsedSkNumber)) {
+    const nextInt = parsedSkNumber + 1; // Increment by 1
+    suratUndanganNomor = `${skPrefix}${nextInt}/${skBaseParts}/${skMonth}/${skYear}`;
+  } else {
+    suratUndanganNomor = `B.${baseNumberInt + 1}/Un.13/FST/PP.00.9/${skMonth}/${skYear}`;
   }
 
   const suratDate = skDate;
