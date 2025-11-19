@@ -294,7 +294,7 @@ export default async function MahasiswaDashboardPage() {
         {
           latestProposalSubmission?.status === 'DITOLAK_ADMIN' ? (
             <div className="p-4 bg-red-50 border-l-4 border-red-400 rounded-r-lg">
-              <h3 className="text-md font-bold text-red-800">Pengajuan Proposal Perlu Direvisi</h3>
+              <h3 className="text-md font-bold text-red-800">Pengajuan Seminar Proposal Perlu Direvisi</h3>
               <div className="mt-2 text-sm text-red-700">
                 <p><strong>Catatan dari Admin:</strong> {latestProposalSubmission.catatan || 'Tidak ada catatan.'}</p>
               </div>
@@ -306,7 +306,7 @@ export default async function MahasiswaDashboardPage() {
             
             <div className="p-4 bg-green-50 border-l-4 border-green-400 rounded-r-lg">
               <h3 className="text-md font-bold text-green-800">Proposal Disetujui!</h3>
-              <p className="mt-1 text-sm text-green-700">Melakukan seminar proposal sesuai dengan jadwal yang telah ditetapkan.</p>
+              <p className="mt-1 text-sm text-green-700">Silahkan Melakukan seminar proposal sesuai dengan jadwal yang telah ditetapkan.</p>
 
               {isSidangScheduled && (
                 <div className="mt-4 text-sm text-green-900 space-y-3">
@@ -346,7 +346,7 @@ export default async function MahasiswaDashboardPage() {
            
             <div className="text-center py-10">
               <FiClock className="mx-auto h-12 w-12 text-yellow-500" />
-              <h3 className="mt-2 text-lg font-medium text-gray-900">Pengajuan Proposal Sedang Diproses</h3>
+              <h3 className="mt-2 text-lg font-medium text-gray-900">Pengajuan Seminar Proposal Sedang Diproses</h3>
               <p className="mt-1 text-sm text-gray-500">Silakan tunggu verifikasi dokumen Anda.</p>
             </div>
           ) : (
@@ -382,8 +382,8 @@ export default async function MahasiswaDashboardPage() {
            
             <div className="p-4 bg-green-100 border-l-4 border-green-500 rounded-r-lg">
               <h3 className="text-md font-bold text-green-900">Pengajuan Sidang Skripsi Disetujui!</h3>
-              <p className="mt-1 text-sm text-green-800">Semua tahap skripsi pengajuan skripsi telah selesai</p>
-              <p className="mt-2 text-sm text-green-800">Pengajuan Skripsi Selesai.</p>
+              <p className="mt-1 text-sm text-green-800">Semua tahap  pengajuan sidang skripsi telah selesai</p>
+              <p className="mt-2 text-sm text-green-800">Pengajuan Sidanga Skripsi Selesai.</p>
 
               {isHasilScheduled && (
                 <div className="mt-4 text-sm text-green-900 space-y-3">

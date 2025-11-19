@@ -1,6 +1,6 @@
 import {
     Home, Edit, Layers, User, Archive,
-    ClipboardCheck, Layers2, Layers3, Upload, UserPlus, UserCheck
+    ClipboardCheck, Layers2, Layers3, Upload, UserPlus
 } from "lucide-react";
 
 export type SubMenuItem = {

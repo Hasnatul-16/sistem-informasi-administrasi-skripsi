@@ -50,8 +50,8 @@ const isHoliday = (date: Date): boolean => {
 
 // Fungsi untuk menghitung tanggal SK berdasarkan jadwal sidang (H-1, bukan tanggal merah, sabtu, atau minggu)
 const getSkDateFromSeminarSchedule = (seminarDate: Date): Date => {
-  let skDate = new Date(seminarDate);
-  skDate.setDate(skDate.getDate() - 1); 
+  const skDate = new Date(seminarDate);
+  skDate.setDate(skDate.getDate() - 1);
 
   while (isHoliday(skDate) || skDate.getDay() === 0 || skDate.getDay() === 6) {
     skDate.setDate(skDate.getDate() - 1);

@@ -347,7 +347,7 @@ export default function KaprodiHasilTable({ initialSeminarHasil, lecturers }: Ka
                                                         </>
                                                     ) : (
                                                         <>
-                                                            <FiDownload size={14} /> Unduh
+                                                            <FiDownload size={14} /> Unduh Berita Acara
                                                         </>
                                                     )}
                                                 </button>

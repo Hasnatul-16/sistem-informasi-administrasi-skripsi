@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { Jurusan } from '@prisma/client';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import {
     FiEye, FiX, FiUsers, FiActivity, FiLoader,
-    FiSearch, FiAlertTriangle, FiHash, FiUser, FiSettings
+    FiSearch, FiAlertTriangle, FiUser, FiSettings
 } from 'react-icons/fi';
 
 type DosenStat = {
@@ -87,7 +87,7 @@ export default function PembimbingStatsClient({
         }));
     };
 
-    const fetchTableData = async () => {
+    const fetchTableData = useCallback(async () => {
         setIsTableLoading(true);
         setError(null);
         try {
@@ -99,10 +99,10 @@ export default function PembimbingStatsClient({
             if (filters.search) {
                 params.append('search', filters.search);
             }
-            
+
             // API-nya sama, kita panggil /api/dosen
             const res = await fetch(`/api/dosen?${params.toString()}`);
-            
+
             if (!res.ok) {
                 const errorData = await res.json();
                 throw new Error(errorData.details || errorData.message || 'Gagal memuat data tabel dosen.');
@@ -118,7 +118,7 @@ export default function PembimbingStatsClient({
         } finally {
             setIsTableLoading(false);
         }
-    };
+    }, [filters]);
 
     const handleOpenDetail = async (dosen: DosenStat) => {
         setIsModalOpen(true);
@@ -172,7 +172,7 @@ export default function PembimbingStatsClient({
         return () => {
             clearTimeout(handler);
         };
-    }, [filters]); 
+    }, [fetchTableData]);
 
 
     const formatDate = (date: Date | string) => {

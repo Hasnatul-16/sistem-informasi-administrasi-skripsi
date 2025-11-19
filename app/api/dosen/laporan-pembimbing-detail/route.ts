@@ -47,7 +47,15 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'Dosen tidak ditemukan.' }, { status: 404 });
     }
 
-    let riwayatData: any[] = [];
+    type RiwayatItem = {
+      mahasiswa: string;
+      nim: string;
+      judul: string;
+      tanggal: Date;
+      role: string;
+    };
+
+    let riwayatData: RiwayatItem[] = [];
 
     if (role === 'pembimbing') {
 
@@ -83,10 +91,6 @@ export async function GET(req: Request) {
         tanggal: j.tanggal,
         role: j.pembimbing1 === dosen.nama ? 'Pembimbing 1' : 'Pembimbing 2'
       }));
-
-      const totalPembimbing1 = riwayatData.filter(r => r.role === 'Pembimbing 1').length;
-      const totalPembimbing2 = riwayatData.filter(r => r.role === 'Pembimbing 2').length;
-      const totalBimbingan = riwayatData.length;
     }
 
     let logoDataUri = '';

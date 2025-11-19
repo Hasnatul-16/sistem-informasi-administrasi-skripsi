@@ -155,7 +155,6 @@ export async function PATCH(
             const month = (today.getMonth() + 1).toString().padStart(2, '0');
             const year = today.getFullYear();
 
-            const skPrefixInt = parseInt(skPengujiPrefix);
             const undanganPrefixInt = parseInt(undanganPengujiPrefix);
             const munaqasahPrefix = (undanganPrefixInt + 1).toString();
 

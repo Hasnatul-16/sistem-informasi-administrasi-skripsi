@@ -22,7 +22,8 @@ export default function SeminarHasilActionAdmin({ submission }: { submission: Se
 
     const showSkUjianInput = async () => {
         const { value: skUjianPrefix } = await MySwal.fire({
-            title: "Masukkan angka awal pada nomor sk  (misalnya : B.XXX/Un.13/FST/PP.00.9/08/2025 )",
+             title: "Nomor SK Skripsi",
+            text: "Masukkan angka awal pada nomor sk  (misalnya : B.XXX/Un.13/FST/PP.00.9/08/2025 )",
             input: "text",
             inputPlaceholder: "Masukkan angka unik (misal: 793)",
             inputAttributes: { "aria-label": "Nomor urut Surat Ujian" },
@@ -143,16 +144,15 @@ export default function SeminarHasilActionAdmin({ submission }: { submission: Se
 
 
     return (
-        <div className="flex-col sm:flex-row  justify-between items-center gap-4 pt-6 mt-6 border-t">
-          
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6 mt-6 border-t">
+
             <button
-                onClick={() => router.back()} 
+                onClick={() => router.back()}
                className="inline-flex items-center justify-center gap-2 py-2 px-5 bg-gray-200 text-gray-800 rounded-md font-semibold hover:bg-gray-300 transition-colors w-full sm:w-auto"
             >
                 <FiArrowLeft /> Kembali
             </button>
 
-           
             <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
                 <button
                     onClick={() => handleAction('REJECT')}
@@ -162,7 +162,7 @@ export default function SeminarHasilActionAdmin({ submission }: { submission: Se
                     {isLoading ? <FiClock className='animate-spin' /> : <FiXCircle />} Tolak & Kembalikan
                 </button>
                 <button
-                    onClick={() => handleAction('VERIFY')} 
+                    onClick={() => handleAction('VERIFY')}
                     disabled={isLoading}
                      className="inline-flex items-center justify-center gap-2 py-2 px-5 bg-blue-600 text-white rounded-md font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-wait w-full sm:w-auto"
                 >

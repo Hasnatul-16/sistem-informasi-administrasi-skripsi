@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import type { Jurusan, Status } from "@prisma/client";
 import {
   FiSearch,
@@ -10,7 +10,6 @@ import {
   FiX,
   FiUser,
   FiHash,
-  FiCode,
   FiFileText,
 } from "react-icons/fi";
 import Swal from "sweetalert2";
@@ -87,13 +86,6 @@ const ALL_JURUSAN: Jurusan[] = ["SISTEM_INFORMASI", "MATEMATIKA"];
 const formatJurusan = (jurusan: Jurusan) => {
   return jurusan.split("_").map((w) => w.charAt(0) + w.slice(1).toLowerCase()).join(" ");
 };
-
-
-const getStatusColor = (status: Status | null) => {
-  if (!status) return "text-gray-500";
-  if (status === "DISETUJUI") return "text-green-600 font-semibold cursor-pointer hover:text-green-800";
-  return "text-gray-500";
-};
 export default function AdminUploadSKClient() {
   const [data, setData] = useState<MahasiswaUploadData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -109,9 +101,8 @@ export default function AdminUploadSKClient() {
 
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
@@ -126,12 +117,11 @@ export default function AdminUploadSKClient() {
     } finally {
       setIsLoading(false);
     }
-  };
-
+  }, [selectedJurusan]);
 
   useEffect(() => {
     fetchData();
-  }, [selectedJurusan]);
+  }, [fetchData]);
   const filtered = useMemo(
     () =>
       data
@@ -180,7 +170,6 @@ export default function AdminUploadSKClient() {
 
       setUploadModal({ isOpen: false, mahasiswa: null, type: null });
       setUploadFile(null);
-      setIsDragging(false);
       fetchData();
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Error";
@@ -190,74 +179,49 @@ export default function AdminUploadSKClient() {
     }
   };
 
-  const handleDragEnter = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(true);
-  };
 
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-      const file = files[0];
-      if (file.type === "application/pdf") {
-        setUploadFile(file);
-      } else {
-        MySwal.fire({ icon: "warning", title: "File tidak valid", text: "Hanya file PDF yang diterima" });
-      }
-    }
-  };
 
   return (
     <div className="space-y-4 sm:space-y-6">
     
       <div className="bg-white p-3 sm:p-6 rounded-lg shadow-md border">
         <div className="bg-gradient-to-r from-blue-600 to-cyan-500 p-3 sm:p-4 rounded-lg shadow-md flex flex-col gap-3 sm:gap-4">
-       
-          <div className="flex flex-col w-full sm:w-auto">
-            <label className="text-xs sm:text-sm font-semibold text-white mb-2">
-              Filter Jurusan
-            </label>
-            <div className="flex flex-wrap items-center gap-2">
-              {ALL_JURUSAN.map((j) => (
-                <button
-                  key={j}
-                  onClick={() => setSelectedJurusan(j)}
-                  className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold rounded-full transition ${
-                    selectedJurusan === j
-                      ? "bg-white text-blue-600 shadow-md"
-                      : "bg-white/20 text-white hover:bg-white/30"
-                  }`}
-                >
-                  {formatJurusan(j)}
-                </button>
-              ))}
-            </div>
-          </div>
 
-          <div className="relative w-full sm:w-auto sm:self-end">
-            <input
-              type="text"
-              placeholder="Cari nama atau NIM..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full sm:w-64 bg-white/30 text-white placeholder-white/70 rounded-full py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-white/50 text-xs sm:text-sm"
-            />
-            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-white/70 h-4 w-4 sm:h-5 sm:w-5" />
+          {/* Filter Jurusan on left, Search on right - Mobile Stacked, Desktop Horizontal */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3 sm:gap-4">
+            {/* Left side: Filter Jurusan */}
+            <div className="flex flex-col w-full sm:w-auto">
+              <label className="text-xs sm:text-sm font-semibold text-white mb-2">
+                Filter Jurusan
+              </label>
+              <div className="flex flex-wrap items-center gap-2">
+                {ALL_JURUSAN.map((j) => (
+                  <button
+                    key={j}
+                    onClick={() => setSelectedJurusan(j)}
+                    className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold rounded-full transition ${
+                      selectedJurusan === j
+                        ? "bg-white text-blue-600 shadow-md"
+                        : "bg-white/20 text-white hover:bg-white/30"
+                    }`}
+                  >
+                    {formatJurusan(j)}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Right side: Search */}
+            <div className="relative w-full sm:w-auto">
+              <input
+                type="text"
+                placeholder="Cari nama atau NIM..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full sm:w-64 bg-white/30 text-white placeholder-white/70 rounded-full py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-white/50 text-xs sm:text-sm"
+              />
+              <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-white/70 h-4 w-4 sm:h-5 sm:w-5" />
+            </div>
           </div>
         </div>
       </div>
@@ -423,7 +387,6 @@ export default function AdminUploadSKClient() {
                   onClick={() => {
                     setUploadModal({ isOpen: false, mahasiswa: null, type: null });
                     setUploadFile(null);
-                    setIsDragging(false);
                   }}
                   className="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200"
                 >

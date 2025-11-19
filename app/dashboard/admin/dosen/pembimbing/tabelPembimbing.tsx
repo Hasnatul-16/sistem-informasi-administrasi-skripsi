@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { Jurusan } from '@prisma/client';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 
@@ -182,7 +182,7 @@ export default function PembimbingStatsClient({
     };
 
 
-    const fetchTableData = async () => {
+    const fetchTableData = useCallback(async () => {
         setIsTableLoading(true);
         setError(null);
         try {
@@ -191,13 +191,13 @@ export default function PembimbingStatsClient({
                 semester: filters.semester,
                 jurusan: filters.jurusan,
             });
-        
+
             if (filters.search) {
                 params.append('search', filters.search);
             }
-            
+
             const res = await fetch(`/api/dosen?${params.toString()}`);
-            
+
             if (!res.ok) {
                 const errorData = await res.json();
                 throw new Error(errorData.details || errorData.message || 'Gagal memuat data tabel dosen dosen.');
@@ -214,7 +214,7 @@ export default function PembimbingStatsClient({
         } finally {
             setIsTableLoading(false);
         }
-    };
+    }, [filters]);
 
     const handleOpenDetail = async (dosen: DosenStat) => {
         setIsModalOpen(true);
@@ -265,12 +265,12 @@ export default function PembimbingStatsClient({
     useEffect(() => {
         const handler = setTimeout(() => {
             fetchTableData();
-        }, 500); 
+        }, 500);
 
         return () => {
             clearTimeout(handler);
         };
-    }, [filters]); 
+    }, [fetchTableData]);
 
     const formatDate = (date: Date | string) => {
         const dateObj = typeof date === 'string' ? new Date(date) : date;

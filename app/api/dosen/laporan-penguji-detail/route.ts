@@ -5,6 +5,15 @@ import { Jurusan, Status } from '@prisma/client';
 import fs from 'fs';
 import path from 'path';
 
+type RiwayatItem = {
+  mahasiswa: string;
+  nim: string;
+  judul: string;
+  tanggal: Date;
+  jenis: string;
+  role?: string;
+};
+
 const formatJurusanToProdi = (jurusanEnum: Jurusan): string => {
   return jurusanEnum.toString().split('_').map(word =>
     word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
@@ -47,7 +56,7 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'Dosen tidak ditemukan.' }, { status: 404 });
     }
 
-    let riwayatData: any[] = [];
+    let riwayatData: RiwayatItem[] = [];
 
     if (role === 'penguji') {
      

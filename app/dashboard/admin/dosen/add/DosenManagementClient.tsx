@@ -189,50 +189,53 @@ export default function DosenManagementClient() {
         {/* --- FILTER SECTION RESPONSIF --- */}
         <div className="bg-gradient-to-r from-blue-600 to-cyan-500 p-3 sm:p-4 rounded-lg shadow-md flex flex-col gap-3 sm:gap-4">
 
-          {/* Filter Jurusan + Tambah Dosen - Mobile Stacked, Desktop Horizontal */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-end gap-3 sm:gap-4">
-            {/* Filter Jurusan Buttons */}
-            <div className="flex flex-col w-full sm:w-auto">
-              <label className="text-xs sm:text-sm font-semibold text-white mb-2">
-                Filter Jurusan
-              </label>
-              <div className="flex flex-wrap items-center gap-2">
-                {ALL_JURUSAN.map(j => (
-                  <button
-                    key={j}
-                    onClick={() => setSelectedJurusan(j)}
-                    className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold rounded-full transition duration-150 whitespace-nowrap ${
-                      selectedJurusan === j
-                        ? 'bg-white text-blue-600 shadow-md'
-                        : 'bg-white/20 text-white hover:bg-white/30'
-                    }`}
-                  >
-                    {j.replace('_', ' ')}
-                  </button>
-                ))}
+          {/* Filter Jurusan + Tambah Dosen on left, Search on right - Mobile Stacked, Desktop Horizontal */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3 sm:gap-4">
+            {/* Left side: Filter Jurusan + Tambah Dosen */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-end gap-3 sm:gap-4">
+              {/* Filter Jurusan Buttons */}
+              <div className="flex flex-col w-full sm:w-auto">
+                <label className="text-xs sm:text-sm font-semibold text-white mb-2">
+                  Filter Jurusan
+                </label>
+                <div className="flex flex-wrap items-center gap-2">
+                  {ALL_JURUSAN.map(j => (
+                    <button
+                      key={j}
+                      onClick={() => setSelectedJurusan(j)}
+                      className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold rounded-full transition duration-150 whitespace-nowrap ${
+                        selectedJurusan === j
+                          ? 'bg-white text-blue-600 shadow-md'
+                          : 'bg-white/20 text-white hover:bg-white/30'
+                      }`}
+                    >
+                      {j.replace('_', ' ')}
+                    </button>
+                  ))}
+                </div>
               </div>
+
+              {/* Tambah Dosen Button */}
+              <button
+                onClick={openAddModal}
+                className="flex items-center justify-center gap-2 bg-white text-blue-600 px-3 sm:px-4 py-2 rounded-full hover:bg-gray-100 transition duration-150 font-semibold text-xs sm:text-sm w-full sm:w-auto"
+              >
+                <FiPlus className="h-4 w-4 flex-shrink-0" />
+                <span className="break-words">Tambah Dosen Baru</span>
+              </button>
             </div>
 
-            {/* Tambah Dosen Button */}
-            <button
-              onClick={openAddModal}
-              className="flex items-center justify-center gap-2 bg-white text-blue-600 px-3 sm:px-4 py-2 rounded-full hover:bg-gray-100 transition duration-150 font-semibold text-xs sm:text-sm w-full sm:w-auto"
-            >
-              <FiPlus className="h-4 w-4 flex-shrink-0" />
-              <span className="break-words">Tambah Dosen Baru</span>
-            </button>
-          </div>
-
-          {/* Search - Full Width di Mobile, Auto Width di Desktop */}
-          <div className="relative w-full sm:w-auto sm:self-end">
-            <input
-              type="text"
-              placeholder="Cari berdasarkan nama atau NIP..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full sm:w-64 bg-white/30 text-white placeholder-white/70 rounded-full py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-white/50 font-sans text-xs sm:text-sm"
-            />
-            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-white/70 h-4 w-4 sm:h-5 sm:w-5" />
+            {/* Right side: Search */}
+            <div className="relative w-full sm:w-auto">
+              <input
+                type="text"
+                placeholder="Cari berdasarkan nama atau NIP..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full sm:w-64 bg-white/30 text-white placeholder-white/70 rounded-full py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-white/50 font-sans text-xs sm:text-sm"
+              />
+              <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-white/70 h-4 w-4 sm:h-5 sm:w-5" />
+            </div>
           </div>
         </div>
 

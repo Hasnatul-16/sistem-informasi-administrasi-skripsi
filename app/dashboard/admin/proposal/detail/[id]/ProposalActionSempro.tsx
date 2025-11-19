@@ -23,7 +23,7 @@ export default function ProposalActionSempro({ proposal }: { proposal: ProposalW
 
     const showSkPengujiInput = async () => {
         const { value: skPengujiPrefix } = await MySwal.fire({
-            title: "Verifikasi Proposal & Masukkan Nomor SK Penguji",
+            title: "Nomor SK Proposal",
             text: "Masukkan angka awal pada nomor sk  (misalnya : B.XXX/Un.13/FST/PP.00.9/08/2025 )",
             input: "text",
             inputPlaceholder: "Masukkan angka unik (misal: 811)",

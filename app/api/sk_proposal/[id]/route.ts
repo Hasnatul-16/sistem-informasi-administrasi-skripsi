@@ -55,7 +55,7 @@ const isHoliday = (date: Date): boolean => {
 
 // Fungsi Helper untuk mendapatkan tanggal SK (H-1 dari jadwal seminar, bukan tanggal merah)
 const getSkDateFromSeminarSchedule = (jadwalSidang: Date): Date => {
-  let skDate = new Date(jadwalSidang);
+  const skDate = new Date(jadwalSidang);
   skDate.setDate(skDate.getDate() - 1); // Mulai dari H-1
 
   // Jika H-1 adalah tanggal merah, sabtu, atau minggu, mundur ke hari sebelumnya sampai bukan tanggal merah, sabtu, atau minggu
@@ -214,15 +214,6 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   if (proposal.tempat) {
     seminarTempat = proposal.tempat;
   }
-
-  const templateData = {
-    logoDataUri,
-    skPengujiNomor,
-    studentName: student.nama,
-    studentNIM: student.nim,
-    judul: submission.judul,
-
-  };
 
   const html = `<!doctype html>
   <html>
