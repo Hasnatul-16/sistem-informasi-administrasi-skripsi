@@ -796,7 +796,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
               <tr>
                 <td>Lamp</td>
                 <td>:</td>
-                <td>1 (satu) berkas</td>
+                <td>-</td>
               </tr>
               <tr>
                 <td>Hal</td>

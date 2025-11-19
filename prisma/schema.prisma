@@ -73,6 +73,7 @@ model Judul {
 
   pembimbing1          String?        @map("pembimbing1")
   pembimbing2          String?        @map("pembimbing2")
+  file_sk_pembimbing   String?       @map("file_sk_pembimbing")
 
   mahasiswa            Mahasiswa      @relation(fields: [id_mahasiswa], references: [id])
   proposal             Proposal[] 
@@ -97,6 +98,7 @@ model Proposal {
   catatan              String?       @db.Text 
   transkrip            String? 
   tempat               String?
+  file_sk_proposal     String?      @map("file_sk_proposal")
 
   judul                Judul         @relation(fields: [id_judul], references: [id])
 
@@ -122,6 +124,7 @@ model SeminarHasil {
   transkrip          String?
   catatan            String? 
   tempat               String?
+  file_sk_skripsi     String?      @map("file_sk_skripsi")
 
   judul              Judul         @relation(fields: [id_judul], references: [id])
 

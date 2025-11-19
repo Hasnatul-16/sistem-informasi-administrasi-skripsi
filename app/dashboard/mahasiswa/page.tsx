@@ -27,6 +27,7 @@ type ExtendedProposal = {
   catatan: string | null;
   status_sidang: string | null;
   tempat: string | null;
+  file_sk_proposal: string | null;
 }
 
 type ExtendedSeminarHasil = {
@@ -39,6 +40,7 @@ type ExtendedSeminarHasil = {
   penguji2: string | null;
   jadwal_sidang: Date | null;
   tempat: string | null;
+  file_sk_skripsi: string | null;
 }
 
 async function getMahasiswaData() {
@@ -66,6 +68,16 @@ async function getMahasiswaData() {
   const latestJudulSubmission = await prisma.judul.findFirst({
     where: { id_mahasiswa: studentProfile.id },
     orderBy: { tanggal: 'desc' },
+      select: {
+      id: true,
+      tanggal: true,
+      judul: true,
+      status: true,
+      catatan: true,
+      pembimbing1: true,
+      pembimbing2: true,
+      file_sk_pembimbing: true,
+    }
   });
 
   const latestProposalSubmission = await prisma.proposal.findFirst({
@@ -80,8 +92,9 @@ async function getMahasiswaData() {
       sk_penguji: true,
       catatan: true,
       tempat: true,
+      file_sk_proposal: true,
     }
-  }) as ExtendedProposal | null;
+  }) 
 
   const latestSeminarHasilSubmission = await prisma.seminarHasil.findFirst({
     where: { judul: { id_mahasiswa: studentProfile.id } },
@@ -95,6 +108,7 @@ async function getMahasiswaData() {
       penguji2: true, 
       jadwal_sidang: true, 
       tempat: true,
+      file_sk_skripsi: true,
     }
   }) as ExtendedSeminarHasil | null;
 
@@ -242,9 +256,22 @@ export default async function MahasiswaDashboardPage() {
               <p className="font-semibold mt-2">Dosen Pembimbing:</p>
               <ul className="list-disc list-inside mt-1 space-y-1">
                 <li><strong>Pembimbing 1:</strong> {latestJudulSubmission.pembimbing1}</li>
-                <li><strong>Pembimbing 2:</strong> {latestJudulSubmission.pembimbing2}</li>
-              </ul><br />
-              <p> Silahkan Hubungi Dosen Pembimbing untuk Memulai Proses Bimbingan </p>
+                  <li><strong>Pembimbing 2:</strong> {latestJudulSubmission.pembimbing2}</li><br />
+                <p> Silahkan Hubungi Dosen Pembimbing untuk Memulai Proses Bimbingan </p>
+              </ul>
+              
+              {latestJudulSubmission.file_sk_pembimbing && (
+                <div className="mt-4">
+                  <a
+                    href={latestJudulSubmission.file_sk_pembimbing}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700"
+                  >
+                    SK Pembimbing
+                  </a>
+                </div>
+              )}
             </div>
           </div>
         ) : (
@@ -292,6 +319,18 @@ export default async function MahasiswaDashboardPage() {
                   <p className="mt-1 text-sm text-green-700 ">Silahkan Hubungi Dosen Penguji.</p>
                 </div>
               )}
+               {latestProposalSubmission.file_sk_proposal && (
+                <div className="mt-4">
+                  <a
+                    href={latestProposalSubmission.file_sk_proposal}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700"
+                  >
+                    SK Proposal
+                  </a>
+                </div>
+              )}
             </div>
           ) : (latestJudulSubmission?.status === 'DISETUJUI' && !latestProposalSubmission) ? (
           
@@ -323,7 +362,7 @@ export default async function MahasiswaDashboardPage() {
 
       <hr className="border-gray-200" />
 
-      <div className="bg-white p-6 rounded-lg shadow-sm border">
+      <div className="bg-green p-6 rounded-lg shadow-sm border">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">Status Pengajuan Sidang Skripsi</h2>
           {latestSeminarHasilSubmission && isSeminarHasilApproved ? (
@@ -348,16 +387,30 @@ export default async function MahasiswaDashboardPage() {
 
               {isHasilScheduled && (
                 <div className="mt-4 text-sm text-green-900 space-y-3">
-                  <p className="font-semibold text-base text-gray-800 border-b pb-1">Detail Sidang Skripsi Terakhir</p>
+                  <p className="font-semibold text-base text-green-800 border-b pb-1">Detail Sidang Skripsi Terakhir</p>
                   <p><strong>Jadwal Sidang: </strong>{tanggalSidangHasil}.</p>
                   <p><strong>Tempat: </strong>{latestSeminarHasilSubmission.tempat || 'Belum Ditetapkan'}.</p>
                   <ul className='list-disc list-inside space-y-1'>
                     <li><strong>Penguji 1:</strong> {latestSeminarHasilSubmission.penguji1}</li>
-                    <li><strong>Penguji 2:</strong> {latestSeminarHasilSubmission.penguji2}</li>
+                     <li><strong>Penguji 2:</strong> {latestSeminarHasilSubmission.penguji2}</li><br />
+                    <p className="mt-1 text-sm text-green-700 ">Silahkan Hubungi Dosen Penguji.</p>
                   </ul>
-                <p className="mt-1 text-sm text-green-700 ">Silahkan Hubungi Dosen Penguji.</p>
+                
+                  {latestSeminarHasilSubmission.file_sk_skripsi && (
+                <div className="mt-4">
+                  <a
+                    href={latestSeminarHasilSubmission.file_sk_skripsi}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700"
+                  >
+                    SK Skripsi
+                  </a>
                 </div>
               )}
+                </div>
+              )}
+              
             </div>
           ) : isSeminarHasilSubmitted && pendingStatuses.includes(latestSeminarHasilSubmission.status as Status) ? (
             

@@ -1,6 +1,6 @@
 import {
     Home, Edit, Layers, User, Archive,
-    ClipboardCheck, Layers2Icon, Layers3, LayersIcon
+    ClipboardCheck, Layers2, Layers3, Upload, UserPlus, UserCheck
 } from "lucide-react";
 
 export type SubMenuItem = {
@@ -22,7 +22,7 @@ export const menuItemsByRole: { [key: string]: MenuItem[] } = {
     { title: "Dashboard", url: "/dashboard/mahasiswa", icon: Home },
     { title: "Pengajuan Judul", url: "/dashboard/mahasiswa/pengajuan-judul", icon: Edit },
     { title: "Seminar Proposal", url: "/dashboard/mahasiswa/proposal", icon: Layers },
-    { title: "Sidang Skripsi", url: "/dashboard/mahasiswa/seminar-hasil", icon: LayersIcon},
+    { title: "Sidang Skripsi", url: "/dashboard/mahasiswa/seminar-hasil", icon: Layers},
   ],
 
   
@@ -55,7 +55,8 @@ export const menuItemsByRole: { [key: string]: MenuItem[] } = {
       ],
     },
     { title: "Arsip ", url: "/dashboard/admin/arsip", icon: Archive },
-    { title: "Manajemen Dosen", url: "/dashboard/admin/dosen/add", icon: Archive },
+    { title: "Manajemen Dosen", url: "/dashboard/admin/dosen/add", icon: UserPlus },
+     { title: "Upload SK", url: "/dashboard/admin/upload-sk", icon: Upload },
     { 
       title: "Tabel Dosen", 
       icon: User,
@@ -70,7 +71,7 @@ export const menuItemsByRole: { [key: string]: MenuItem[] } = {
   kaprodi: [
     { title: "Dashboard", url: "/dashboard/kaprodi", icon: Home },
     { title: "Pengajuan Judul", url: "/dashboard/kaprodi/pengajuan_judul", icon: Edit },
-    { title: "Seminar Proposal", url: "/dashboard/kaprodi/proposal", icon:  Layers2Icon },
+    { title: "Seminar Proposal", url: "/dashboard/kaprodi/proposal", icon:  Layers2 },
     { title: "Sidang Skripsi", url: "/dashboard/kaprodi/seminar-hasil", icon: Layers },
     { title: "Dosen Pembimbing", url: "/dashboard/kaprodi/dosen/pembimbing",icon: User },
     { title: "Dosen penguji", url: "/dashboard/kaprodi/dosen", icon: Layers },

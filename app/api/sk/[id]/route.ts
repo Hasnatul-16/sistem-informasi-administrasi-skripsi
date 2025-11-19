@@ -234,7 +234,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
         .tembusan ol { margin: 0; padding-left: 20px; }
         .tembusan li { margin-bottom: 2px; }
 
-        /* === Halaman 3: Lampiran === */
+     
         .lampiran-header p {
           margin: 0;
           line-height: 1.15;
@@ -655,7 +655,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
             <tr>
               <td>Lamp</td>
               <td>:</td>
-              <td>1 (satu) berkas</td>
+              <td>-</td>
             </tr>
             <tr>
               <td>Hal</td>
