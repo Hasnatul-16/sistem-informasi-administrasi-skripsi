@@ -124,6 +124,7 @@ const StatusBadge = ({ status }: { status: Status | 'DIJADWALKAN' | 'MENUNGGU_PE
     DITOLAK_ADMIN: { text: 'Ditolak Admin', icon: FiXCircle, color: "bg-red-100 text-red-800" },
     DIPROSES_KAPRODI: { text: 'Diproses Kaprodi', icon: FiClock, color: "bg-purple-100 text-purple-800" },
     DISETUJUI: { text: 'Disetujui', icon: FiCheckCircle, color: "bg-green-500 text-white" },
+    LULUS_SKRIPSI: { text: 'selesai pengajuan skripsi', icon: FiCheckCircle, color: "bg-green-500 text-white" },
   } as const;
 
   const config = statusConfig[status as keyof typeof statusConfig] || { text: status.replace('_', ' '), icon: FiAlertCircle, color: "bg-gray-100 text-gray-800" };
@@ -383,7 +384,7 @@ export default async function MahasiswaDashboardPage() {
             <div className="p-4 bg-green-100 border-l-4 border-green-500 rounded-r-lg">
               <h3 className="text-md font-bold text-green-900">Pengajuan Sidang Skripsi Disetujui!</h3>
               <p className="mt-1 text-sm text-green-800">Semua tahap  pengajuan sidang skripsi telah selesai</p>
-              <p className="mt-2 text-sm text-green-800">Pengajuan Sidanga Skripsi Selesai.</p>
+              <p className="mt-2 text-sm text-green-800">Pengajuan Sidang Skripsi Selesai.</p>
 
               {isHasilScheduled && (
                 <div className="mt-4 text-sm text-green-900 space-y-3">
