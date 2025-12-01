@@ -195,7 +195,7 @@ export default function SeminarProposalForm({ judulId, judulData }: SeminarPropo
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 min-h-[100px] text-gray-800"
                 />
               </div>
-              <div className="block text-sm font-small text-gray-500 mb-5 ">Note: Jika ada Perubahan judul setelah anda melakukan bimbingan ,mohon untuk menginputkan ulang judul atau topik  pada kolom di atas </div>
+              <div className="block text-sm font-small text-gray-500 mb-5 ">Note: Jika ada Perubahan judul setelah anda melakukan bimbingan, mohon untuk menginputkan ulang judul atau topik  pada kolom di atas </div>
 
 
                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-dashed border-gray-300">

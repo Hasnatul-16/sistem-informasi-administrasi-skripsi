@@ -77,6 +77,38 @@ export async function PATCH(
                 }, { status: 409 }); 
             }
 
+             const existingSKInSeminarHasil = await prisma.seminarHasil.findFirst({
+                where: {
+                    OR: [
+                        { sk_penguji: { startsWith: `B.${skPengujiPrefix}/` } },
+                        { undangan_penguji: { startsWith: `B.${skPengujiPrefix}/` } },
+                        { undangan_munaqasah: { startsWith: `B.${skPengujiPrefix}/` } }
+                    ]
+                }
+            });
+
+            if (existingSKInSeminarHasil) {
+                return NextResponse.json({
+                    message: `Nomor urut (${skPengujiPrefix}) sudah digunakan di SK sidang skripsi. Harap gunakan nomor urut yang berbeda.`
+                }, { status: 409 });
+            }
+
+            const existingSKJudul = await prisma.judul.findFirst({
+                where: {
+                    OR: [
+                        { sk_pembimbing: { startsWith: `B.${skPengujiPrefix}/` } },
+                        { no_undangan: { startsWith: `B.${skPengujiPrefix}/` } },
+                    
+                    ]
+                }
+            });
+
+            if (existingSKJudul) {
+                return NextResponse.json({
+                    message: `Nomor urut (${skPengujiPrefix}) sudah digunakan di Sk Pembimbing. Harap gunakan nomor urut yang berbeda.`
+                }, { status: 409 });
+            }
+
             dataToUpdate.sk_penguji = fullSkPenguji;
 
                let fullUndanganPenguji = '';
@@ -132,6 +164,38 @@ export async function PATCH(
             if (existingAsSkPenguji) {
                 return NextResponse.json({ 
                     message: `Nomor urut (${undanganPrefix}) sudah terdaftar sebagai SK Penguji di dalam sistem. Harap gunakan nomor urut yang berbeda.` 
+                }, { status: 409 });
+            }
+
+             const existingUndanganInSeminarHasil = await prisma.seminarHasil.findFirst({
+                where: {
+                    OR: [
+                        { sk_penguji: { startsWith: `B.${undanganPrefix}/` } },
+                        { undangan_penguji: { startsWith: `B.${undanganPrefix}/` } },
+                        { undangan_munaqasah: { startsWith: `B.${undanganPrefix}/` } }
+                    ]
+                }
+            });
+
+            if (existingUndanganInSeminarHasil) {
+                return NextResponse.json({
+                    message: `Nomor urut (${undanganPrefix}) sudah digunakan di Sk pada sidang skripsi. Harap gunakan nomor urut yang berbeda.`
+                }, { status: 409 });
+            }
+
+            const existingUndanganinjudul = await prisma.judul.findFirst({
+                where: {
+                    OR: [
+                        { sk_pembimbing: { startsWith: `B.${undanganPrefix}/` } },
+                        { no_undangan: { startsWith: `B.${undanganPrefix}/` } },
+                       
+                    ]
+                }
+            });
+
+            if (existingUndanganinjudul) {
+                return NextResponse.json({
+                    message: `Nomor urut (${undanganPrefix}) sudah digunakan di Sk pembimbing. Harap gunakan nomor urut yang berbeda.`
                 }, { status: 409 });
             }
 

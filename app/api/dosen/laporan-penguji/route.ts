@@ -277,7 +277,7 @@ export async function GET(req: Request) {
           </table>
           <div class="signature-block-surat">
               <p>Padang, ${new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
-              <p>Ketua Jurusan ${jurusanFormatted}</p>
+              <p>Ketua Prodi ${jurusanFormatted}</p>
            <div class="sig-space">
            </div>
               <p class="sig-name">..................................</p>

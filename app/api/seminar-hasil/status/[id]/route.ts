@@ -128,6 +128,97 @@ export async function PATCH(
                     }, { status: 409 });
                 }
 
+                const existingSKInProposal = await prisma.proposal.findFirst({
+                where: {
+                    OR: [
+                        { sk_penguji: { startsWith: `B.${skPengujiPrefix}/` } },
+                        { undangan_penguji: { startsWith: `B.${skPengujiPrefix}/` } },
+                    ]
+                }
+            });
+
+            if (existingSKInProposal) {
+                return NextResponse.json({
+                    message: `Nomor urut (${skPengujiPrefix}) sudah digunakan di SK Proposal. Harap gunakan nomor urut yang berbeda.`
+                }, { status: 409 });
+            }
+
+            const existingSKJudul = await prisma.judul.findFirst({
+                where: {
+                    OR: [
+                        { sk_pembimbing: { startsWith: `B.${skPengujiPrefix}/` } },
+                        { no_undangan: { startsWith: `B.${skPengujiPrefix}/` } },
+                    ]
+                }
+            });
+
+            if (existingSKJudul) {
+                return NextResponse.json({
+                    message: `Nomor urut (${skPengujiPrefix}) sudah digunakan di Sk Pembimbing. Harap gunakan nomor urut yang berbeda.`
+                }, { status: 409 });
+            }
+
+            const existingUndanganInProposal = await prisma.proposal.findFirst({
+                where: {
+                    OR: [
+                        { sk_penguji: { startsWith: `B.${undanganPrefix}/` } },
+                        { undangan_penguji: { startsWith: `B.${undanganPrefix}/` } },
+                    ]
+                }
+            });
+
+            if (existingUndanganInProposal) {
+                return NextResponse.json({
+                    message: `Nomor urut (${undanganPrefix}) sudah digunakan di SK Proposal. Harap gunakan nomor urut yang berbeda.`
+                }, { status: 409 });
+            }
+
+            const existingUndanganInJudul = await prisma.judul.findFirst({
+                where: {
+                    OR: [
+                        { sk_pembimbing: { startsWith: `B.${undanganPrefix}/` } },
+                        { no_undangan: { startsWith: `B.${undanganPrefix}/` } },
+                    ]
+                }
+            });
+
+            if (existingUndanganInJudul) {
+                return NextResponse.json({
+                    message: `Nomor urut (${undanganPrefix}) sudah digunakan di Sk Pembimbing. Harap gunakan nomor urut yang berbeda.`
+                }, { status: 409 });
+            }
+
+            const existingMunaqasahInProposal = await prisma.proposal.findFirst({
+                where: {
+                    OR: [
+                        { sk_penguji: { startsWith: `B.${munaqasahPrefix}/` } },
+                        { undangan_penguji: { startsWith: `B.${munaqasahPrefix}/` } },
+                    ]
+                }
+            });
+
+            if (existingMunaqasahInProposal) {
+                return NextResponse.json({
+                    message: `Nomor urut (${munaqasahPrefix}) sudah digunakan di SK Proposal. Harap gunakan nomor urut yang berbeda.`
+                }, { status: 409 });
+            }
+
+            const existingMunaqasahInJudul = await prisma.judul.findFirst({
+                where: {
+                    OR: [
+                        { sk_pembimbing: { startsWith: `B.${munaqasahPrefix}/` } },
+                        { no_undangan: { startsWith: `B.${munaqasahPrefix}/` } },
+                    ]
+                }
+            });
+
+            if (existingMunaqasahInJudul) {
+                return NextResponse.json({
+                    message: `Nomor urut (${munaqasahPrefix}) sudah digunakan di Sk Pembimbing. Harap gunakan nomor urut yang berbeda.`
+                }, { status: 409 });
+            }
+
+
                 const fullSkPenguji = `B.${skPengujiPrefix}/Un.13/FST/PP.00.9/${month}/${year}`;
                 const fullUndanganPenguji = `B.${undanganPrefix}/Un.13/FST/PP.00.9/${month}/${year}`;
                 const fullUndanganMunaqasah = `B.${munaqasahPrefix}/Un.13/FST/PP.00.9/${month}/${year}`;
@@ -238,6 +329,104 @@ export async function PATCH(
                     message: `Nomor urut (${munaqasahPrefix}) sudah terdaftar sebagai Undangan Penguji` 
                 }, { status: 409 });
             }
+
+             const existingSKPengujiInProposal = await prisma.proposal.findFirst({
+                where: {
+                    OR: [
+                        { sk_penguji: { startsWith: `B.${skPengujiPrefix}/` } },
+                        { undangan_penguji: { startsWith: `B.${skPengujiPrefix}/` } },
+                    ]
+                }
+            });
+
+            if (existingSKPengujiInProposal) {
+                return NextResponse.json({
+                    message: `Nomor urut (${skPengujiPrefix}) sudah digunakan di SK Proposal. Harap gunakan nomor urut yang berbeda.`
+                }, { status: 409 });
+            }
+
+            // === VALIDASI BARU: Cek apakah prefix SK Penguji sudah digunakan di tabel Judul ===
+            const existingSKPengujiInJudul = await prisma.judul.findFirst({
+                where: {
+                    OR: [
+                        { sk_pembimbing: { startsWith: `B.${skPengujiPrefix}/` } },
+                        { no_undangan: { startsWith: `B.${skPengujiPrefix}/` } },
+                    ]
+                }
+            });
+
+            if (existingSKPengujiInJudul) {
+                return NextResponse.json({
+                    message: `Nomor urut (${skPengujiPrefix}) sudah digunakan di Sk Pembimbing. Harap gunakan nomor urut yang berbeda.`
+                }, { status: 409 });
+            }
+
+            // === VALIDASI BARU: Cek apakah prefix Undangan Penguji sudah digunakan di tabel Proposal ===
+            const existingUndanganInProposal = await prisma.proposal.findFirst({
+                where: {
+                    OR: [
+                        { sk_penguji: { startsWith: `B.${undanganPengujiPrefix}/` } },
+                        { undangan_penguji: { startsWith: `B.${undanganPengujiPrefix}/` } },
+                    ]
+                }
+            });
+
+            if (existingUndanganInProposal) {
+                return NextResponse.json({
+                    message: `Nomor urut (${undanganPengujiPrefix}) sudah digunakan di SK Proposal. Harap gunakan nomor urut yang berbeda.`
+                }, { status: 409 });
+            }
+
+            // === VALIDASI BARU: Cek apakah prefix Undangan Penguji sudah digunakan di tabel Judul ===
+            const existingUndanganInJudul = await prisma.judul.findFirst({
+                where: {
+                    OR: [
+                        { sk_pembimbing: { startsWith: `B.${undanganPengujiPrefix}/` } },
+                        { no_undangan: { startsWith: `B.${undanganPengujiPrefix}/` } },
+                    ]
+                }
+            });
+
+            if (existingUndanganInJudul) {
+                return NextResponse.json({
+                    message: `Nomor urut (${undanganPengujiPrefix}) sudah digunakan di Sk Pembimbing. Harap gunakan nomor urut yang berbeda.`
+                }, { status: 409 });
+            }
+
+            // === VALIDASI BARU: Cek apakah prefix Munaqasah sudah digunakan di tabel Proposal ===
+            const existingMunaqasahInProposal = await prisma.proposal.findFirst({
+                where: {
+                    OR: [
+                        { sk_penguji: { startsWith: `B.${munaqasahPrefix}/` } },
+                        { undangan_penguji: { startsWith: `B.${munaqasahPrefix}/` } },
+                    ]
+                }
+            });
+
+            if (existingMunaqasahInProposal) {
+                return NextResponse.json({
+                    message: `Nomor urut (${munaqasahPrefix}) sudah digunakan di SK Proposal. Harap gunakan nomor urut yang berbeda.`
+                }, { status: 409 });
+            }
+
+            // === VALIDASI BARU: Cek apakah prefix Munaqasah sudah digunakan di tabel Judul ===
+            const existingMunaqasahInJudul = await prisma.judul.findFirst({
+                where: {
+                    OR: [
+                        { sk_pembimbing: { startsWith: `B.${munaqasahPrefix}/` } },
+                        { no_undangan: { startsWith: `B.${munaqasahPrefix}/` } },
+                    ]
+                }
+            });
+
+            if (existingMunaqasahInJudul) {
+                return NextResponse.json({
+                    message: `Nomor urut (${munaqasahPrefix}) sudah digunakan di Sk Pembimbing. Harap gunakan nomor urut yang berbeda.`
+                }, { status: 409 });
+            }
+
+
+
 
             const fullSkPenguji = `B.${skPengujiPrefix}/Un.13/FST/PP.00.9/${month}/${year}`;
             const fullUndanganPenguji = `B.${undanganPengujiPrefix}/Un.13/FST/PP.00.9/${month}/${year}`;

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { BookOpen, ChevronRight, LogOut, User as UserIcon } from "lucide-react";
 import { menuItemsByRole, MenuItem } from "./sidebarConfig";
@@ -41,7 +42,7 @@ export function AppSidebar({ role }: AppSidebarProps) {
         
         <SidebarHeader className="bg-blue-600 p-4">
           <Link href="#" className="flex items-center text-2x1 font-bold text-white">
-            <BookOpen className="h-15 w-10 mr-3" />
+            <Image src="/Logo FST Teks Hitam.png" alt="Logo FST" width={50} height={50} className="mr-3 object-contain" />
             <span>SisAdmin Skripsi</span>
           </Link>
         </SidebarHeader>

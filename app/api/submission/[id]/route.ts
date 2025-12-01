@@ -85,7 +85,7 @@ export async function PATCH(
 
                 if (existingInProposalSK) {
                     return NextResponse.json({
-                        message: `Nomor urut (${skNumberPrefix}) sudah terdaftar sebagai SK Penguji di proposal. Harap gunakan nomor urut yang berbeda.`
+                        message: `Nomor urut (${skNumberPrefix}) sudah terdaftar sebagai SK Penguji di seminar proposal. Harap gunakan nomor urut yang berbeda.`
                     }, { status: 409 }); 
                 }
 
@@ -99,7 +99,7 @@ export async function PATCH(
 
                 if (existingInProposalUndangan) {
                     return NextResponse.json({
-                        message: `Nomor urut (${skNumberPrefix}) sudah terdaftar sebagai Undangan Penguji di proposal. Harap gunakan nomor urut yang berbeda.`
+                        message: `Nomor urut (${skNumberPrefix}) sudah terdaftar sebagai Undangan Penguji di seminar proposal. Harap gunakan nomor urut yang berbeda.`
                     }, { status: 409 }); 
                 }
 
@@ -113,7 +113,7 @@ export async function PATCH(
 
                 if (existingInSeminarHasilSK) {
                     return NextResponse.json({
-                        message: `Nomor urut (${skNumberPrefix}) sudah terdaftar sebagai SK Penguji di seminar hasil. Harap gunakan nomor urut yang berbeda.`
+                        message: `Nomor urut (${skNumberPrefix}) sudah terdaftar sebagai SK Penguji di sidang skripsi. Harap gunakan nomor urut yang berbeda.`
                     }, { status: 409 }); 
                 }
 
@@ -127,8 +127,22 @@ export async function PATCH(
 
                 if (existingInSeminarHasilUndangan) {
                     return NextResponse.json({
-                        message: `Nomor urut (${skNumberPrefix}) sudah terdaftar sebagai Undangan Penguji di seminar hasil. Harap gunakan nomor urut yang berbeda.`
+                        message: `Nomor urut (${skNumberPrefix}) sudah terdaftar sebagai Undangan Penguji di sidang skripsi. Harap gunakan nomor urut yang berbeda.`
                     }, { status: 409 });
+                }
+
+                  const existingInSeminarHasilMunaqasah = await prisma.seminarHasil.findFirst({
+                    where: {
+                        undangan_munaqasah: {
+                            startsWith: `B.${skNumberPrefix}/`
+                        }
+                    }
+                });
+
+                if (existingInSeminarHasilMunaqasah) {
+                    return NextResponse.json({
+                        message: `Nomor urut (${skNumberPrefix}) sudah terdaftar sebagai Undangan Munaqasah di sidang skripsi. Harap gunakan nomor urut yang berbeda.`
+                    }, { status: 409 }); 
                 }
 
                 dataToUpdate.  sk_pembimbing   = fullSkNumber;
