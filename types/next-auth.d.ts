@@ -10,11 +10,12 @@ declare module 'next-auth' {
       id: number;
       role?: Role;
       jurusan?: Jurusan | null;
+      nama?: string;
     } & DefaultSession["user"];
   }
 
   interface User {
-    id: number; // Pastikan id adalah number
+    id: number; 
     role?: Role;
     jurusan?: Jurusan | null;
   }
@@ -22,7 +23,7 @@ declare module 'next-auth' {
 
 declare module 'next-auth/jwt' {
   interface JWT {
-    id: number; // Pastikan id adalah number
+    id: number; 
     role?: Role;
     jurusan?: Jurusan | null;
   }

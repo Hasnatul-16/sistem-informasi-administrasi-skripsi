@@ -40,7 +40,7 @@ export function AppSidebar({ role }: AppSidebarProps) {
     <Sidebar>
       <SidebarContent className="flex h-full flex-col">
         
-        <SidebarHeader className="bg-blue-600 p-4">
+        <SidebarHeader className="bg-[#325827]  p-4">
           <Link href="#" className="flex items-center text-2x1 font-bold text-white">
             <Image src="/Logo FST Teks Hitam.png" alt="Logo FST" width={50} height={50} className="mr-3 object-contain" />
             <span>SisAdmin Skripsi</span>
@@ -58,7 +58,7 @@ export function AppSidebar({ role }: AppSidebarProps) {
                     onClick={() => setOpenMenu(openMenu === item.title ? null : item.title)}
                     className={cn(
                       "font-semibold",
-                      isParentActive && "text-blue-600"
+                      isParentActive && "text-[#325827] "
                     )}
                   >
                     <item.icon className="h-5 w-5" />
@@ -71,7 +71,7 @@ export function AppSidebar({ role }: AppSidebarProps) {
                         <Link href={subItem.url} key={subItem.title} className="block">
                           <SidebarMenuSubButton 
                             className={cn(
-                              pathname === subItem.url && "bg-blue-100 text-blue-700 font-bold"
+                              pathname === subItem.url && "bg-green-100 text-[#325827] font-bold"
                             )}
                           >
                             {subItem.title}
@@ -90,7 +90,7 @@ export function AppSidebar({ role }: AppSidebarProps) {
                   <SidebarMenuButton 
                     className={cn(
                       "font-semibold",
-                      pathname === item.url && "bg-blue-100 text-blue-700"
+                      pathname === item.url && "bg-green-100 text-[#325827] "
                     )}
                   >
                     <item.icon className="h-5 w-5" />
@@ -108,13 +108,13 @@ export function AppSidebar({ role }: AppSidebarProps) {
               <UserIcon className="h-6 w-6 text-gray-500"/>
             </div>
             <div>
-              {/* --- PERBAIKAN 1: Tambahkan text-sm untuk email --- */}
-              <p className="font-semibold text-gray-800 truncate text-sm">{session?.user?.email || "User"}</p>
+            
+              <p className="font-semibold text-gray-800 truncate text-sm">{session?.user?.nama || session?.user?.email}</p>
               <p className="text-sm text-gray-500 capitalize">{role}</p>
             </div>
            </div>
 
-           {/* --- PERBAIKAN 2: Tambahkan text-sm untuk tombol logout --- */}
+           
            <button 
             onClick={() => signOut({ callbackUrl: '/' })}
             className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left font-semibold text-red-600 hover:bg-gray-100 text-sm"

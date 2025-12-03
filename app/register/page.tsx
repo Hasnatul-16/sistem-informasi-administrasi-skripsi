@@ -44,7 +44,7 @@ const CustomInput = ({ id, type, value, onChange, icon, placeholder }: CustomInp
         type={type}
         value={value}
         onChange={onChange}
-        className="block pl-10 pr-4 py-2 w-full text-sm text-gray-900 bg-white rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-1 focus:ring-blue-600 focus:border-blue-600 transition duration-150"
+        className="block pl-10 pr-4 py-2 w-full text-sm text-gray-900 bg-white rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-1 focus:ring-[#325827]  focus:border-[#325827]  transition duration-150"
         placeholder={placeholder}
         required
       />
@@ -70,7 +70,7 @@ const CustomSelect = ({ id, value, onChange, options }: CustomSelectProps) => {
         name={id}
         value={value}
         onChange={onChange}
-        className="block pl-4 pr-10 py-2 w-full text-sm text-gray-900 bg-white rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-1 focus:ring-blue-600 focus:border-blue-600 transition duration-150 cursor-pointer"
+        className="block pl-4 pr-10 py-2 w-full text-sm text-gray-900 bg-white rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-1 focus:ring-[#325827]  focus:border-[#325827]  transition duration-150 cursor-pointer"
       >
         {options.map(option => (
           <option key={option.value} value={option.value}>{option.label}</option>
@@ -151,7 +151,7 @@ export default function RegisterPage() {
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100 p-8">
       <div className="flex max-w-4xl w-full bg-white rounded-xl shadow-2xl overflow-hidden">
-        <div className="hidden lg:flex flex-col p-10 w-1/2 bg-blue-700 text-white relative">
+        <div className="hidden lg:flex flex-col p-10 w-1/2 bg-[#325827]  text-white relative">
           <div className="relative z-10">
             <Logo />
             <h1 className="font-extrabold leading-tight mb-4">
@@ -163,21 +163,21 @@ export default function RegisterPage() {
             </p>
             <ul className="space-y-3">
               <li className="flex items-start bg-white/20 p-2 rounded-lg text-white backdrop-blur-sm transition duration-300 hover:bg-white/30">
-                <FiCheckCircle className="w-4 h-4 mr-3 mt-1 text-yellow-300 flex-shrink-0" />
+                <FiCheckCircle className="w-4 h-4 mr-3 mt-1 text-[#e9ab19] flex-shrink-0" />
                 <div>
                   <strong className="text-base">Pengajuan Online</strong>
                   <p className="text-xs opacity-90">Ajukan judul dan daftar seminar secara digital</p>
                 </div>
               </li>
               <li className="flex items-start bg-white/20 p-2 rounded-lg text-white backdrop-blur-sm transition duration-300 hover:bg-white/30">
-                <FiCheckCircle className="w-4 h-4 mr-3 mt-1 text-blue-300 flex-shrink-0" />
+                <FiCheckCircle className="w-4 h-4 mr-3 mt-1 text-green-300 flex-shrink-0" />
                 <div>
                   <strong className="text-base">Pantauan Progres Online</strong>
                   <p className="text-xs opacity-90">Pantau status pengajuan Anda setiap saat</p>
                 </div>
               </li>
               <li className="flex items-start bg-white/20 p-2 rounded-lg text-white backdrop-blur-sm transition duration-300 hover:bg-white/30">
-                <FiCheckCircle className="w-4 h-4 mr-3 mt-1 text-pink-400 flex-shrink-0" />
+                <FiCheckCircle className="w-4 h-4 mr-3 mt-1 text-[#7a1c10] flex-shrink-0" />
                 <div>
                   <strong className="text-base">Dokumen Aman</strong>
                   <p className="text-xs opacity-90">SK dan dokumen tersimpan aman dan mudah diakses</p>
@@ -233,7 +233,7 @@ export default function RegisterPage() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-md text-base font-semibold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-400 transition duration-150"
+                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-md text-base font-semibold text-white bg-[#325827]  hover:bg-[#27421a] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#325827]  disabled:bg-[#9fb39b] transition duration-150"
                 >
                   {isLoading ? 'Memproses...' : 'Daftar'}
                 </button>
@@ -241,7 +241,7 @@ export default function RegisterPage() {
             </form>
             <div className="mt-4 text-center text-sm text-gray-500">
               Sudah Punya akun?
-              <Link href="/" className="font-medium text-blue-600 hover:text-blue-500 ml-1">
+              <Link href="/" className="font-medium text-[#325827]  hover:text-[#27421a] ml-1">
                 Masuk Di sini
               </Link>
             </div>

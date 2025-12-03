@@ -31,7 +31,7 @@ export function Navbar() {
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-         className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-blue-800 text-xs sm:text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-blue-700 flex-shrink-0"
+         className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-green-800 text-xs sm:text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-green-700 flex-shrink-0"
       >
         {getInitials(userName)}
       </button>

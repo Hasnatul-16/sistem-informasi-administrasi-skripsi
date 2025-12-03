@@ -41,7 +41,7 @@ const CustomInput = ({ id, type, value, onChange, icon, placeholder }: CustomInp
         type={type}
         value={value}
         onChange={onChange}
-        className="block pl-10 pr-4 py-2 w-full text-sm text-gray-900 bg-white rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-1 focus:ring-blue-600 focus:border-blue-600 transition duration-150"
+        className="block pl-10 pr-4 py-2 w-full text-sm text-gray-900 bg-white rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-1 focus:ring-green-600 focus:border-green-600 transition duration-150"
         placeholder={placeholder}
         required
       />
@@ -98,7 +98,7 @@ export default function LoginPage() {
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100 p-4 sm:p-8">
       <div className="flex max-w-4xl w-full bg-white rounded-xl shadow-2xl overflow-hidden">
-        <div className="hidden lg:flex flex-col p-10 w-1/2 bg-blue-700 text-white relative">
+        <div className="hidden lg:flex flex-col p-10 w-1/2 bg-[#325827] text-white relative">
           <div className="relative z-10">
             <Logo />
             <h1 className="font-extrabold leading-tight mb-4">
@@ -119,7 +119,7 @@ export default function LoginPage() {
                 icon={FiCheckCircle}
                 title="Pantauan Progres Online"
                 description="Pantau status pengajuan Anda setiap saat"
-                colorClass="text-blue-300"
+                colorClass="text-green-300"
               />
               <FeatureItem
                 icon={FiCheckCircle}
@@ -161,7 +161,7 @@ export default function LoginPage() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-md text-base font-semibold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-400 transition duration-150"
+                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-md text-base font-semibold text-white bg-[#325827]  hover:bg-[#27421a]  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#325827] disabled:bg-[#5a7455] transition duration-150"
                 >
                   {isLoading ? 'Memproses...' : 'Login'}
                 </button>
@@ -169,7 +169,7 @@ export default function LoginPage() {
             </form>
             <div className="mt-4 text-center text-sm text-gray-500">
               Belum Punya akun?
-              <Link href="/register" className="font-medium text-blue-600 hover:text-blue-500 ml-1">
+              <Link href="/register" className="font-medium text-[#325827] hover:text-[#27421a] ml-1">
                 Daftar Di sini
               </Link>
             </div>
