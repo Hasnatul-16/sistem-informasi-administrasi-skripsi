@@ -32,7 +32,7 @@ export default async function AdminDashboardPage() {
   return (
     <main className="space-y-6"> 
       
-      <div className="bg-gradient-to-r from-blue-600 to-cyan-500 p-5 rounded-xl shadow-lg text-white flex justify-between items-center">
+      <div className=" bg-[#325827] p-5 rounded-xl shadow-lg text-white flex justify-between items-center">
         <div>
        
           <h1 className="text-xl font-bold">Selamat datang, Admin {adminName}!</h1>

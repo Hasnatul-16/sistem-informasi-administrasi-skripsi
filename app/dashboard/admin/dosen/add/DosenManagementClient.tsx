@@ -187,7 +187,7 @@ export default function DosenManagementClient() {
       <div className="bg-white p-3 sm:p-6 rounded-lg shadow-md border space-y-3 sm:space-y-4">
 
         {/* --- FILTER SECTION RESPONSIF --- */}
-        <div className="bg-gradient-to-r from-blue-600 to-cyan-500 p-3 sm:p-4 rounded-lg shadow-md flex flex-col gap-3 sm:gap-4">
+        <div className="bg-[#325827] p-3 sm:p-4 rounded-lg shadow-md flex flex-col gap-3 sm:gap-4">
 
           {/* Filter Jurusan + Tambah Dosen on left, Search on right - Mobile Stacked, Desktop Horizontal */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3 sm:gap-4">
@@ -205,7 +205,7 @@ export default function DosenManagementClient() {
                       onClick={() => setSelectedJurusan(j)}
                       className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold rounded-full transition duration-150 whitespace-nowrap ${
                         selectedJurusan === j
-                          ? 'bg-white text-blue-600 shadow-md'
+                          ? 'bg-white text-[#325827] shadow-md'
                           : 'bg-white/20 text-white hover:bg-white/30'
                       }`}
                     >
@@ -218,7 +218,7 @@ export default function DosenManagementClient() {
               {/* Tambah Dosen Button */}
               <button
                 onClick={openAddModal}
-                className="flex items-center justify-center gap-2 bg-white text-blue-600 px-3 sm:px-4 py-2 rounded-full hover:bg-gray-100 transition duration-150 font-semibold text-xs sm:text-sm w-full sm:w-auto"
+                className="flex items-center justify-center gap-2 bg-white text-[#325827] px-3 sm:px-4 py-2 rounded-full hover:bg-gray-100 transition duration-150 font-semibold text-xs sm:text-sm w-full sm:w-auto"
               >
                 <FiPlus className="h-4 w-4 flex-shrink-0" />
                 <span className="break-words">Tambah Dosen Baru</span>
@@ -247,12 +247,12 @@ export default function DosenManagementClient() {
         {/* --- 2. BAGIAN TABEL (STYLING DIPERBARUI) --- */}
         <p className="mt-1 text-gray-600">
           Data ditampilkan untuk Jurusan:{' '}
-          <strong className='text-indigo-700'>{selectedJurusan.replace('_', ' ')}</strong>
+          <strong className='text-[#325827]'>{selectedJurusan.replace('_', ' ')}</strong>
         </p>
 
         <div className="mt-6">
           {isLoading ? (
-            <div className="text-center py-10 text-blue-500 flex flex-col items-center">
+            <div className="text-center py-10 text-[#325827] flex flex-col items-center">
               <FiLoader className="h-8 w-8 animate-spin" />
               <p className="mt-2">Memuat data...</p>
             </div>
@@ -268,19 +268,19 @@ export default function DosenManagementClient() {
                   <tr>
                     {/* Header Dosen */}
                     <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left">
-                      <div className="flex items-center gap-1 sm:gap-2"><FiUsers size={14} className="text-blue-600" /><span>Dosen</span></div>
+                      <div className="flex items-center gap-1 sm:gap-2"><FiUsers size={14} className="text-green-800" /><span>Dosen</span></div>
                     </th>
                     {/* Header NIP */}
                     <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
-                      <div className="flex items-center gap-1 sm:gap-2"><FiHash size={14} className="text-blue-600" /><span>NIP</span></div>
+                      <div className="flex items-center gap-1 sm:gap-2"><FiHash size={14} className="text-green-800" /><span>NIP</span></div>
                     </th>
                     {/* Header Jurusan */}
                     <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
-                      <div className="flex items-center gap-1 sm:gap-2"><FiCheckCircle size={14} className="text-blue-600" /><span>Jurusan</span></div>
+                      <div className="flex items-center gap-1 sm:gap-2"><FiCheckCircle size={14} className="text-green-800" /><span>Jurusan</span></div>
                     </th>
                     {/* Header Aksi */}
                     <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
-                      <div className="flex items-center gap-1 sm:gap-2"><FiSettings size={14} className="text-blue-600" /><span>Aksi</span></div>
+                      <div className="flex items-center gap-1 sm:gap-2"><FiSettings size={14} className="text-green-800" /><span>Aksi</span></div>
                     </th>
                   </tr>
                 </thead>
@@ -294,7 +294,7 @@ export default function DosenManagementClient() {
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex flex-col gap-1.5">
                             <div className="flex items-center gap-2">
-                              <FiUser size={14} className="text-blue-600" />
+                              <FiUser size={14} className="text-green-800" />
                               <span className="text-sm text-gray-700">
                                 <span className="font-semibold">Nama: </span>
                                 {dosen.nama || 'Nama tidak tersedia'}
@@ -308,7 +308,7 @@ export default function DosenManagementClient() {
                         </td>
                       
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                          <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                          <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
                             {dosen.jurusan.replace('_', ' ')}
                           </span>
                         </td>
@@ -357,7 +357,7 @@ export default function DosenManagementClient() {
              
               <div className="space-y-2">
                 <label htmlFor="nama"  className="flex text-xs sm:text-sm font-semibold text-gray-700 items-center gap-2">
-                  <FiUser className="h-4 w-4 text-blue-600" />
+                  <FiUser className="h-4 w-4 text-green-800" />
                   Nama Lengkap
                 </label>
                 <div className="relative">
@@ -366,7 +366,7 @@ export default function DosenManagementClient() {
                     type="text"
                     value={formData.nama}
                     onChange={(e) => setFormData(prev => ({ ...prev, nama: e.target.value }))}
-                    className="w-full pl-4 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition duration-200 bg-gray-50 focus:bg-white"
+                    className="w-full pl-4 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-green-100 focus:border-green-900 transition duration-200 bg-gray-50 focus:bg-white"
                     placeholder="Masukkan nama lengkap dosen"
                     required
                   />
@@ -375,7 +375,7 @@ export default function DosenManagementClient() {
 
               <div className="space-y-2">
                 <label htmlFor="nip" className="flex text-xs sm:text-sm font-semibold text-gray-700 items-center gap-2">
-                  <FiHash className="h-4 w-4 text-blue-600" />
+                  <FiHash className="h-4 w-4 text-green-800" />
                   NIP (Nomor Induk Pegawai)
                 </label>
                 <div className="relative">
@@ -384,7 +384,7 @@ export default function DosenManagementClient() {
                     type="text"
                     value={formData.nip}
                     onChange={(e) => setFormData(prev => ({ ...prev, nip: e.target.value }))}
-                    className="w-full pl-4 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition duration-200 bg-gray-50 focus:bg-white"
+                    className="w-full pl-4 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-green-100 focus:border-green-800 transition duration-200 bg-gray-50 focus:bg-white"
                     placeholder="Masukkan NIP dosen"
                     required
                   />
@@ -393,7 +393,7 @@ export default function DosenManagementClient() {
 
               <div className="space-y-2">
                 <label htmlFor="jurusan"  className="flex text-xs sm:text-sm font-semibold text-gray-700 items-center gap-2" >
-                  <FiBookOpen className="h-4 w-4 text-blue-600" />
+                  <FiBookOpen className="h-4 w-4 text-green-800" />
                   Jurusan
                 </label>
                 <div className="relative">
@@ -401,7 +401,7 @@ export default function DosenManagementClient() {
                     id="jurusan"
                     value={formData.jurusan}
                     onChange={(e) => setFormData(prev => ({ ...prev, jurusan: e.target.value as Jurusan }))}
-                    className="w-full pl-4 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition duration-200 bg-gray-50 focus:bg-white appearance-none"
+                    className="w-full pl-4 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-green-100 focus:border-green-800 transition duration-200 bg-gray-50 focus:bg-white appearance-none"
                   >
                     {ALL_JURUSAN.map(j => (
                       <option key={j} value={j}>{j.replace('_', ' ')}</option>
@@ -427,7 +427,7 @@ export default function DosenManagementClient() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-xl hover:from-blue-700 hover:to-cyan-600 disabled:from-gray-400 disabled:to-gray-500 transition duration-200 font-semibold flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                  className="px-6 py-3 bg-[#325827] text-white rounded-xl hover:from-green-00 hover:to-green-600 disabled:from-gray-400 disabled:to-gray-500 transition duration-200 font-semibold flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                 >
                   {isSubmitting ? (
                     <>

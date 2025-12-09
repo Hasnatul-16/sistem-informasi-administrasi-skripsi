@@ -187,7 +187,7 @@ const DetailModal: React.FC<{ item: ArsipData | null, onClose: () => void }> = (
                   
                         <div className="space-y-2">
                             <h4 className="text-base font-semibold text-gray-800 flex items-center gap-2">
-                                <FiUser className="w-5 h-5 text-indigo-600" /> Info Mahasiswa
+                                <FiUser className="w-5 h-5 text-green-800" /> Info Mahasiswa
                             </h4>
                             <div className="p-4 bg-gray-50 rounded-lg border text-sm space-y-2">
                                 <p><strong>Nama:</strong> {item.nama}</p>
@@ -198,7 +198,7 @@ const DetailModal: React.FC<{ item: ArsipData | null, onClose: () => void }> = (
 
                         <div className="space-y-2">
                             <h4 className="text-base font-semibold text-gray-800 flex items-center gap-2">
-                                <FiBookOpen className="w-5 h-5 text-indigo-600" /> Info Judul
+                                <FiBookOpen className="w-5 h-5 text-green-800" /> Info Judul
                             </h4>
                             <div className="p-4 bg-gray-50 rounded-lg border text-sm space-y-2">
                                 <p><strong>Topik:</strong> {item.topik}</p>
@@ -209,7 +209,7 @@ const DetailModal: React.FC<{ item: ArsipData | null, onClose: () => void }> = (
 
                     <div className="space-y-2">
                         <h4 className="text-base font-semibold text-gray-800 flex items-center gap-2">
-                            <FiUsers className="w-5 h-5 text-indigo-600" /> Dosen Pembimbing
+                            <FiUsers className="w-5 h-5 text-green-800" /> Dosen Pembimbing
                         </h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="p-3 bg-gray-50 rounded-lg border">
@@ -225,7 +225,7 @@ const DetailModal: React.FC<{ item: ArsipData | null, onClose: () => void }> = (
                     
                     <div className="space-y-2">
                         <h4 className="text-base font-semibold text-gray-800 flex items-center gap-2">
-                            <FiCode className="w-5 h-5 text-indigo-600" /> Dosen Penguji
+                            <FiCode className="w-5 h-5 text-green-800" /> Dosen Penguji
                         </h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                          
@@ -246,7 +246,7 @@ const DetailModal: React.FC<{ item: ArsipData | null, onClose: () => void }> = (
 
                     <div className="space-y-2">
                         <h4 className="text-base font-semibold text-gray-800 flex items-center gap-2">
-                            <FiCalendar className="w-5 h-5 text-indigo-600" /> Riwayat Tahapan
+                            <FiCalendar className="w-5 h-5 tex--green-800" /> Riwayat Tahapan
                         </h4>
                         <div className="p-4 bg-gray-50 rounded-lg border">
                             <TimelineStatus steps={steps} />
@@ -375,7 +375,7 @@ const ArsipClient: React.FC<ArsipClientProps> = ({ initialJurusan, isKaprodi }) 
             <div className="bg-white p-6 rounded-lg shadow-md border space-y-4">
 
                 {/* --- 1. BAGIAN FILTER (Style dari DosenStatsClient) --- */}
-                <div className="bg-gradient-to-r from-blue-600 to-cyan-500 p-4 rounded-lg shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="bg-[#325827] p-4 rounded-lg shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
 
                     {/* Filter Group: Bulan & Tahun (Logika Arsip) */}
                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:w-auto">
@@ -436,7 +436,7 @@ const ArsipClient: React.FC<ArsipClientProps> = ({ initialJurusan, isKaprodi }) 
                                 onClick={() => handleJurusanChange(j)}
                                 className={`px-4 py-2 text-sm font-semibold rounded-full transition duration-150 ${
                                     filters.jurusan === j
-                                        ? 'bg-indigo-600 text-white shadow-md'
+                                        ? 'bg-[#325827] text-white shadow-md'
                                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                 }`}
                             >
@@ -450,12 +450,12 @@ const ArsipClient: React.FC<ArsipClientProps> = ({ initialJurusan, isKaprodi }) 
             <div className="bg-white p-6 rounded-lg shadow-md border space-y-4">
                 <p className="mt-1 text-gray-600">
                     Data ditampilkan untuk Jurusan:{' '}
-                    <strong className='text-indigo-700'>{formatJurusan(filters.jurusan)}</strong>
+                    <strong className='text-[#325827]'>{formatJurusan(filters.jurusan)}</strong>
                 </p>
 
                 <div className="mt-6">
                     {isLoading ? (
-                        <div className="text-center py-10 text-blue-500 flex flex-col items-center">
+                        <div className="text-center py-10 text-[#325827] flex flex-col items-center">
                             <FiLoader className="h-8 w-8 animate-spin" />
                             <p className="mt-2">Memuat data arsip...</p>
                         </div>
@@ -471,28 +471,28 @@ const ArsipClient: React.FC<ArsipClientProps> = ({ initialJurusan, isKaprodi }) 
                                     <tr>
                                         {/* Header Mahasiswa */}
                                         <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
-                                            <div className="flex items-center gap-1 sm:gap-2"><FiUsers size={14} className="text-blue-600" /><span>Mahasiswa</span></div>
+                                            <div className="flex items-center gap-1 sm:gap-2"><FiUsers size={14} className="text-green-800" /><span>Mahasiswa</span></div>
                                         </th>
                                         
                                         {/* Header Tanggal */}
                                         <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
-                                            <div className="flex items-center gap-1 sm:gap-2"><FiCalendar size={14} className="text-blue-600" /><span>Timeline</span></div>
+                                            <div className="flex items-center gap-1 sm:gap-2"><FiCalendar size={14} className="text-green-800" /><span>Timeline</span></div>
                                         </th>
                                         {/* Header SK Pembimbing */}
                                         <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-center whitespace-nowrap">
-                                            <div className="flex items-center gap-1 sm:gap-2 justify-center"><FiDownload size={14} className="text-blue-600" /><span>SK Pembimbing</span></div>
+                                            <div className="flex items-center gap-1 sm:gap-2 justify-center"><FiDownload size={14} className="text-green-800" /><span>SK Pembimbing</span></div>
                                         </th>
                                         {/* Header SK Sempro */}
                                         <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-center whitespace-nowrap">
-                                            <div className="flex items-center gap-1 sm:gap-2 justify-center"><FiDownload size={14} className="text-blue-600" /><span>SK Sempro</span></div>
+                                            <div className="flex items-center gap-1 sm:gap-2 justify-center"><FiDownload size={14} className="text-green-800" /><span>SK Sempro</span></div>
                                         </th>
                                         {/* Header SK Sidang */}
                                         <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-center whitespace-nowrap">
-                                            <div className="flex items-center gap-1 sm:gap-2 justify-center"><FiDownload size={14} className="text-blue-600" /><span>SK Sidang</span></div>
+                                            <div className="flex items-center gap-1 sm:gap-2 justify-center"><FiDownload size={14} className="text-green-800" /><span>SK Sidang</span></div>
                                         </th>
                                         {/* Header Aksi */}
                                         <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-center whitespace-nowrap">
-                                            <div className="flex items-center gap-1 sm:gap-2 justify-center"><FiSettings size={14} className="text-blue-600" /><span>Aksi</span></div>
+                                            <div className="flex items-center gap-1 sm:gap-2 justify-center"><FiSettings size={14} className="text-green-800" /><span>Aksi</span></div>
                                         </th>
                                     </tr>
                                 </thead>
@@ -513,14 +513,14 @@ const ArsipClient: React.FC<ArsipClientProps> = ({ initialJurusan, isKaprodi }) 
                                                     <td className="px-6 py-4 whitespace-nowrap">
                                                         <div className="flex flex-col gap-1.5">
                                                             <div className="flex items-center gap-2">
-                                                                <FiUser size={14} className="text-blue-600" />
+                                                                <FiUser size={14} className="text-green-800" />
                                                                 <span className="text-sm text-gray-700">
                                                                     <span className="font-semibold">Nama: </span>
                                                                     {item.nama}
                                                                 </span>
                                                             </div>
                                                             <div className="flex items-center gap-2">
-                                                                <FiHash size={14} className="text-blue-600" />
+                                                                <FiHash size={14} className="text-green-800" />
                                                                 <span className="text-sm text-gray-700">
                                                                     <span className="font-semibold">NIM: </span>
                                                                     {item.nim}
@@ -546,7 +546,7 @@ const ArsipClient: React.FC<ArsipClientProps> = ({ initialJurusan, isKaprodi }) 
                                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-center">
                                                         <button 
                                                             onClick={() => openModal(item)}
-                                                            className="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-900 font-semibold"
+                                                            className="inline-flex items-center gap-2 text-green-600 hover:text-green-900 font-semibold"
                                                             title="Lihat Detail Lengkap"
                                                         >
                                                             <FiEye className="h-4 w-4" /> Lihat

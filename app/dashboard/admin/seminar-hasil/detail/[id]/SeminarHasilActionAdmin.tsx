@@ -29,7 +29,7 @@ export default function SeminarHasilActionAdmin({ submission }: { submission: Se
             inputAttributes: { "aria-label": "Nomor urut Surat Ujian" },
             showCancelButton: true,
             confirmButtonText: 'Verifikasi & Teruskan ke Kaprodi',
-            confirmButtonColor: '#28a745',
+            confirmButtonColor: '#325827',
             cancelButtonText: 'Batal',
             inputValidator: (value) => {
                 if (!value || !/^\d+$/.test(value)) { 
@@ -101,7 +101,7 @@ export default function SeminarHasilActionAdmin({ submission }: { submission: Se
                 inputAttributes: { "aria-label": "Masukkan alasan penolakan" },
                 showCancelButton: true,
                 confirmButtonText: 'Tolak & Kembalikan',
-                confirmButtonColor: '#d33',
+                confirmButtonColor: '#7a1c10',
                 cancelButtonText: 'Batal',
                 inputValidator: (value) => {
                     if (!value) {
@@ -121,8 +121,8 @@ export default function SeminarHasilActionAdmin({ submission }: { submission: Se
     if (submission.status !== 'TERKIRIM') {
         return (
             <div className="mt-6 border-t pt-4">
-                <div className="p-4 bg-blue-50 border-l-4 border-blue-400 rounded-md">
-                    <p className="text-sm font-semibold text-blue-800">
+                <div className="p-4 bg-green-50 border-l-4 border-green-400 rounded-md">
+                    <p className="text-sm font-semibold text-green-800">
                         Pengajuan ini sudah diproses dengan status: <strong>{submission.status.replace('_', ' ')}</strong>
                     </p>
                     {submission.catatan && (
@@ -157,14 +157,14 @@ export default function SeminarHasilActionAdmin({ submission }: { submission: Se
                 <button
                     onClick={() => handleAction('REJECT')}
                     disabled={isLoading}
-                    className="inline-flex items-center justify-center gap-2 py-2 px-5 border border-red-500 text-red-500 rounded-md font-semibold hover:bg-red-50 transition-colors disabled:opacity-50 disabled:cursor-wait w-full sm:w-auto"
+                    className="inline-flex items-center justify-center gap-2 py-2 px-5 border border-[#7a1c10] text-[#7a1c10]  rounded-md font-semibold hover:bg-red-50 transition-colors disabled:opacity-50 disabled:cursor-wait w-full sm:w-auto"
                 >
                     {isLoading ? <FiClock className='animate-spin' /> : <FiXCircle />} Tolak & Kembalikan
                 </button>
                 <button
                     onClick={() => handleAction('VERIFY')}
                     disabled={isLoading}
-                     className="inline-flex items-center justify-center gap-2 py-2 px-5 bg-blue-600 text-white rounded-md font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-wait w-full sm:w-auto"
+                     className="inline-flex items-center justify-center gap-2 py-2 px-5 bg-[#325827] text-white rounded-md font-semibold hover:bg-green-800 transition-colors disabled:opacity-50 disabled:cursor-wait w-full sm:w-auto"
                 >
                     {isLoading ? <FiClock className='animate-spin' /> : <><FiCheckCircle /> Lengkap & Teruskan</>}
                 </button>

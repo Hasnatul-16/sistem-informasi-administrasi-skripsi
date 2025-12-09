@@ -99,22 +99,22 @@ export default function ProposalTable({ initialProposals }: ProposalTableProps) 
                 <thead className="bg-slate-50">
                     <tr>
                         <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left">
-                            <div className="flex items-center gap-1 sm:gap-2"><FiUsers size={14} className="text-blue-600" /><span>Mahasiswa</span></div>
+                            <div className="flex items-center gap-1 sm:gap-2"><FiUsers size={14} className="text-green-800" /><span>Mahasiswa</span></div>
                         </th>
                          <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
-                            <div className="flex items-center gap-1 sm:gap-2"><FiCalendar size={14} className="text-blue-600" /><span>Tanggal Pengajuan</span></div>
+                            <div className="flex items-center gap-1 sm:gap-2"><FiCalendar size={14} className="text-green-800" /><span>Tanggal Pengajuan</span></div>
                         </th>
                           <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
-                            <div className="flex items-center gap-1 sm:gap-2"><FiTag size={14} className="text-blue-600" /><span>Topik</span></div>
+                            <div className="flex items-center gap-1 sm:gap-2"><FiTag size={14} className="text-green-800" /><span>Topik</span></div>
                         </th>
                         <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left">
-                            <div className="flex items-center gap-1 sm:gap-2"><FiFileText size={14} className="text-blue-600" /> <span>Judul</span></div>
+                            <div className="flex items-center gap-1 sm:gap-2"><FiFileText size={14} className="text-green-800" /> <span>Judul</span></div>
                         </th>
                         <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
-                            <div className="flex items-center gap-1 sm:gap-2"><FiActivity size={14} className="text-blue-600" /> <span>Status</span></div>
+                            <div className="flex items-center gap-1 sm:gap-2"><FiActivity size={14} className="text-green-800" /> <span>Status</span></div>
                         </th>
                         <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
-                            <div className="flex items-center gap-1 sm:gap-2"><FiSettings size={14} className="text-blue-600" /> <span>Aksi</span></div>
+                            <div className="flex items-center gap-1 sm:gap-2"><FiSettings size={14} className="text-green-800" /> <span>Aksi</span></div>
                         </th>
                     </tr>
                 </thead>
@@ -127,14 +127,14 @@ export default function ProposalTable({ initialProposals }: ProposalTableProps) 
                                  <td className="px-4 sm:px-6 py-3 sm:py-4">
                                     <div className="flex flex-col gap-1">
                                         <div className="flex items-center gap-2">
-                                            <FiUser size={14} className="text-blue-600" />
+                                            <FiUser size={14} className="text-green-800" />
                                             <span className="text-sm text-gray-700">
                                                 <span className="font-semibold hidden sm:inline">Nama: </span>
                                                 {prop.judul.mahasiswa.nama}
                                             </span>
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            <FiHash size={14} className="text-blue-600" />
+                                            <FiHash size={14} className="text-green-800" />
                                             <span className="text-sm text-gray-700">
                                                 <span className="font-semibold hidden sm:inline">NIM: </span>
                                                 {prop.judul.mahasiswa.nim}
@@ -160,7 +160,7 @@ export default function ProposalTable({ initialProposals }: ProposalTableProps) 
                                     {prop.status === 'TERKIRIM' && (
                                         <Link
                                             href={`/dashboard/admin/proposal/detail/${prop.id}`}
-                                            className="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-900 font-semibold"
+                                            className="inline-flex items-center gap-2 text-[#7a1c10] hover:text-red-900 font-semibold"
                                         >
                                              <FiArrowRight className="h-4 w-4" /> <span className="hidden sm:inline">Verifikasi</span>
                                         </Link>

@@ -64,7 +64,7 @@ export default function VerificationClientPage({ initialSubmissions, jurusanName
       <div className="bg-white p-6 rounded-lg shadow-md border">
         
    
-        <div className="bg-gradient-to-r from-blue-600 to-cyan-500 p-4 rounded-lg shadow-md flex flex-wrap items-center justify-between gap-4 mb-6">
+        <div className="bg-[#325827] p-4 rounded-lg shadow-md flex flex-wrap items-center justify-between gap-4 mb-6">
             <div className="flex items-center gap-4">
                 
                 <div>

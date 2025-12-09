@@ -185,7 +185,7 @@ export default function AdminUploadSKClient() {
     <div className="space-y-4 sm:space-y-6">
     
       <div className="bg-white p-3 sm:p-6 rounded-lg shadow-md border">
-        <div className="bg-gradient-to-r from-blue-600 to-cyan-500 p-3 sm:p-4 rounded-lg shadow-md flex flex-col gap-3 sm:gap-4">
+        <div className="bg-[#325827] p-3 sm:p-4 rounded-lg shadow-md flex flex-col gap-3 sm:gap-4">
 
           {/* Filter Jurusan on left, Search on right - Mobile Stacked, Desktop Horizontal */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3 sm:gap-4">
@@ -201,7 +201,7 @@ export default function AdminUploadSKClient() {
                     onClick={() => setSelectedJurusan(j)}
                     className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold rounded-full transition ${
                       selectedJurusan === j
-                        ? "bg-white text-blue-600 shadow-md"
+                        ? "bg-white text-[#325827] shadow-md"
                         : "bg-white/20 text-white hover:bg-white/30"
                     }`}
                   >
@@ -228,7 +228,7 @@ export default function AdminUploadSKClient() {
 
       <div className="bg-white p-6 rounded-lg shadow-md border">
         {isLoading ? (
-          <div className="text-center py-10 text-blue-500 flex flex-col items-center">
+          <div className="text-center py-10 text-[#325827] flex flex-col items-center">
             <FiLoader className="h-8 w-8 animate-spin" />
             <p className="mt-2">Memuat data...</p>
           </div>
@@ -244,13 +244,13 @@ export default function AdminUploadSKClient() {
                 <tr>
                   <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left">
                     <div className="flex items-center gap-1 sm:gap-2">
-                      <FiUser size={14} className="text-blue-600" />
+                      <FiUser size={14} className="text-green-800" />
                       <span>Mahasiswa</span>
                     </div>
                   </th>
                   <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap min-w-[100px]">
                     <div className="flex items-center gap-1 sm:gap-2">
-                      <FiHash size={14} className="text-blue-600" />
+                      <FiHash size={14} className="text-green-800" />
                       <span>NIM</span>
                     </div>
                   </th>
@@ -395,7 +395,7 @@ export default function AdminUploadSKClient() {
                 <button
                   type="submit"
                   disabled={isUploading || !uploadFile}
-                  className="px-4 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
+                  className="px-4 py-2 text-sm text-white bg-[#325827] rounded-lg hover:bg-green-800 disabled:bg-gray-400"
                 >
                   {isUploading ? "Mengunggah..." : "Unggah"}
                 </button>

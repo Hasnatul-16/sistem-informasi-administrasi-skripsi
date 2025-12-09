@@ -41,7 +41,7 @@ const FileItem = (label: string, url: string | null | undefined) => (
             <span className="font-medium">{label}</span>
         </div>
         {url ? (
-            <Link href={url} target="_blank" className="inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:underline">
+            <Link href={url} target="_blank" className="inline-flex items-center gap-2 text-sm font-medium text-green-600 hover:underline">
                 <FiDownload /> Lihat File
             </Link>
         ) : (<span className="text-sm text-gray-400">Tidak ada file</span>)}
@@ -71,7 +71,7 @@ export default async function SeminarHasilDetailPage({ params }: { params: Promi
                     <FiAlertCircle className="w-12 h-12 mx-auto text-red-500 mb-4" />
                     <h1 className="text-xl font-bold text-gray-800 mb-2">Sidang Skripsi Tidak Ditemukan</h1>
                     <p className="text-gray-600 mb-6">Pengajuan Sidang Skripsi dengan ID ini tidak ditemukan.</p>
-                    <Link href="/dashboard/admin" className="text-blue-600 hover:underline font-medium">
+                    <Link href="/dashboard/admin" className="text-green-600 hover:underline font-medium">
                         <FiArrowLeft className="inline-block mr-1" /> Kembali ke Dashboard Admin
                     </Link>
                 </div>

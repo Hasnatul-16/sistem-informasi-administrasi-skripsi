@@ -85,7 +85,7 @@ const ActionCard = ({ title, icon, iconBgColor, iconColor, notifications, emptyT
                     <p className="font-medium text-xs sm:text-sm text-gray-800 truncate">{nama}</p>
                     <p className="text-xs text-gray-500">{jurusan.replace('_', ' ')}</p>
                   </div>
-                  <Link href={`${viewLink}/${jurusan}`} className="text-xs sm:text-sm font-semibold text-blue-600 hover:underline flex items-center gap-1 flex-shrink-0">
+                  <Link href={`${viewLink}/${jurusan}`} className="text-xs sm:text-sm font-semibold text-[#325827] hover:underline flex items-center gap-1 flex-shrink-0">
                     <span className="hidden sm:inline">Lihat</span> <FiArrowRight size={14} />
                   </Link>
                 </li>
@@ -211,7 +211,7 @@ export default function AdminDashboardClient({ titleSubmissions, proposalSubmiss
           <div><label className="text-xs sm:text-sm font-medium text-gray-600">Jenis Periode</label><select name="periode" value={filters.periode} onChange={handleFilterChange} className="w-full mt-1 p-2 border rounded-md bg-white text-xs sm:text-sm"><option value="harian">Harian</option><option value="bulanan">Bulanan</option><option value="ajaran">Tahun Ajaran</option><option value="tahunan">Tahunan</option></select></div>
           {filters.periode !== 'tahunan' && (<div><label className="text-xs sm:text-sm font-medium text-gray-600 capitalize">Pilih {filters.periode === 'ajaran' ? 'Semester' : filters.periode.replace(/an$/, '')}</label>{renderFilterInputs()}</div>)}
           <div><label className="text-xs sm:text-sm font-medium text-gray-600">Pilih Tahun</label><select name="tahun" value={filters.tahun} onChange={handleFilterChange} className="w-full mt-1 p-2 border rounded-md bg-white text-xs sm:text-sm"><option value="2025">2025</option><option value="2024">2024</option><option value="2023">2023</option></select></div>
-          <div><button onClick={handleApplyFilters} className="w-full bg-blue-600 text-white font-semibold p-2 rounded-md hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 text-xs sm:text-sm"><FiFilter size={16} /> Terapkan</button></div>
+          <div><button onClick={handleApplyFilters} className="w-full bg-[#325827] text-white font-semibold p-2 rounded-md hover:bg-green-800 transition-colors flex items-center justify-center gap-2 text-xs sm:text-sm"><FiFilter size={16} /> Terapkan</button></div>
         </div>
       </div>
 
@@ -222,24 +222,24 @@ export default function AdminDashboardClient({ titleSubmissions, proposalSubmiss
           value={stats.totalJudul}
           subtitle={periodeText}
           icon={<FiFilePlus size={22} />}
-          iconBgColor="bg-blue-100"
-          iconColor="text-blue-600"
+          iconBgColor="bg-[#7a1c10]-100"
+          iconColor="text-[#7a1c10]"
         />
         <StatCard
           title="Total Seminar Proposal"
           value={stats.totalProposal}
           subtitle={periodeText}
           icon={<FiClipboard size={22} />}
-          iconBgColor="bg-green-100"
-          iconColor="text-green-600"
+          iconBgColor="bg-[#19ca28]-100"
+          iconColor="text-[#19ca28]"
         />
         <StatCard
           title="Total Sidang Skripsi"
           value={stats.totalHasil}
           subtitle={periodeText}
           icon={<FiCheckSquare size={22} />}
-          iconBgColor="bg-orange-100"
-          iconColor="text-orange-600"
+          iconBgColor="bg-[#e9ab19]-100"
+          iconColor="text-[#e9ab19]"
         />
       </div>
 
@@ -254,8 +254,8 @@ export default function AdminDashboardClient({ titleSubmissions, proposalSubmiss
             notifications={pendingTitleNotifications}
             emptyText="Tidak ada pengajuan judul yang perlu diverifikasi."
             viewLink="/dashboard/admin/verifikasi"
-            iconBgColor="bg-blue-100"
-            iconColor="text-blue-600"
+            iconBgColor="bg-[#7a1c10]-100"
+            iconColor="text-[#7a1c10]"
           />
           <ActionCard
             title="Pendaftaran Sem. Proposal"
@@ -263,8 +263,8 @@ export default function AdminDashboardClient({ titleSubmissions, proposalSubmiss
             notifications={pendingProposalNotifications}
             emptyText="Tidak ada pendaftaran proposal yang perlu diverifikasi."
             viewLink="/dashboard/admin/proposal"
-            iconBgColor="bg-green-100"
-            iconColor="text-green-600"
+             iconBgColor="bg-[#19ca28]-100"
+             iconColor="text-[#19ca28]"
           />
           <ActionCard
             title="Pendaftaran Sidang Skripsi"
@@ -272,8 +272,8 @@ export default function AdminDashboardClient({ titleSubmissions, proposalSubmiss
             notifications={pendingHasilNotifications}
             emptyText="Tidak ada pendaftaran hasil yang perlu diverifikasi."
             viewLink="/dashboard/admin/seminar-hasil"
-            iconBgColor="bg-orange-100"
-            iconColor="text-orange-600"
+            iconBgColor="bg-[#e9ab19]-100"
+            iconColor="text-[#e9ab19]"
           />
         </div>
       </div>

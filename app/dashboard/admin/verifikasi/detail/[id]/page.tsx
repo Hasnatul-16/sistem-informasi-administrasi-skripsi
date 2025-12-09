@@ -40,7 +40,7 @@ export default async function VerificationDetailPage({ params }: { params: Promi
         <span className="font-medium">{label}</span>
       </div>
       {url ? (
-        <Link href={url} target="_blank" className="inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:underline">
+        <Link href={url} target="_blank" className="inline-flex items-center gap-2 text-sm font-medium text-green-600 hover:underline">
           <FiDownload /> Lihat File
         </Link>
       ) : (<span className="text-sm text-gray-400">Tidak ada file</span>)}

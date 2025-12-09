@@ -27,7 +27,7 @@ export default function VerificationActions({ submission }: { submission: Submis
       inputAttributes: { "aria-label": "Nomor urut SK" },
       showCancelButton: true,
       confirmButtonText: 'Verifikasi & Lanjutkan',
-      confirmButtonColor: '#3085d6',
+      confirmButtonColor: '#325827',
       cancelButtonText: 'Batal',
       inputValidator: (value) => {
         if (!value || !/^\d+$/.test(value)) { 
@@ -52,7 +52,7 @@ export default function VerificationActions({ submission }: { submission: Submis
         inputAttributes: { "aria-label": "Masukkan alasan penolakan" },
         showCancelButton: true,
         confirmButtonText: 'Tolak & Kirim',
-        confirmButtonColor: '#d33',
+        confirmButtonColor: '#7a1c10',
         cancelButtonText: 'Batal',
         inputValidator: (value) => {
           if (!value) {
@@ -123,14 +123,14 @@ export default function VerificationActions({ submission }: { submission: Submis
         <button
           onClick={() => handleAction('REJECT')}
           disabled={isLoading}
-           className="inline-flex items-center justify-center gap-2 py-2 px-5 border border-red-500 text-red-500 rounded-md font-semibold hover:bg-red-50 transition-colors disabled:opacity-50 w-full sm:w-auto"
+           className="inline-flex items-center justify-center gap-2 py-2 px-5 border border-[#7a1c10] text-[#7a1c10]  rounded-md font-semibold hover:bg-red-50 transition-colors disabled:opacity-50 w-full sm:w-auto"
         >
           <FiXCircle /> Tolak & Kembalikan
         </button>
         <button
           onClick={() => handleAction('VERIFY')}
           disabled={isLoading}
-          className="inline-flex items-center justify-center gap-2 py-2 px-5 bg-blue-600 text-white rounded-md font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 w-full sm:w-auto"
+          className="inline-flex items-center justify-center gap-2 py-2 px-5 bg-[#325827] text-white rounded-md font-semibold hover:bg-green-800 transition-colors disabled:opacity-50 w-full sm:w-auto"
         >
           {isLoading ? 'Memproses...' : <><FiCheckCircle /> Lengkap & Teruskan</>}
         </button>
