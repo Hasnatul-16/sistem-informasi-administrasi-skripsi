@@ -214,7 +214,7 @@ export default function DosenStatsClient({
     const RoleBadge = ({ role }: { role: string }) => {
         let color = 'bg-gray-100 text-gray-800';
         if (role.toLowerCase().includes('penguji')) {
-            color = 'bg-indigo-100 text-indigo-800';
+            color = 'bg-green-100 text-green-800';
         } else if (role.toLowerCase().includes('pembimbing')) {
             color = 'bg-green-100 text-green-800';
         }
@@ -233,7 +233,7 @@ export default function DosenStatsClient({
             
             <div className="bg-white p-6 rounded-lg shadow-md border space-y-4">
                 
-                <div className="bg-gradient-to-r from-blue-600 to-cyan-500 p-4 rounded-lg shadow-md flex flex-wrap items-center justify-between gap-4">
+                <div className="bg-[#325827]p-4 rounded-lg shadow-md flex flex-wrap items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
                       
                         <div className="flex flex-col">
@@ -289,7 +289,7 @@ export default function DosenStatsClient({
 
                 <p className="mt-1 text-gray-600">
                     Data ditampilkan untuk Jurusan:{' '}
-                    <strong className='text-indigo-700'>{filters.jurusan.replace('_', ' ')}</strong>
+                    <strong className='text-[#325827]'>{filters.jurusan.replace('_', ' ')}</strong>
                 </p>
                 
                 {!isKaprodi && (
@@ -301,7 +301,7 @@ export default function DosenStatsClient({
                                 onClick={() => handleJurusanChange(j)}
                                 className={`px-4 py-2 text-sm font-semibold rounded-full transition duration-150 ${
                                     filters.jurusan === j
-                                        ? 'bg-indigo-600 text-white shadow-md'
+                                        ? 'bg-[#325827] text-white shadow-md'
                                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                 }`}
                             >
@@ -314,7 +314,7 @@ export default function DosenStatsClient({
                 
                 <div className="mt-6">
                     {isTableLoading ? (
-                        <div className="text-center py-10 text-blue-500 flex flex-col items-center">
+                        <div className="text-center py-10 text-[#325827] flex flex-col items-center">
                             <FiLoader className="h-8 w-8 animate-spin" />
                             <p className="mt-2">Memuat data...</p>
                         </div>
@@ -330,23 +330,23 @@ export default function DosenStatsClient({
                                     <tr>
                                        
                                         <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left">
-                                            <div className="flex items-center gap-1 sm:gap-2"><FiUsers size={14} className="text-blue-600" /><span>Dosen</span></div>
+                                            <div className="flex items-center gap-1 sm:gap-2"><FiUsers size={14} className="text-green-800" /><span>Dosen</span></div>
                                         </th>
                                         {/* Header Penguji Sempro */}
                                         <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
-                                            <div className="flex items-center gap-1 sm:gap-2"><FiBookOpen size={14} className="text-blue-600" /><span>Penguji Sempro</span></div>
+                                            <div className="flex items-center gap-1 sm:gap-2"><FiBookOpen size={14} className="text-green-800" /><span>Penguji Sempro</span></div>
                                         </th>
                                         {/* Header Penguji Semhas */}
                                         <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
-                                            <div className="flex items-center gap-1 sm:gap-2"><FiBookOpen size={14} className="text-blue-600" /><span>Penguji Semhas</span></div>
+                                            <div className="flex items-center gap-1 sm:gap-2"><FiBookOpen size={14} className="text-green-800" /><span>Penguji Semhas</span></div>
                                         </th>
                                         {/* Header Total Beban */}
                                         <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
-                                            <div className="flex items-center gap-1 sm:gap-2"><FiActivity size={14} className="text-blue-600" /><span>Total Menguji</span></div>
+                                            <div className="flex items-center gap-1 sm:gap-2"><FiActivity size={14} className="text-green-800" /><span>Total Menguji</span></div>
                                         </th>
                                         {/* Header Aksi */}
                                         <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
-                                            <div className="flex items-center gap-1 sm:gap-2"><FiSettings size={14} className="text-blue-600" /><span>Aksi</span></div>
+                                            <div className="flex items-center gap-1 sm:gap-2"><FiSettings size={14} className="text-green-800" /><span>Aksi</span></div>
                                         </th>
                                     </tr>
                                 </thead>
@@ -385,7 +385,7 @@ export default function DosenStatsClient({
                                                 <td className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium whitespace-nowrap">
                                                     <button
                                                         onClick={() => handleOpenDetail(dosen)}
-                                                        className="inline-flex items-center gap-1 text-indigo-600 hover:text-indigo-900 font-semibold"
+                                                        className="inline-flex items-center gap-1 text-[#325827]hover:text-green-900 font-semibold"
                                                         title="Lihat Detail Riwayat Penguji"
                                                     >
                                                         <FiEye size={14} /> <span className="hidden sm:inline">Lihat</span>
@@ -416,7 +416,7 @@ export default function DosenStatsClient({
 
                         <div className="p-6 space-y-6 max-h-[80vh] overflow-y-auto">
                             {isModalLoading || !modalData ? (
-                                <div className="text-center py-10 text-indigo-500 flex flex-col items-center">
+                                <div className="text-center py-10 text-[#325827] flex flex-col items-center">
                                     <FiLoader className="h-8 w-8 animate-spin" />
                                     <p className="mt-2">Mengambil detail riwayat...</p>
                                 </div>
@@ -424,13 +424,13 @@ export default function DosenStatsClient({
                                 <>
                                     
                                     <div className="grid grid-cols-3 gap-4">
-                                        {renderSummaryCard('Total Keseluruhan Menguji', modalData.totalMenguji, 'bg-purple-100 text-purple-800')}
-                                        {renderSummaryCard('Total Penguji Sempro', modalData.totalPengujiSempro, 'bg-blue-100 text-blue-800')}
-                                        {renderSummaryCard('Total Penguji Semhas', modalData.totalPengujiSemhas, 'bg-green-100 text-green-800')}
+                                        {renderSummaryCard('Total Keseluruhan Menguji', modalData.totalMenguji, 'bg-red-100 text-[#7a1c10]')}
+                                        {renderSummaryCard('Total Penguji Sempro', modalData.totalPengujiSempro, 'bg-green-100 text-[#325827]')}
+                                        {renderSummaryCard('Total Penguji Semhas', modalData.totalPengujiSemhas, 'bg-orange-100 text-[#e9ab19]')}
                                     </div>
 
                                     <p className="text-sm font-semibold text-gray-600 pt-2">
-                                        Riwayat di Periode Aktif: <span className='font-bold text-indigo-700'>{periodeSaatIni}</span> ({modalData.riwayat.length} entri)
+                                        Riwayat di Periode Aktif: <span className='font-bold text-green-800'>{periodeSaatIni}</span> ({modalData.riwayat.length} entri)
                                     </p>
                                     
                                  

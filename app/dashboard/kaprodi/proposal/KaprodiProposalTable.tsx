@@ -233,7 +233,7 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
     return (
         <>
 
-            <div className="bg-gradient-to-r from-blue-600 to-cyan-500 p-4 rounded-lg shadow-md flex flex-wrap items-center justify-between gap-4 mb-6">
+            <div className="bg-[#325827] p-4 rounded-lg shadow-md flex flex-wrap items-center justify-between gap-4 mb-6">
                 <div className="flex items-center gap-4">
                     <div className='flex flex-col'>
                         <label htmlFor="month" className="text-white font-semibold text-sm">Bulan</label>
@@ -268,11 +268,11 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
                 <table className="min-w-full">
                     <thead className="border-b-2 border-gray-200 bg-gray-50">
                         <tr>
-                            <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[20%]"><div className="flex items-center gap-2"><FiUser size={16} className="text-blue-600" /> <span>Mahasiswa</span></div></th>
-                            <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[15%]"><div className="flex items-center gap-2"><FiCalendar size={16} className="text-blue-600" /> <span>Tgl Pengajuan</span></div></th>
-                            <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[35%]"><div className="flex items-center gap-2"><FiBook size={16} className="text-blue-600" /> <span>Judul Skripsi</span></div></th>
-                            <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[20%]"><div className="flex items-center gap-2"><FiUsers size={16} className="text-blue-600" /> <span>Penguji/Jadwal</span></div></th>
-                            <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[10%]"><div className="flex items-center gap-2"><FiCheckCircle size={16} className="text-blue-600" /> <span>Aksi</span></div></th>
+                            <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[20%]"><div className="flex items-center gap-2"><FiUser size={16} className="text-green-800" /> <span>Mahasiswa</span></div></th>
+                            <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[15%]"><div className="flex items-center gap-2"><FiCalendar size={16} className="text-green-800" /> <span>Tgl Pengajuan</span></div></th>
+                            <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[35%]"><div className="flex items-center gap-2"><FiBook size={16} className="text-green-800" /> <span>Judul Skripsi</span></div></th>
+                            <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[20%]"><div className="flex items-center gap-2"><FiUsers size={16} className="text-green-800" /> <span>Penguji/Jadwal</span></div></th>
+                            <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[10%]"><div className="flex items-center gap-2"><FiCheckCircle size={16} className="text-green-800" /> <span>Aksi</span></div></th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
@@ -304,14 +304,14 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
                                     </td>
                              <td className="px-6 py-4">
                                     {p.status === 'DIPROSES_KAPRODI' ? (
-                                            <button onClick={() => openModal(p)} className="text-blue-600 hover:text-blue-800 text-sm font-semibold flex items-center gap-1 transition-colors">
+                                            <button onClick={() => openModal(p)} className="text-[#325827]hover:text-green-900 text-sm font-semibold flex items-center gap-1 transition-colors">
                                                 <FiSave size={14} /> Tetapkan
                                             </button>
                                         ) : p.status === 'DISETUJUI' ? (
                                             <div className="flex flex-col gap-1">
                                                 <button
                                                     onClick={() => openModal(p)}
-                                                    className="text-green-600 hover:text-green-800 text-sm font-semibold flex items-center gap-1 transition-colors"
+                                                    className="text-[#325827] hover:text-green-800 text-sm font-semibold flex items-center gap-1 transition-colors"
                                                 >
                                                     <FiEdit size={14} /> Edit
                                                 </button>
@@ -326,7 +326,7 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
                                                         </>
                                                     ) : (
                                                         <>
-                                                            <FiDownload size={14} /> Unduh Berita Acara 
+                                                            <FiDownload size={14} /> Unduh BA
                                                         </>
                                                     )}
                                                 </button>
@@ -400,14 +400,14 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
 
                         <div className="mb-6 pb-4 border-b border-gray-200">
                             <h3 className="text-lg font-semibold text-gray-700 mb-3">Dosen Pembimbing yang Sudah Ditetapkan</h3>
-                            <div className='p-4 bg-blue-50 rounded-lg border border-blue-200 grid grid-cols-1 md:grid-cols-2 gap-4'>
+                            <div className='p-4 bg-green-50 rounded-lg border border-green-200 grid grid-cols-1 md:grid-cols-2 gap-4'>
                                 <div>
                                     <p className="text-sm font-medium text-gray-700 mb-1">Pembimbing 1</p>
-                                    <p className="font-semibold text-blue-700 text-base">{selectedProposal.judul.pembimbing1 || 'Belum Ditetapkan'}</p>
+                                    <p className="font-semibold text-[#325827] text-base">{selectedProposal.judul.pembimbing1 || 'Belum Ditetapkan'}</p>
                                 </div>
                                 <div>
                                     <p className="text-sm font-medium text-gray-700 mb-1">Pembimbing 2</p>
-                                    <p className="font-semibold text-blue-700 text-base">{selectedProposal.judul.pembimbing2 || 'Belum Ditetapkan'}</p>
+                                    <p className="font-semibold text-[#325827] text-base">{selectedProposal.judul.pembimbing2 || 'Belum Ditetapkan'}</p>
                                 </div>
 
                             </div>
@@ -415,7 +415,7 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
 
 
                         <div className='mb-6'>
-                            <h3 className="text-lg font-semibold text-green-600 mb-3">Update Penguji & Jadwal Seminar Proposal</h3>
+                            <h3 className="text-lg font-semibold text-[#325827]mb-3">Update Penguji & Jadwal Seminar Proposal</h3>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
                                 <div>
@@ -467,7 +467,7 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
 
                         <div className="mt-8 flex justify-end space-x-3 border-t pt-4">
                             <button onClick={closeModal} className="px-4 py-2 bg-gray-100 text-gray-700 font-semibold rounded-md hover:bg-gray-200 transition-colors text-sm">Batal</button>
-                            <button onClick={handleAssign} disabled={isLoading} className="px-4 py-2 bg-green-600 text-white font-semibold rounded-md shadow-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm">
+                            <button onClick={handleAssign} disabled={isLoading} className="px-4 py-2 bg-[#325827] text-white font-semibold rounded-md shadow-lg hover:bg-green-800 disabled:opacity-50 disabled:cursor-not-allowed text-sm">
                                 {isLoading ? 'Menyimpan...' : (selectedProposal.status === 'DISETUJUI' ? 'Simpan Perubahan' : 'Simpan & Tetapkan Jadwal')}
                             </button>
                         </div>

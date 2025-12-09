@@ -222,7 +222,7 @@ export default function AdminDashboardClient({ titleSubmissions, proposalSubmiss
           value={stats.totalJudul}
           subtitle={periodeText}
           icon={<FiFilePlus size={22} />}
-          iconBgColor="bg-[#7a1c10]-100"
+          iconBgColor="bg-red-100"
           iconColor="text-[#7a1c10]"
         />
         <StatCard
@@ -230,7 +230,7 @@ export default function AdminDashboardClient({ titleSubmissions, proposalSubmiss
           value={stats.totalProposal}
           subtitle={periodeText}
           icon={<FiClipboard size={22} />}
-          iconBgColor="bg-[#19ca28]-100"
+          iconBgColor="bg-green-100"
           iconColor="text-[#19ca28]"
         />
         <StatCard
@@ -238,7 +238,7 @@ export default function AdminDashboardClient({ titleSubmissions, proposalSubmiss
           value={stats.totalHasil}
           subtitle={periodeText}
           icon={<FiCheckSquare size={22} />}
-          iconBgColor="bg-[#e9ab19]-100"
+          iconBgColor="bg-orange-100"
           iconColor="text-[#e9ab19]"
         />
       </div>
@@ -254,7 +254,7 @@ export default function AdminDashboardClient({ titleSubmissions, proposalSubmiss
             notifications={pendingTitleNotifications}
             emptyText="Tidak ada pengajuan judul yang perlu diverifikasi."
             viewLink="/dashboard/admin/verifikasi"
-            iconBgColor="bg-[#7a1c10]-100"
+            iconBgColor="bg-red-100"
             iconColor="text-[#7a1c10]"
           />
           <ActionCard
@@ -263,7 +263,7 @@ export default function AdminDashboardClient({ titleSubmissions, proposalSubmiss
             notifications={pendingProposalNotifications}
             emptyText="Tidak ada pendaftaran proposal yang perlu diverifikasi."
             viewLink="/dashboard/admin/proposal"
-             iconBgColor="bg-[#19ca28]-100"
+             iconBgColor="bg-green-100"
              iconColor="text-[#19ca28]"
           />
           <ActionCard
@@ -272,7 +272,7 @@ export default function AdminDashboardClient({ titleSubmissions, proposalSubmiss
             notifications={pendingHasilNotifications}
             emptyText="Tidak ada pendaftaran hasil yang perlu diverifikasi."
             viewLink="/dashboard/admin/seminar-hasil"
-            iconBgColor="bg-[#e9ab19]-100"
+            iconBgColor="bg-orange-100"
             iconColor="text-[#e9ab19]"
           />
         </div>

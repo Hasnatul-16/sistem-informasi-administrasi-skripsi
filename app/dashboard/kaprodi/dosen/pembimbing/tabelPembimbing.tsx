@@ -192,7 +192,7 @@ export default function PembimbingStatsClient({
     const RoleBadge = ({ role }: { role: string }) => {
         let color = 'bg-gray-100 text-gray-800';
         if (role.toLowerCase().includes('penguji')) {
-            color = 'bg-indigo-100 text-indigo-800';
+            color = 'bg-green-100 text-green-800';
         } else if (role.toLowerCase().includes('pembimbing')) {
             color = 'bg-green-100 text-green-800';
         }
@@ -213,7 +213,7 @@ export default function PembimbingStatsClient({
             
             <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md border space-y-3 sm:space-y-4">
   
-                <div className="bg-gradient-to-r from-blue-600 to-cyan-500 p-3 sm:p-4 rounded-lg shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+                <div className="bg-[#325827] p-3 sm:p-4 rounded-lg shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 w-full sm:w-auto">
                         <div className="flex flex-col w-full sm:w-auto">
                             <label htmlFor="semester" className="text-xs sm:text-sm font-semibold text-white mb-1">
@@ -266,7 +266,7 @@ export default function PembimbingStatsClient({
                 
                 <div className="mt-4 sm:mt-6">
                     {isTableLoading ? (
-                        <div className="text-center py-10 text-blue-500 flex flex-col items-center">
+                        <div className="text-center py-10 text-[#325827] flex flex-col items-center">
                             <FiLoader className="h-8 w-8 animate-spin" />
                             <p className="mt-2 text-sm">Memuat data...</p>
                         </div>
@@ -282,23 +282,23 @@ export default function PembimbingStatsClient({
                                     <tr>
                                   
                                         <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left">
-                                            <div className="flex items-center gap-1 sm:gap-2"><FiUsers size={14} className="text-blue-600" /><span>Dosen</span></div>
+                                            <div className="flex items-center gap-1 sm:gap-2"><FiUsers size={14} className="text-green-800" /><span>Dosen</span></div>
                                         </th>
                                        
                                         <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
-                                            <div className="flex items-center gap-1 sm:gap-2"><FiUser size={14} className="text-blue-600" /><span>Pembimbing 1</span></div>
+                                            <div className="flex items-center gap-1 sm:gap-2"><FiUser size={14} className="text-green-800" /><span>Pembimbing 1</span></div>
                                         </th>
                                         
                                         <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
-                                            <div className="flex items-center gap-1 sm:gap-2"><FiUser size={14} className="text-blue-600" /><span>Pembimbing 2</span></div>
+                                            <div className="flex items-center gap-1 sm:gap-2"><FiUser size={14} className="text-green-800" /><span>Pembimbing 2</span></div>
                                         </th>
                                         
                                         <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
-                                            <div className="flex items-center gap-1 sm:gap-2"><FiActivity size={14} className="text-blue-600" /><span>Total Bimbingan</span></div>
+                                            <div className="flex items-center gap-1 sm:gap-2"><FiActivity size={14} className="text-green-800" /><span>Total Bimbingan</span></div>
                                         </th>
                                       
                                         <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
-                                            <div className="flex items-center gap-1 sm:gap-2"><FiSettings size={14} className="text-blue-600" /><span>Aksi</span></div>
+                                            <div className="flex items-center gap-1 sm:gap-2"><FiSettings size={14} className="text-green-800" /><span>Aksi</span></div>
                                         </th>
                                     </tr>
                                 </thead>
@@ -336,7 +336,7 @@ export default function PembimbingStatsClient({
                                                 <td className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium whitespace-nowrap">
                                                     <button
                                                         onClick={() => handleOpenDetail(dosen)}
-                                                        className="inline-flex items-center gap-1 text-indigo-600 hover:text-indigo-900 font-semibold"
+                                                        className="inline-flex items-center gap-1 text-[#325827] hover:text-green-900 font-semibold"
                                                         title="Lihat Detail Riwayat Pembimbing"
                                                     >
                                                         <FiEye size={14} /> <span className="hidden sm:inline">Lihat</span>
@@ -367,7 +367,7 @@ export default function PembimbingStatsClient({
 
                         <div className="p-6 space-y-6 max-h-[80vh] overflow-y-auto">
                             {isModalLoading || !modalData ? (
-                                <div className="text-center py-10 text-indigo-500 flex flex-col items-center">
+                                <div className="text-center py-10 text-[#325827] flex flex-col items-center">
                                     <FiLoader className="h-8 w-8 animate-spin" />
                                     <p className="mt-2">Mengambil detail riwayat...</p>
                                 </div>
@@ -375,13 +375,13 @@ export default function PembimbingStatsClient({
                                 <>
                                    
                                     <div className="grid grid-cols-3 gap-4">
-                                        {renderSummaryCard('Total Bimbingan', modalData.totalBimbingan, 'bg-purple-100 text-purple-800')}
-                                        {renderSummaryCard('Total Pembimbing 1', modalData.totalPembimbing1, 'bg-green-100 text-green-800')}
-                                        {renderSummaryCard('Total Pembimbing 2', modalData.totalPembimbing2, 'bg-teal-100 text-teal-800')}
+                                        {renderSummaryCard('Total Bimbingan', modalData.totalBimbingan, 'bg-red-100 text-[#7a1c10]')}
+                                        {renderSummaryCard('Total Pembimbing 1', modalData.totalPembimbing1, 'bg-green-100 text-[#325827]')}
+                                        {renderSummaryCard('Total Pembimbing 2', modalData.totalPembimbing2, 'bg-orange-100 text-[#e9ab19]')}
                                     </div>
 
                                     <p className="text-sm font-semibold text-gray-600 pt-2">
-                                        Riwayat di Periode Aktif: <span className='font-bold text-indigo-700'>{periodeSaatIni}</span> ({modalData.riwayat.length} entri)
+                                        Riwayat di Periode Aktif: <span className='font-bold text-[#325827]'>{periodeSaatIni}</span> ({modalData.riwayat.length} entri)
                                     </p>
                                     
                               

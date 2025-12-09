@@ -124,7 +124,7 @@ export default function KaprodiStatisticsClient({ titleSubmissions, proposalSubm
               name="tanggal"
               value={filters.tanggal}
               onChange={handleFilterChange}
-              className="w-full mt-1 p-2 pl-10 border border-gray-300 rounded-md bg-white focus:ring-blue-500 focus:border-blue-500 appearance-none"
+              className="w-full mt-1 p-2 pl-10 border border-gray-300 rounded-md bg-white focus:ring-green-700 focus:border-green-700 appearance-none"
             />
             <FiCalendar className="absolute left-3 top-1/2 -translate-y-1/2 mt-0.5 text-gray-400 pointer-events-none" />
           </div>
@@ -135,7 +135,7 @@ export default function KaprodiStatisticsClient({ titleSubmissions, proposalSubm
             name="bulan"
             value={filters.bulan}
             onChange={handleFilterChange}
-            className="w-full mt-1 p-2 border border-gray-300 rounded-md bg-white focus:ring-blue-500 focus:border-blue-500"
+            className="w-full mt-1 p-2 border border-gray-300 rounded-md bg-white focus:ring-green-700 focus:border-green-700"
           >
             {Array.from({ length: 12 }, (_, i) => (
               <option key={i + 1} value={i + 1}>
@@ -150,7 +150,7 @@ export default function KaprodiStatisticsClient({ titleSubmissions, proposalSubm
             name="semester"
             value={filters.semester}
             onChange={handleFilterChange}
-            className="w-full mt-1 p-2 border border-gray-300 rounded-md bg-white focus:ring-blue-500 focus:border-blue-500"
+            className="w-full mt-1 p-2 border border-gray-300 rounded-md bg-white focus:ring-green-700 focus:border-green-700"
           >
             <option value="ganjil">Ganjil</option>
             <option value="genap">Genap</option>
@@ -207,7 +207,7 @@ export default function KaprodiStatisticsClient({ titleSubmissions, proposalSubm
           <div>
             <button
               onClick={handleApplyFilters}
-              className="w-full bg-blue-600 text-white font-semibold p-2 rounded-md hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 text-sm"
+              className="w-full bg-[#325827] text-white font-semibold p-2 rounded-md hover:bg-green-900 transition-colors flex items-center justify-center gap-2 text-sm"
             >
               <FiFilter size={16} /> Terapkan
             </button>
@@ -221,24 +221,24 @@ export default function KaprodiStatisticsClient({ titleSubmissions, proposalSubm
           value={stats.totalJudul}
           subtitle={periodeText}
           icon={<FiFilePlus size={22} />}
-          iconBgColor="bg-blue-100"
-          iconColor="text-blue-600"
+          iconBgColor="bg-red-100"
+          iconColor="text-[#7a1c10]"
         />
         <StatCard
-          title="Total Sem. Proposal"
+          title="Total Seminar Proposal"
           value={stats.totalProposal}
           subtitle={periodeText}
           icon={<FiClipboard size={22} />}
           iconBgColor="bg-green-100"
-          iconColor="text-green-600"
+          iconColor="text-[#19ca28]"
         />
         <StatCard
-          title="Total Sem. Hasil"
+          title="Total Sidang Skripsi"
           value={stats.totalHasil}
           subtitle={periodeText}
           icon={<FiCheckSquare size={22} />}
           iconBgColor="bg-orange-100"
-          iconColor="text-orange-600"
+          iconColor="text-[#e9ab19]"
         />
       </div>
     </div>

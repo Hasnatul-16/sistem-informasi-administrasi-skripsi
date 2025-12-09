@@ -35,7 +35,7 @@ export default async function AdminDashboardPage() {
       <div className=" bg-[#325827] p-5 rounded-xl shadow-lg text-white flex justify-between items-center">
         <div>
        
-          <h1 className="text-xl font-bold">Selamat datang, Admin {adminName}!</h1>
+          <h1 className="text-xl font-bold">Selamat datang, {adminName}</h1>
           <p className="mt-1 opacity-90 text-sm">Dashboard pengelolaan Sistem Administrasi Skripsi.</p>
         </div>
       
