@@ -49,7 +49,7 @@ export default async function SeminarHasilPage() {
           <p className="text-gray-600 mb-6">
             Anda belum bisa mendaftar Seminar Hasil karena judul skripsi Anda belum disetujui.
           </p>
-          <Link href="/dashboard/mahasiswa" className="text-blue-600 hover:underline font-medium">
+          <Link href="/dashboard/mahasiswa" className="text-[#325827] hover:underline font-medium">
             Kembali ke Dashboard
           </Link>
         </div>
@@ -71,9 +71,9 @@ export default async function SeminarHasilPage() {
           <FiAlertTriangle className="w-12 h-12 mx-auto text-red-500 mb-4" />
           <h1 className="text-xl font-bold text-gray-800 mb-2">Seminar Proposal Belum Lulus</h1>
           <p className="text-gray-600 mb-6">
-            Anda harus LULUS Seminar Proposal terlebih dahulu sebelum mendaftar Seminar Hasil.
+            Anda harus LULUS Seminar Proposal terlebih dahulu sebelum mendaftar Sidang Skripsi.
           </p>
-          <Link href="/dashboard/mahasiswa" className="text-blue-600 hover:underline font-medium">
+          <Link href="/dashboard/mahasiswa" className="text-[#325827] hover:underline font-medium">
             Kembali Ke Dashboard
           </Link>
         </div>

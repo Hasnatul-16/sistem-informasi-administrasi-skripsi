@@ -26,7 +26,7 @@ const ActionCard = ({ title, linkBase, icon, iconBgColor, submissions }: {
 
     return (
      
-        <div className="bg-white p-3 sm:p-5 rounded-lg shadow-md border border-transparent hover:border-blue-500 hover:shadow-lg transition-all duration-300 h-full flex flex-col justify-between">
+        <div className="bg-white p-3 sm:p-5 rounded-lg shadow-md border border-transparent hover:border-green-500 hover:shadow-lg transition-all duration-300 h-full flex flex-col justify-between">
             <div>
                 <div className="flex items-start gap-2 sm:gap-3 mb-3 sm:mb-4 min-w-0">
                    

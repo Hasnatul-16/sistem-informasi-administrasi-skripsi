@@ -136,17 +136,17 @@ export default function PengajuanJudulForm({ dosenList }: PengajuanJudulFormProp
             <div className="space-y-6">
               <div>
                 <label htmlFor="topik" className="block text-sm font-medium text-gray-700 mb-1">Topik <span className="text-red-500">*</span></label>
-                <input id="topik" name="topik" type="text" value={formData.topik} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" required placeholder="Contoh: Machine Learning"/>
+                <input id="topik" name="topik" type="text" value={formData.topik} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-700 focus:border-green-700" required placeholder="Contoh: Machine Learning"/>
               </div>
               <div>
                 <label htmlFor="judul" className="block text-sm font-medium text-gray-700 mb-1">Judul Skripsi <span className="text-red-500">*</span></label>
-                <textarea id="judul" name="judul" rows={4} value={formData.judul} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="Masukkan judul skripsi Anda..." required />
+                <textarea id="judul" name="judul" rows={4} value={formData.judul} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-700 focus:border-green-700" placeholder="Masukkan judul skripsi Anda..." required />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
                 <div>
                   <label htmlFor="usulan_pembimbing1" className="block text-sm font-medium text-gray-700 mb-1">Usulan Calon Pembimbing 1 <span className="text-red-500">*</span></label>
-                  <select id="usulan_pembimbing1" name="usulan_pembimbing1" value={formData.usulan_pembimbing1} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white" required>
+                  <select id="usulan_pembimbing1" name="usulan_pembimbing1" value={formData.usulan_pembimbing1} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-700 focus:border-green-700 bg-white" required>
                     <option value="" disabled>Pilih Dosen</option>
                     {Array.isArray(dosenList) && dosenList.length > 0 ? (
                       dosenList.map(dosen => (
@@ -159,7 +159,7 @@ export default function PengajuanJudulForm({ dosenList }: PengajuanJudulFormProp
                 </div>
                 <div>
                   <label htmlFor="usulan_pembimbing2" className="block text-sm font-medium text-gray-700 mb-1">Usulan Calon Pembimbing 2 <span className="text-red-500">*</span></label>
-                  <select id="usulan_pembimbing2" name="usulan_pembimbing2" value={formData.usulan_pembimbing2} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white" required>
+                  <select id="usulan_pembimbing2" name="usulan_pembimbing2" value={formData.usulan_pembimbing2} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-700 focus:border-green-700 bg-white" required>
                     <option value="" disabled>Pilih Dosen</option>
                     {Array.isArray(dosenList) && dosenList.length > 0 ? (
                       dosenList.map(dosen => (
@@ -172,7 +172,7 @@ export default function PengajuanJudulForm({ dosenList }: PengajuanJudulFormProp
                 </div>
                 <div>
                   <label htmlFor="usulan_pembimbing3" className="block text-sm font-medium text-gray-700 mb-1">Usulan Calon Pembimbing 3 </label>
-                  <select id="usulan_pembimbing3" name="usulan_pembimbing3" value={formData.usulan_pembimbing3} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white">
+                  <select id="usulan_pembimbing3" name="usulan_pembimbing3" value={formData.usulan_pembimbing3} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-700 focus:border-green-700 bg-white">
                     <option value="">Pilih Dosen</option>
                     {Array.isArray(dosenList) && dosenList.length > 0 ? (
                       dosenList.map(dosen => (
@@ -197,7 +197,7 @@ export default function PengajuanJudulForm({ dosenList }: PengajuanJudulFormProp
           </div>
 
           <div className="flex justify-end pt-4">
-            <button type="submit" disabled={isLoading} className="inline-flex items-center gap-2 py-2 px-5 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-300">
+            <button type="submit" disabled={isLoading} className="inline-flex items-center gap-2 py-2 px-5 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#325827] hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:bg-green-300">
               {isLoading ? 'Mengirim...' : <><FiSend /> Kirim Pengajuan</>}
             </button>
           </div>

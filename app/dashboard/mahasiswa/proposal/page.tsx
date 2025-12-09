@@ -53,7 +53,7 @@ export default async function SeminarProposalPage() {
           <p className="text-gray-600 mb-6">
             Anda belum bisa mendaftar Seminar Proposal karena judul skripsi Anda belum disetujui oleh Ketua Program Studi.
           </p>
-          <Link href="/dashboard/mahasiswa" className="text-blue-600 hover:underline font-medium">
+          <Link href="/dashboard/mahasiswa" className="text-[#325827] hover:underline font-medium">
             Kembali ke Dashboard
           </Link>
         </div>

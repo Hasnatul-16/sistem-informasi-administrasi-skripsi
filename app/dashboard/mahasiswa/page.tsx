@@ -201,12 +201,12 @@ export default async function MahasiswaDashboardPage() {
           {steps.map((step, index) => (
             <div key={step} className="flex items-center w-full">
               <div className="flex flex-col items-center">
-                <div className={`flex items-center justify-center h-10 w-10 rounded-full ${index < currentStepIndex ? 'bg-green-500 text-white' :
-                  index === currentStepIndex ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500'
+                <div className={`flex items-center justify-center h-10 w-10 rounded-full ${index < currentStepIndex ? 'bg-green-400 text-white' :
+                  index === currentStepIndex ? 'bg-[#325827] text-white' : 'bg-gray-200 text-gray-500'
                   }`}>
                   {index < currentStepIndex ? <FiCheckCircle /> : index + 1}
                 </div>
-                <p className={`mt-2 text-xs font-medium text-center ${index === currentStepIndex ? 'text-blue-600' : 'text-gray-500'}`}>{step}</p>
+                <p className={`mt-2 text-xs font-medium text-center ${index === currentStepIndex ? 'text-[#325827]' : 'text-gray-500'}`}>{step}</p>
               </div>
               {index < steps.length - 1 && (
                 <div className={`flex-1 h-1 ${index < currentStepIndex ? 'bg-green-500' : 'bg-gray-200'}`}></div>
@@ -229,7 +229,7 @@ export default async function MahasiswaDashboardPage() {
             <FiEdit className="mx-auto h-12 w-12 text-gray-400" />
             <h3 className="mt-2 text-lg font-medium text-gray-900">Anda Belum Mengajukan Judul</h3>
             <p className="mt-1 text-sm text-gray-500">Mulai langkah pertama perjalanan skripsi Anda sekarang.</p>
-            <Link href="/dashboard/mahasiswa/pengajuan-judul" className="mt-6 inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700">
+            <Link href="/dashboard/mahasiswa/pengajuan-judul" className="mt-6 inline-flex items-center gap-2 px-4 py-2 bg[#325827] text-white font-semibold rounded-lg hover:bg-green-800">
               Ajukan Judul Sekarang <FiArrowRight />
             </Link>
           </div>
@@ -336,10 +336,10 @@ export default async function MahasiswaDashboardPage() {
           ) : (latestJudulSubmission?.status === 'DISETUJUI' && !latestProposalSubmission) ? (
           
             <div className="text-center py-10">
-              <FiBookOpen className="mx-auto h-12 w-12 text-blue-500" />
+              <FiBookOpen className="mx-auto h-12 w-12 text-[#325827]" />
               <h3 className="mt-2 text-lg font-medium text-gray-900">Judul Disetujui, Siap Ajukan Proposal</h3>
               <p className="mt-1 text-sm text-gray-500">Lengkapi dokumen dan segera ajukan pendaftaran Anda.</p>
-              <Link href="/dashboard/mahasiswa/proposal" className="mt-6 inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700">
+              <Link href="/dashboard/mahasiswa/proposal" className="mt-6 inline-flex items-center gap-2 px-4 py-2 bg-[#325827] text-white font-semibold rounded-lg hover:bg-green-800">
                 Ajukan Proposal Sekarang <FiArrowRight />
               </Link>
             </div>
@@ -434,10 +434,10 @@ export default async function MahasiswaDashboardPage() {
           ) : (
           
             <div className="text-center py-10">
-              <FiBook className="mx-auto h-12 w-12 text-blue-500" />
+              <FiBook className="mx-auto h-12 w-12 text-[#325827]" />
               <h3 className="mt-2 text-lg font-medium text-gray-900">Siap Ajukan Sidang Skripsi</h3>
               <p className="mt-1 text-sm text-gray-500">Proposal telah disetujui. Ajukan Sidang Skripsi Anda sekarang.</p>
-              <Link href="/dashboard/mahasiswa/seminar-hasil" className="mt-6 inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700">
+              <Link href="/dashboard/mahasiswa/seminar-hasil" className="mt-6 inline-flex items-center gap-2 px-4 py-2 bg-[#325827] text-white font-semibold rounded-lg hover:bg-green-800">
                 Ajukan Sidang Skripsi Sekarang <FiArrowRight />
               </Link>
             </div>

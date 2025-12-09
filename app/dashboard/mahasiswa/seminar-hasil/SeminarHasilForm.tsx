@@ -199,7 +199,7 @@ export default function SeminarHasilForm({ judulId, judulData }: SeminarHasilFor
                                     onChange={handleJudulChange}
                                     placeholder="Masukkan topik skripsi"
                                     required
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-gray-800 font-medium"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-700 focus:border-green-800 text-gray-800 font-medium"
                                 />
 
                             </div>
@@ -215,25 +215,25 @@ export default function SeminarHasilForm({ judulId, judulData }: SeminarHasilFor
                                     onChange={handleJudulChange}
                                     placeholder="Masukkan judul skripsi"
                                     required
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 min-h-[100px] text-gray-800"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-700 focus:border-green-700 min-h-[100px] text-gray-800"
                                 />
                             </div>
                             <div className="block text-sm font-small text-gray-500 mb-5 ">Note: Jika ada Perubahan judul setelah anda melakukan bimbingan, mohon untuk menginputkan ulang judul atau topik pada kolom di atas</div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-dashed border-gray-300">
                                 <div>
-                                    <label className="block text-sm font-medium text-blue-700 mb-1">
+                                    <label className="block text-sm font-medium text-[#325827] mb-1">
                                         Pembimbing 1
                                     </label>
-                                    <div className="w-full px-3 py-2 border border-blue-300 rounded-md shadow-sm bg-blue-50 text-blue-800 font-semibold">
+                                    <div className="w-full px-3 py-2 border border-[#325827] rounded-md shadow-sm bg-green-50 text-[#325827] font-semibold">
                                         {judulData.pembimbing1 || "Belum Ditetapkan"}
                                     </div>
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-blue-700 mb-1">
+                                    <label className="block text-sm font-medium text-[#325827] mb-1">
                                         Pembimbing 2
                                     </label>
-                                    <div className="w-full px-3 py-2 border border-blue-300 rounded-md shadow-sm bg-blue-50 text-blue-800 font-semibold">
+                                    <div className="w-full px-3 py-2 border border-[#325827] rounded-md shadow-sm bg-green-50 text-[#325827] font-semibold">
                                         {judulData.pembimbing2 || "Belum Ditetapkan"}
                                     </div>
                                 </div>
@@ -277,7 +277,7 @@ export default function SeminarHasilForm({ judulId, judulData }: SeminarHasilFor
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="inline-flex items-center gap-2 py-2.5 px-6 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                            className="inline-flex items-center gap-2 py-2.5 px-6 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#325827] hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
                         >
                             {isLoading ? 'Mengirim...' : <><FiSend /> Kirim Pendaftaran Sidang Skripsi</>}
                         </button>
