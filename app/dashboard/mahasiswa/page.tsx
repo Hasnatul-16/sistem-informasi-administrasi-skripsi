@@ -188,10 +188,10 @@ export default async function MahasiswaDashboardPage() {
   return (
     <div className="space-y-8">
     
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Selamat Datang, {studentProfile.nama}!</h1>
-        <p className="mt-1 text-gray-600">Pantau progres skripsi Anda dan lihat status pengajuan terbaru di sini.</p>
-      </div>
+        <div className="bg-[#325827] p-4 sm:p-6 rounded-xl shadow-lg text-white">
+                <h1 className="text-lg sm:text-xl lg:text-2xl font-bold break-words">Selamat Datang, {studentProfile.nama}</h1>
+                <p className="mt-2 sm:mt-1 opacity-90 text-xs sm:text-sm break-words line-clamp-2">Pantau progres skripsi Anda dan lihat status pengajuan terbaru di sini.</p>
+           </div>
 
       <hr className="border-gray-200" />
 
@@ -355,7 +355,7 @@ export default async function MahasiswaDashboardPage() {
             <div className="text-center py-10 text-gray-500">
               <FiBookOpen className="mx-auto h-12 w-12 text-gray-400" />
              
-              <p className="mt-2">Seminar Proposal <strong>&quot;Disetujui&quot;</strong> terlebih dahulu untuk mengajukan Sidang Skripsi.</p>
+              <p className="mt-2">Judul <strong>&quot;Disetujui&quot;</strong> terlebih dahulu untuk mengajukan Seminar Proposal.</p>
             </div>
           )
         }

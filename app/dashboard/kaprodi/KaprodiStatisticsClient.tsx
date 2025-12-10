@@ -92,9 +92,9 @@ export default function KaprodiStatisticsClient({ titleSubmissions, proposalSubm
   const periodFilteredHasils = useMemo(() => filterByPeriod(hasilSubmissions), [hasilSubmissions, filterByPeriod]);
 
   const stats = {
-    totalJudul: periodFilteredTitles.length,
-    totalProposal: periodFilteredProposals.length,
-    totalHasil: periodFilteredHasils.length
+    totalJudul: periodFilteredTitles.filter(item => item.status === 'DISETUJUI').length,
+    totalProposal: periodFilteredProposals.filter(item => item.status === 'DISETUJUI').length,
+    totalHasil: periodFilteredHasils.filter(item => item.status === 'DISETUJUI').length
   };
 
   const periodeText = useMemo(() => {
