@@ -182,6 +182,10 @@ export default async function MahasiswaDashboardPage() {
     currentStepIndex = 2; 
   }
 
+  if (isSeminarHasilApproved) {
+    currentStepIndex = 3;
+  }
+
   const pendingStatuses: Status[] = ['TERKIRIM', 'DIPERIKSA_ADMIN', 'DIPROSES_KAPRODI'];
 
 
