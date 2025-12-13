@@ -64,7 +64,7 @@ const FeatureItem = ({ icon: Icon, title, description, colorClass }:
 );
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -78,7 +78,7 @@ export default function LoginPage() {
     try {
       const result = await signIn('credentials', {
         redirect: false,
-        email,
+        identifier,
         password,
       });
 
@@ -136,12 +136,12 @@ export default function LoginPage() {
             <p className="text-gray-500 mb-8 text-sm">Silakan login untuk melanjutkan ke sistem</p>
             <form className="space-y-4" onSubmit={handleSubmit}>
               <CustomInput
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                id="identifier"
+                type="text"
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
                 icon={<FiMail className="h-5 w-5" />}
-                placeholder="Masukkan Email"
+                placeholder="Masukkan Email atau NIM"
               />
               <CustomInput
                 id="password"

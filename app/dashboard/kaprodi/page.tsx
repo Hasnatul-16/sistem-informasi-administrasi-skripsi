@@ -1,6 +1,6 @@
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/auth';
-import { FiClipboard, FiFilePlus, FiCheckSquare, FiLayers, FiBell, FiArrowRight } from 'react-icons/fi';
+import { FiClipboard, FiFilePlus, FiCheckSquare, FiBell, FiArrowRight } from 'react-icons/fi';
 import prisma from '@/lib/prisma';
 import { Jurusan, Judul, Proposal, SeminarHasil } from '@prisma/client';
 import Link from 'next/link';

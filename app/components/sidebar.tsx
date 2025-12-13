@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { BookOpen, ChevronRight, LogOut, User as UserIcon } from "lucide-react";
+import { ChevronRight, LogOut, User as UserIcon } from "lucide-react";
 import { menuItemsByRole, MenuItem } from "./sidebarConfig";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
