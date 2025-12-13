@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from 'react';
+import { useSearchParams } from 'next/navigation';
 import type { Judul, Mahasiswa, User, Dosen, Status } from '@prisma/client';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
@@ -34,17 +35,21 @@ const StatusBadge = ({ status }: { status: Status }) => {
 
 
 export default function KaprodiSubmissionTable({ initialSubmissions, lecturers }: KaprodiTableProps) {
+  const searchParams = useSearchParams();
+  const urlMonth = searchParams.get('month');
+  const urlYear = searchParams.get('year');
+  const currentMonth = new Date().getMonth() + 1;
+  const currentYear = new Date().getFullYear();
+
   const [submissions, setSubmissions] = useState(initialSubmissions ?? []);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSubmission, setSelectedSubmission] = useState<SubmissionWithStudent | null>(null);
   const [pembimbing, setPembimbing] = useState({ p1: '', p2: '' });
   const [isLoading, setIsLoading] = useState(false);
-  const currentMonth = new Date().getMonth() + 1;
-  const currentYear = new Date().getFullYear();
 
   const [filters, setFilters] = useState({
-    month: currentMonth,
-    year: currentYear,
+    month: urlMonth ? parseInt(urlMonth) : currentMonth,
+    year: urlYear ? parseInt(urlYear) : currentYear,
   });
 
   const [searchTerm, setSearchTerm] = useState('');

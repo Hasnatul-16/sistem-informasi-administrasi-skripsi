@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import type { Proposal, Judul, Mahasiswa, User, Dosen, Status } from '@prisma/client';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
@@ -49,6 +50,12 @@ const formatDateToLocalInput = (dateString: string | Date): string => {
 };
 
 export default function KaprodiProposalTable({ initialProposals, lecturers }: KaprodiProposalTableProps) {
+    const searchParams = useSearchParams();
+    const urlMonth = searchParams.get('month');
+    const urlYear = searchParams.get('year');
+    const currentMonth = new Date().getMonth() + 1;
+    const currentYear = new Date().getFullYear();
+
     const [proposals, setProposals] = useState(initialProposals ?? []);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedProposal, setSelectedProposal] = useState<ProposalWithDetails | null>(null);
@@ -62,13 +69,9 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
     const [isLoading, setIsLoading] = useState(false);
     const [loadingId, setLoadingId] = useState<number | null>(null);
 
-
-    const currentMonth = new Date().getMonth() + 1;
-    const currentYear = new Date().getFullYear();
-
     const [filters, setFilters] = useState({
-        month: currentMonth,
-        year: currentYear,
+        month: urlMonth ? parseInt(urlMonth) : currentMonth,
+        year: urlYear ? parseInt(urlYear) : currentYear,
     });
 
     const [searchQuery, setSearchQuery] = useState('');

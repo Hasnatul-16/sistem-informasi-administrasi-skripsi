@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import type { SeminarHasil, Judul, Mahasiswa, User, Dosen, Status } from '@prisma/client';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
@@ -49,6 +50,9 @@ const formatDateToLocalInput = (dateString: string | Date): string => {
 };
 
 export default function KaprodiHasilTable({ initialSeminarHasil, lecturers }: KaprodiHasilTableProps) {
+    const searchParams = useSearchParams();
+    const router = useRouter();
+    const pathname = usePathname();
     const [seminarHasil, setSeminarHasil] = useState(initialSeminarHasil ?? []);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedSeminarHasil, setSelectedSeminarHasil] = useState<SeminarHasilWithDetails | null>(null);
@@ -69,9 +73,26 @@ export default function KaprodiHasilTable({ initialSeminarHasil, lecturers }: Ka
     const monthOptions = Array.from({ length: 12 }, (_, i) => ({ value: i + 1, label: new Date(0, i).toLocaleString('id-ID', { month: 'long' }) }));
     const yearOptions = [currentYear, currentYear - 1, currentYear - 2];
 
+    useEffect(() => {
+        const monthParam = searchParams.get('month');
+        const yearParam = searchParams.get('year');
+        if (monthParam && yearParam) {
+            setFilters({
+                month: parseInt(monthParam),
+                year: parseInt(yearParam)
+            });
+        }
+    }, [searchParams]);
+
     const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const { name, value } = e.target;
-        setFilters(prev => ({ ...prev, [name]: parseInt(value) }));
+        const newFilters = { ...filters, [name]: parseInt(value) };
+        setFilters(newFilters);
+
+        const params = new URLSearchParams(searchParams.toString());
+        params.set('month', newFilters.month.toString());
+        params.set('year', newFilters.year.toString());
+        router.push(`${pathname}?${params.toString()}`);
     };
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {

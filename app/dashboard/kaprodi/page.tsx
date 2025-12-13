@@ -22,10 +22,16 @@ const ActionCard = ({ title, icon, iconBgColor, iconColor, notifications, emptyT
 }) => {
     const getNotificationDetails = (item: TitleSubmissionWithStudent | ProposalWithStudent | HasilWithStudent) => {
         const mahasiswa = 'mahasiswa' in item ? item.mahasiswa : item.judul.mahasiswa;
+        const tanggal = item.tanggal;
+        const date = tanggal ? new Date(tanggal) : null;
+        const month = date ? date.getMonth() + 1 : null;
+        const year = date ? date.getFullYear() : null;
         return {
             id: item.id,
             nama: mahasiswa?.nama || 'N/A',
-            jurusan: mahasiswa?.jurusan || 'N/A'
+            jurusan: mahasiswa?.jurusan || 'N/A',
+            month,
+            year,
         };
     };
 
@@ -51,14 +57,14 @@ const ActionCard = ({ title, icon, iconBgColor, iconColor, notifications, emptyT
                 {notifications.length > 0 ? (
                     <ul className="space-y-2 sm:space-y-3 max-h-48 overflow-y-auto pr-2">
                         {notifications.map(item => {
-                            const { id, nama, jurusan } = getNotificationDetails(item);
+                            const { id, nama, jurusan, month, year } = getNotificationDetails(item);
                             return (
                                 <li key={id} className="flex items-center justify-between gap-2">
                                     <div className="min-w-0">
                                         <p className="font-medium text-xs sm:text-sm text-gray-800 truncate">{nama}</p>
                                         <p className="text-xs text-gray-500">{jurusan.replace('_', ' ')}</p>
                                     </div>
-                                    <Link href={`${viewLink}`} className="text-xs sm:text-sm font-semibold text-[#325827] hover:underline flex items-center gap-1 flex-shrink-0">
+                                    <Link href={`${viewLink}?month=${month}&year=${year}`} className="text-xs sm:text-sm font-semibold text-[#325827] hover:underline flex items-center gap-1 flex-shrink-0">
                                         <span className="hidden sm:inline">Lihat</span> <FiArrowRight size={14} />
                                     </Link>
                                 </li>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useCallback } from 'react';
+import Link from 'next/link';
 import { FiFilter, FiCalendar, FiFilePlus, FiClipboard, FiCheckSquare } from 'react-icons/fi';
 import type { Judul, Proposal, SeminarHasil, Jurusan } from '@prisma/client';
 
@@ -16,27 +17,36 @@ interface KaprodiStatisticsProps {
 }
 
 
-const StatCard = ({ title, value, subtitle, icon, iconBgColor, iconColor }: {
+const StatCard = ({ title, value, subtitle, icon, iconBgColor, iconColor, link }: {
   title: string,
   value: number,
   subtitle: string,
   icon: React.ReactNode,
   iconBgColor: string,
-  iconColor: string
-}) => (
-  <div className="bg-white p-5 rounded-xl shadow-md border flex flex-col items-center text-center gap-2 justify-between transition-transform hover:scale-105 hover:shadow-lg min-h-[160px]">
-    <div className={`flex-shrink-0 p-2.5 rounded-full ${iconBgColor}`}>
-      <div className={iconColor}>
-        {icon}
+  iconColor: string,
+  link?: string
+}) => {
+  const content = (
+    <div className="bg-white p-5 rounded-xl shadow-md border flex flex-col items-center text-center gap-2 justify-between transition-transform hover:scale-105 hover:shadow-lg min-h-[160px] cursor-pointer">
+      <div className={`flex-shrink-0 p-2.5 rounded-full ${iconBgColor}`}>
+        <div className={iconColor}>
+          {icon}
+        </div>
       </div>
+      <div className='flex flex-col'>
+        <p className="text-xs font-semibold text-gray-700">{title}</p>
+        <p className={`text-3xl font-bold ${iconColor}`}>{value}</p>
+      </div>
+      <p className="text-xs text-gray-500">{subtitle}</p>
     </div>
-    <div className='flex flex-col'>
-      <p className="text-xs font-semibold text-gray-700">{title}</p>
-      <p className={`text-3xl font-bold ${iconColor}`}>{value}</p>
-    </div>
-    <p className="text-xs text-gray-500">{subtitle}</p>
-  </div>
-);
+  );
+
+  if (link) {
+    return <Link href={link}>{content}</Link>;
+  }
+
+  return content;
+};
 
 export default function KaprodiStatisticsClient({ titleSubmissions, proposalSubmissions, hasilSubmissions }: KaprodiStatisticsProps) {
   const [filters, setFilters] = useState({
@@ -223,6 +233,7 @@ export default function KaprodiStatisticsClient({ titleSubmissions, proposalSubm
           icon={<FiFilePlus size={22} />}
           iconBgColor="bg-red-100"
           iconColor="text-[#7a1c10]"
+          link={`/dashboard/kaprodi/pengajuan_judul${appliedFilters.periode === 'bulanan' ? `?month=${appliedFilters.bulan}&year=${appliedFilters.tahun}` : ''}`}
         />
         <StatCard
           title="Total Seminar Proposal"
@@ -231,6 +242,7 @@ export default function KaprodiStatisticsClient({ titleSubmissions, proposalSubm
           icon={<FiClipboard size={22} />}
           iconBgColor="bg-green-100"
           iconColor="text-[#19ca28]"
+          link={`/dashboard/kaprodi/proposal${appliedFilters.periode === 'bulanan' ? `?month=${appliedFilters.bulan}&year=${appliedFilters.tahun}` : ''}`}
         />
         <StatCard
           title="Total Sidang Skripsi"
@@ -239,6 +251,7 @@ export default function KaprodiStatisticsClient({ titleSubmissions, proposalSubm
           icon={<FiCheckSquare size={22} />}
           iconBgColor="bg-orange-100"
           iconColor="text-[#e9ab19]"
+          link={`/dashboard/kaprodi/seminar-hasil${appliedFilters.periode === 'bulanan' ? `?month=${appliedFilters.bulan}&year=${appliedFilters.tahun}` : ''}`}
         />
       </div>
     </div>
