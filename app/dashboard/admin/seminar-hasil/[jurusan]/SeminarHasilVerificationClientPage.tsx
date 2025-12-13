@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import SeminarHasilTable from './SeminarHasilTable'; 
 import type { SeminarHasil, Judul, Mahasiswa } from '@prisma/client'; 
 import {  FiSearch, FiInbox } from 'react-icons/fi';
@@ -17,6 +18,7 @@ interface SeminarHasilVerificationClientPageProps {
 }
 
 export default function SeminarHasilVerificationClientPage({ initialSeminarHasil, jurusanName }: SeminarHasilVerificationClientPageProps) { 
+    const searchParams = useSearchParams();
     const currentMonth = new Date().getMonth() + 1;
     const currentYear = new Date().getFullYear();
 
@@ -24,6 +26,16 @@ export default function SeminarHasilVerificationClientPage({ initialSeminarHasil
         month: currentMonth,
         year: currentYear,
     });
+     useEffect(() => {
+    const monthParam = searchParams.get('month');
+    const yearParam = searchParams.get('year');
+    if (monthParam && yearParam) {
+      setFilters({
+        month: parseInt(monthParam),
+        year: parseInt(yearParam),
+      });
+    }
+  }, [searchParams]);
 
     const [searchQuery, setSearchQuery] = useState('');
 

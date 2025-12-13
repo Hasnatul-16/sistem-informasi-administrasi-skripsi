@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useMemo } from 'react';
-import SubmissionTable from './SubmissionTable'; 
+import { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
+import SubmissionTable from './SubmissionTable';
 import type { Judul, Mahasiswa, User } from '@prisma/client';
 import { FiSearch } from 'react-icons/fi';
 
@@ -15,6 +16,7 @@ interface VerificationClientPageProps {
 }
 
 export default function VerificationClientPage({ initialSubmissions, jurusanName }: VerificationClientPageProps) {
+  const searchParams = useSearchParams();
   const currentMonth = new Date().getMonth() + 1;
   const currentYear = new Date().getFullYear();
 
@@ -22,6 +24,17 @@ export default function VerificationClientPage({ initialSubmissions, jurusanName
     month: currentMonth,
     year: currentYear,
   });
+
+  useEffect(() => {
+    const monthParam = searchParams.get('month');
+    const yearParam = searchParams.get('year');
+    if (monthParam && yearParam) {
+      setFilters({
+        month: parseInt(monthParam),
+        year: parseInt(yearParam),
+      });
+    }
+  }, [searchParams]);
   
   const [searchQuery, setSearchQuery] = useState('');
 

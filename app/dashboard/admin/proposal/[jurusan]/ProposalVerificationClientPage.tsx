@@ -1,8 +1,9 @@
 
 "use client";
 
-import { useState, useMemo } from 'react';
-import ProposalTable from './ProposalTable'; 
+import { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
+import ProposalTable from './ProposalTable';
 import type { Proposal, Judul, Mahasiswa } from '@prisma/client';
 import {  FiSearch, FiInbox } from 'react-icons/fi';
 
@@ -19,14 +20,26 @@ interface ProposalVerificationClientPageProps {
 }
 
 export default function ProposalVerificationClientPage({ initialProposals, jurusanName }: ProposalVerificationClientPageProps) {
+  const searchParams = useSearchParams();
   const currentMonth = new Date().getMonth() + 1;
   const currentYear = new Date().getFullYear();
 
- 
+
   const [filters, setFilters] = useState({
     month: currentMonth,
     year: currentYear,
   });
+
+  useEffect(() => {
+    const monthParam = searchParams.get('month');
+    const yearParam = searchParams.get('year');
+    if (monthParam && yearParam) {
+      setFilters({
+        month: parseInt(monthParam),
+        year: parseInt(yearParam),
+      });
+    }
+  }, [searchParams]);
   
  
   const [searchQuery, setSearchQuery] = useState('');
