@@ -3,7 +3,13 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/auth';
 import prisma from '@/lib/prisma';
 
-export async function GET(request: NextRequest) {
+interface UpdateProfileBody {
+  nama: string;
+  nim?: string;
+  email: string;
+}
+
+export async function GET() {
   try {
     const session = await getServerSession(authOptions);
 
@@ -57,7 +63,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const userId = session.user.id;
-    const body = await request.json();
+    const body = await request.json() as UpdateProfileBody;
     const { nama, nim, email } = body;
 
    
@@ -65,7 +71,7 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Nama and email are required' }, { status: 400 });
     }
 
-    const updateData: any = {
+    const updateData: { nama: string; email: string; } = {
       nama,
       email,
     };

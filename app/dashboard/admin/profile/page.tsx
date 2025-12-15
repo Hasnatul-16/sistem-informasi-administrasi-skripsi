@@ -14,7 +14,7 @@ interface AdminProfile {
 }
 
 export default function AdminProfilePage() {
-  const { data: session } = useSession();
+  const { data: _session } = useSession();
   const [profile, setProfile] = useState<AdminProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('personal');
@@ -47,14 +47,14 @@ export default function AdminProfilePage() {
         MySwal.fire({
           icon: 'error',
           title: 'Error',
-          text: 'Failed to load profile'
+          text: 'gagal memuat profil'
         });
       }
-    } catch (error) {
+    } catch (_error) {
       MySwal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'Failed to load profile'
+        text: 'gagal memuat profil'
       });
     } finally {
       setLoading(false);
@@ -84,14 +84,14 @@ export default function AdminProfilePage() {
         MySwal.fire({
           icon: 'error',
           title: 'Error',
-          text: 'Failed to update profile'
+          text: 'profil gagal diupdate'
         });
       }
-    } catch (error) {
+    } catch (_error) {
       MySwal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'Failed to update profile'
+        text: 'profil gagal diupdate'
       });
     }
   };
@@ -101,7 +101,7 @@ export default function AdminProfilePage() {
       MySwal.fire({
         icon: 'warning',
         title: 'Warning',
-        text: 'New passwords do not match'
+        text: 'password baru tidak cocok'
       });
       return;
     }
@@ -135,14 +135,14 @@ export default function AdminProfilePage() {
         MySwal.fire({
           icon: 'error',
           title: 'Error',
-          text: error.message || 'Failed to change password'
+          text: error.message || 'Gagal mengubah password'
         });
       }
-    } catch (error) {
+    } catch (_error) {
       MySwal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'Failed to change password'
+        text: 'Gagal mengubah password'
       });
     }
   };
@@ -161,7 +161,7 @@ export default function AdminProfilePage() {
     return (
       <main className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center">Failed to load profile</div>
+          <div className="text-center">Gagal memuat profil</div>
         </div>
       </main>
     );

@@ -16,7 +16,7 @@ interface KaprodiProfile {
 }
 
 export default function KaprodiProfilePage() {
-  const { data: session } = useSession();
+  const { data: _session } = useSession();
   const [profile, setProfile] = useState<KaprodiProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('personal');
@@ -51,14 +51,14 @@ export default function KaprodiProfilePage() {
         MySwal.fire({
           icon: 'error',
           title: 'Error',
-          text: 'Failed to load profile'
+          text: 'gagal memuat profil'
         });
       }
-    } catch (error) {
+    } catch (_error) {
       MySwal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'Failed to load profile'
+        text: 'gagal memuat profil'
       });
     } finally {
       setLoading(false);
@@ -88,14 +88,14 @@ export default function KaprodiProfilePage() {
         MySwal.fire({
           icon: 'error',
           title: 'Error',
-          text: 'Failed to update profile'
+          text: 'Gagal memperbarui profil'
         });
       }
-    } catch (error) {
+    } catch (_error) {
       MySwal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'Failed to update profile'
+        text: 'Gagal memperbarui profil'
       });
     }
   };
@@ -105,7 +105,7 @@ export default function KaprodiProfilePage() {
       MySwal.fire({
         icon: 'warning',
         title: 'Warning',
-        text: 'New passwords do not match'
+        text: 'password baru tidak cocok'
       });
       return;
     }
@@ -139,14 +139,14 @@ export default function KaprodiProfilePage() {
         MySwal.fire({
           icon: 'error',
           title: 'Error',
-          text: error.message || 'Failed to change password'
+          text: error.message || 'password gagal diubah'
         });
       }
-    } catch (error) {
+    } catch (_error) {
       MySwal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'Failed to change password'
+        text: 'password gagal diubah'
       });
     }
   };
@@ -165,7 +165,7 @@ export default function KaprodiProfilePage() {
     return (
       <main className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center">Failed to load profile</div>
+          <div className="text-center">Gagal Memuat profil</div>
         </div>
       </main>
     );
