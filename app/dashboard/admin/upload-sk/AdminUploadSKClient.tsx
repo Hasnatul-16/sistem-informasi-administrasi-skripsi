@@ -93,6 +93,11 @@ export default function AdminUploadSKClient() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedJurusan, setSelectedJurusan] = useState<Jurusan>("SISTEM_INFORMASI");
 
+  const currentYear = new Date().getFullYear();
+  const yearOptions = Array.from({ length: 6 }, (_, i) => String(currentYear - i));
+  const [selectedSemester, setSelectedSemester] = useState<'GANJIL' | 'GENAP'>('GANJIL');
+  const [selectedTahun, setSelectedTahun] = useState<string>(String(currentYear));
+
   const [uploadModal, setUploadModal] = useState<{
     isOpen: boolean;
     mahasiswa: MahasiswaUploadData | null;
@@ -106,7 +111,8 @@ export default function AdminUploadSKClient() {
     setIsLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/admin/upload-sk?jurusan=${selectedJurusan}`);
+      const params = new URLSearchParams({ jurusan: selectedJurusan, tahun: selectedTahun, semester: selectedSemester });
+      const res = await fetch(`/api/admin/upload-sk?${params.toString()}`);
       if (!res.ok) throw new Error("Gagal memuat data");
       const json = await res.json();
       setData(json);
@@ -117,7 +123,7 @@ export default function AdminUploadSKClient() {
     } finally {
       setIsLoading(false);
     }
-  }, [selectedJurusan]);
+  }, [selectedJurusan, selectedSemester, selectedTahun]);
 
   useEffect(() => {
     fetchData();
@@ -187,31 +193,41 @@ export default function AdminUploadSKClient() {
       <div className="bg-white p-3 sm:p-6 rounded-lg shadow-md border">
         <div className="bg-[#325827] p-3 sm:p-4 rounded-lg shadow-md flex flex-col gap-3 sm:gap-4">
 
-          {/* Filter Jurusan on left, Search on right - Mobile Stacked, Desktop Horizontal */}
+         
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3 sm:gap-4">
-            {/* Left side: Filter Jurusan */}
-            <div className="flex flex-col w-full sm:w-auto">
-              <label className="text-xs sm:text-sm font-semibold text-white mb-2">
-                Filter Jurusan
-              </label>
-              <div className="flex flex-wrap items-center gap-2">
-                {ALL_JURUSAN.map((j) => (
-                  <button
-                    key={j}
-                    onClick={() => setSelectedJurusan(j)}
-                    className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold rounded-full transition ${
-                      selectedJurusan === j
-                        ? "bg-white text-[#325827] shadow-md"
-                        : "bg-white/20 text-white hover:bg-white/30"
-                    }`}
-                  >
-                    {formatJurusan(j)}
-                  </button>
-                ))}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 w-full sm:w-auto">
+              <div className="flex flex-col w-full sm:w-auto">
+                <label className="text-xs sm:text-sm font-semibold text-white mb-1">Periode Semester</label>
+                <select
+                  id="semester"
+                  name="semester"
+                  value={selectedSemester}
+                  onChange={(e) => setSelectedSemester(e.target.value as 'GANJIL' | 'GENAP')}
+                  className="p-2 border border-white/30 rounded-md bg-white/20 text-white focus:ring-2 focus:ring-white/50 transition duration-150 appearance-none min-w-full sm:min-w-[120px] font-sans text-sm"
+                >
+                  <option value="GANJIL" className='text-gray-800'>Ganjil</option>
+                  <option value="GENAP" className='text-gray-800'>Genap</option>
+                </select>
               </div>
+
+              <div className="flex flex-col w-full sm:w-auto">
+                <label className="text-xs sm:text-sm font-semibold text-white mb-1">Tahun Akademik</label>
+                <select
+                  id="tahun"
+                  name="tahun"
+                  value={selectedTahun}
+                  onChange={(e) => setSelectedTahun(e.target.value)}
+                  className="p-2 border border-white/30 rounded-md bg-white/20 text-white focus:ring-2 focus:ring-white/50 transition duration-150 appearance-none min-w-full sm:min-w-[100px] font-sans text-sm"
+                >
+                  {yearOptions.map(y => (
+                    <option key={y} value={y} className="text-gray-800">{y}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* jurusan moved below to match Dosen Penguji layout */}
             </div>
 
-            {/* Right side: Search */}
             <div className="relative w-full sm:w-auto">
               <input
                 type="text"
@@ -227,6 +243,29 @@ export default function AdminUploadSKClient() {
       </div>
 
       <div className="bg-white p-6 rounded-lg shadow-md border">
+        <p className="mt-1 text-gray-600">
+          Data ditampilkan untuk Jurusan:{' '}
+          <strong className='text-[#325827]'>{formatJurusan(selectedJurusan)}</strong>
+        </p>
+
+        {!false && (
+          <div className='flex items-center gap-4 mt-3'>
+            <label className="text-sm font-medium text-gray-700">Filter Jurusan:</label>
+            {ALL_JURUSAN.map(j => (
+              <button
+                key={j}
+                onClick={() => setSelectedJurusan(j)}
+                className={`px-4 py-2 text-sm font-semibold rounded-full transition duration-150 ${
+                  selectedJurusan === j
+                    ? 'bg-[#325827] text-white shadow-md'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                {formatJurusan(j)}
+              </button>
+            ))}
+          </div>
+        )}
         {isLoading ? (
           <div className="text-center py-10 text-[#325827] flex flex-col items-center">
             <FiLoader className="h-8 w-8 animate-spin" />
@@ -237,8 +276,8 @@ export default function AdminUploadSKClient() {
             <FiAlertTriangle className="h-5 w-5" />
             <p className="font-medium">Error: {error}</p>
           </div>
-        ) : (
-          <div className="overflow-x-auto -mx-4 sm:mx-0">
+          ) : (
+          <div className="overflow-x-auto -mx-4 sm:mx-0 mt-4">
             <table className="min-w-full w-full bg-white border divide-y divide-gray-200">
               <thead className="bg-slate-50">
                 <tr>

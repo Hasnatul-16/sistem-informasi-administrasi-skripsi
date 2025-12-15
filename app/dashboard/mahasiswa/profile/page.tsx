@@ -16,7 +16,7 @@ interface MahasiswaProfile {
 }
 
 export default function MahasiswaProfilePage() {
-  const { data: _session } = useSession();
+  useSession();
   const [profile, setProfile] = useState<MahasiswaProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('personal');
@@ -54,7 +54,7 @@ export default function MahasiswaProfilePage() {
           text: 'gagal memuat profil'
         });
       }
-    } catch (_error) {
+    } catch {
       MySwal.fire({
         icon: 'error',
         title: 'Error',
@@ -91,7 +91,7 @@ export default function MahasiswaProfilePage() {
           text: 'profil gagal diupdate'
         });
       }
-    } catch (_error) {
+    } catch {
       MySwal.fire({
         icon: 'error',
         title: 'Error',
@@ -142,7 +142,7 @@ export default function MahasiswaProfilePage() {
           text: error.message || 'gagal mengubah password'
         });
       }
-    } catch (_error) {
+    } catch {
       MySwal.fire({
         icon: 'error',
         title: 'Error',

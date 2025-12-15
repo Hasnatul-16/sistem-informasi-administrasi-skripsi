@@ -16,7 +16,7 @@ interface KaprodiProfile {
 }
 
 export default function KaprodiProfilePage() {
-  const { data: _session } = useSession();
+  useSession();
   const [profile, setProfile] = useState<KaprodiProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('personal');
@@ -54,7 +54,7 @@ export default function KaprodiProfilePage() {
           text: 'gagal memuat profil'
         });
       }
-    } catch (_error) {
+    } catch {
       MySwal.fire({
         icon: 'error',
         title: 'Error',
@@ -91,7 +91,7 @@ export default function KaprodiProfilePage() {
           text: 'Gagal memperbarui profil'
         });
       }
-    } catch (_error) {
+    } catch {
       MySwal.fire({
         icon: 'error',
         title: 'Error',
@@ -142,7 +142,7 @@ export default function KaprodiProfilePage() {
           text: error.message || 'password gagal diubah'
         });
       }
-    } catch (_error) {
+    } catch {
       MySwal.fire({
         icon: 'error',
         title: 'Error',

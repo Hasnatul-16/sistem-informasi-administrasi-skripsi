@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { authOptions } from '@/app/api/auth/auth'; 
 import ArsipClient from './ArsipClient'; 
 import prisma from '@/lib/prisma';
-import { Role } from '@prisma/client'; 
+
 
 async function getInitialData() {
     const session = await getServerSession(authOptions);
@@ -33,15 +33,13 @@ async function getInitialData() {
 
 export default async function ArsipPage() {
    
-    const { initialJurusan, userRole } = await getInitialData();
-    const isKaprodi = userRole === Role.KAPRODI;
+    const { initialJurusan } = await getInitialData();
 
     return (
         <div className="container mx-auto py-8">
             
             <ArsipClient 
                 initialJurusan={initialJurusan} 
-                isKaprodi={isKaprodi} 
             />
         </div>
     );

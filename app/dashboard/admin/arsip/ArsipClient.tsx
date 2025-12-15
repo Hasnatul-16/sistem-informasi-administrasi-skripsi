@@ -1,6 +1,6 @@
 "use client";
-
-import { useState, useEffect, useMemo, useCallback } from 'react';
+ 
+import { useState, useEffect, useCallback } from 'react';
 import type { Jurusan } from '@prisma/client';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import {
@@ -13,19 +13,13 @@ import { ArsipData } from '@/app/api/arsip/route';
 
 interface ArsipClientProps {
     initialJurusan: Jurusan;
-    isKaprodi: boolean; 
+    initialTahun?: number;
+    initialSemester?: 'GANJIL' | 'GENAP';
 }
 
 const ALL_JURUSAN: Jurusan[] = ['SISTEM_INFORMASI', 'MATEMATIKA'];
 
-const BULAN_FILTER = [
-    { value: '01', label: 'Januari' }, { value: '02', label: 'Februari' },
-    { value: '03', label: 'Maret' }, { value: '04', label: 'April' },
-    { value: '05', label: 'Mei' }, { value: '06', label: 'Juni' },
-    { value: '07', label: 'Juli' }, { value: '08', label: 'Agustus' },
-    { value: '09', label: 'September' }, { value: '10', label: 'Oktober' },
-    { value: '11', label: 'November' }, { value: '12', label: 'Desember' },
-];
+
 
 const formatJurusan = (jurusan: Jurusan) => {
     return jurusan.split('_').map(word => word.charAt(0) + word.slice(1).toLowerCase()).join(' ');
@@ -79,14 +73,14 @@ const TimelineStatus: React.FC<{ steps: ReturnType<typeof getTimelineStatus>['st
     return (
         <ul className="list-none p-0 m-0 space-y-1 text-xs">
             {steps.map((step, index) => (
-                <li key={index} className="flex items-start gap-2">
+                <li key={index} className="flex items-start gap-1">
                     {step.isDone ? (
-                        <FiCheckCircle className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+                        <FiCheckCircle className="w-3 h-3 text-green-600 flex-shrink-0 mt-0.5" />
                     ) : (
-                        <FiClock className="w-4 h-4 text-gray-400 flex-shrink-0 mt-0.5" />
+                        <FiClock className="w-3 h-3 text-gray-400 flex-shrink-0 mt-0.5" />
                     )}
                     <div className="flex flex-col">
-                        <span className={`font-medium ${step.isDone ? 'text-gray-800' : 'text-gray-500'}`}>
+                        <span className={`font-medium text-xs ${step.isDone ? 'text-gray-800' : 'text-gray-500'}`}>
                             {step.label}
                         </span>
                         <span className="text-gray-500 text-[10px]">
@@ -99,59 +93,50 @@ const TimelineStatus: React.FC<{ steps: ReturnType<typeof getTimelineStatus>['st
     );
 };
 
-const DownloadStatus: React.FC<{ url: string | null, nama: string, nim: string, type: 'pembimbing' | 'proposal' | 'skripsi' }> = ({ url, nama, nim, type }) => {
-    const [loading, setLoading] = useState(false);
+const ViewStatus: React.FC<{ url: string | null }> = ({ url }) => {
     const isAvailable = !!url;
 
-    const handleDownload = async () => {
+    const handleView = () => {
         if (!url) return;
-        try {
-            setLoading(true);
-            const res = await fetch(url);
-            if (!res.ok) {
-                const errJson = await res.json().catch(() => null);
-                throw new Error(errJson?.error || `HTTP ${res.status}`);
-            }
+        window.open(url, "_blank");
+    };
 
-            const blob = await res.blob();
-            const downloadUrl = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = downloadUrl;
-            const sanitize = (name: string) => name.replace(/[\\/:*?"<>|]/g, '_');
-            let outName: string;
-            if (type === 'pembimbing') {
-                outName = `SK-pembimbing-${nama}-${nim}.pdf`;
-            } else if (type === 'proposal') {
-                outName = `SK-Proposal-${nama}-${nim}.pdf`;
-            } else if (type === 'skripsi') {
-                outName = `SK-Skripsi-${nama}-${nim}.pdf`;
-            } else {
-                outName = 'SK.pdf';
-            }
-            const safeName = sanitize(outName);
-            a.download = safeName;
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            URL.revokeObjectURL(downloadUrl);
-        } catch (err: unknown) {
-            console.error('Download SK error:', err);
-            const message = err instanceof Error ? err.message : 'Internal Server Error';
-            alert('Gagal mengunduh SK: ' + message);
-        } finally {
-            setLoading(false);
-        }
+    if (isAvailable) {
+        return (
+            <button
+                onClick={handleView}
+                className="inline-flex items-center gap-0.5 text-green-600 hover:text-green-900 font-semibold text-xs break-words"
+            >
+                <FiEye className="w-3 h-3" />
+                <span>Lihat SK</span>
+            </button>
+        );
+    }
+
+    return (
+        <span className="text-gray-400 text-xs flex items-center justify-center gap-1">
+            <FiXCircle className="w-3 h-3" /> Belum Ada
+        </span>
+    );
+};
+
+const DownloadBeritaAcara: React.FC<{ id: number | null, type: 'proposal' | 'seminar-hasil' }> = ({ id, type }) => {
+    const isAvailable = !!id;
+
+    const handleDownload = () => {
+        if (!id) return;
+        const url = `/api/berita-acara-${type}/${id}`;
+        window.open(url, "_blank");
     };
 
     if (isAvailable) {
         return (
             <button
                 onClick={handleDownload}
-                disabled={loading}
-                className="inline-flex items-center gap-2 text-green-600 hover:text-green-900 font-semibold disabled:text-gray-400 disabled:cursor-wait"
+                className="inline-flex items-center gap-0.5 text-blue-600 hover:text-blue-900 font-semibold text-xs break-words"
             >
-                <FiDownload className="w-4 h-4 mr-1" />
-                {loading ? 'Mengunduh...' : 'unduh SK'}
+                <FiDownload className="w-3 h-3" />
+                <span>Unduh</span>
             </button>
         );
     }
@@ -173,11 +158,11 @@ const DetailModal: React.FC<{ item: ArsipData | null, onClose: () => void }> = (
             <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl m-4 transform transition-all animate-fade-in-scale">
                 
                 <div className="p-4 border-b flex justify-between items-center">
-                    <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                    <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
                         <FiBookOpen /> Detail Arsip - {item.nama}
                     </h2>
                     <button onClick={onClose} className="p-2 text-gray-500 hover:text-gray-800">
-                        <FiX className="h-6 w-6" />
+                        <FiX className="h-5 w-5" />
                     </button>
                 </div>
 
@@ -186,10 +171,10 @@ const DetailModal: React.FC<{ item: ArsipData | null, onClose: () => void }> = (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   
                         <div className="space-y-2">
-                            <h4 className="text-base font-semibold text-gray-800 flex items-center gap-2">
-                                <FiUser className="w-5 h-5 text-green-800" /> Info Mahasiswa
+                            <h4 className="text-sm font-semibold text-gray-800 flex items-center gap-2">
+                                <FiUser className="w-4 h-4 text-green-800" /> Info Mahasiswa
                             </h4>
-                            <div className="p-4 bg-gray-50 rounded-lg border text-sm space-y-2">
+                            <div className="p-4 bg-gray-50 rounded-lg border text-xs space-y-2">
                                 <p><strong>Nama:</strong> {item.nama}</p>
                                 <p><strong>NIM:</strong> {item.nim}</p>
                                 <p><strong>Prodi:</strong> {formatJurusan(item.jurusan)}</p>
@@ -197,10 +182,10 @@ const DetailModal: React.FC<{ item: ArsipData | null, onClose: () => void }> = (
                         </div>
 
                         <div className="space-y-2">
-                            <h4 className="text-base font-semibold text-gray-800 flex items-center gap-2">
-                                <FiBookOpen className="w-5 h-5 text-green-800" /> Info Judul
+                            <h4 className="text-sm font-semibold text-gray-800 flex items-center gap-2">
+                                <FiBookOpen className="w-4 h-4 text-green-800" /> Info Judul
                             </h4>
-                            <div className="p-4 bg-gray-50 rounded-lg border text-sm space-y-2">
+                            <div className="p-4 bg-gray-50 rounded-lg border text-xs space-y-2">
                                 <p><strong>Topik:</strong> {item.topik}</p>
                                 <p><strong>Judul:</strong> <span className="italic">{item.judul}</span></p>
                             </div>
@@ -208,45 +193,45 @@ const DetailModal: React.FC<{ item: ArsipData | null, onClose: () => void }> = (
                     </div>
 
                     <div className="space-y-2">
-                        <h4 className="text-base font-semibold text-gray-800 flex items-center gap-2">
-                            <FiUsers className="w-5 h-5 text-green-800" /> Dosen Pembimbing
+                        <h4 className="text-sm font-semibold text-gray-800 flex items-center gap-2">
+                            <FiUsers className="w-4 h-4 text-green-800" /> Dosen Pembimbing
                         </h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="p-3 bg-gray-50 rounded-lg border">
-                                <span className="text-sm font-semibold text-gray-800">Pembimbing I: </span>
-                                <span className="text-sm text-gray-600">{item.pembimbing1 || '-'}</span>
+                                <span className="text-xs font-semibold text-gray-800">Pembimbing I: </span>
+                                <span className="text-xs text-gray-600">{item.pembimbing1 || '-'}</span>
                             </div>
                             <div className="p-3 bg-gray-50 rounded-lg border">
-                                <span className="text-sm font-semibold text-gray-800">Pembimbing II: </span>
-                                <span className="text-sm text-gray-600">{item.pembimbing2 || '-'}</span>
+                                <span className="text-xs font-semibold text-gray-800">Pembimbing II: </span>
+                                <span className="text-xs text-gray-600">{item.pembimbing2 || '-'}</span>
                             </div>
                         </div>
                     </div>
                     
                     <div className="space-y-2">
-                        <h4 className="text-base font-semibold text-gray-800 flex items-center gap-2">
-                            <FiCode className="w-5 h-5 text-green-800" /> Dosen Penguji
+                        <h4 className="text-sm font-semibold text-gray-800 flex items-center gap-2">
+                            <FiCode className="w-4 h-4 text-green-800" /> Dosen Penguji
                         </h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                          
                             <div className="p-3 bg-gray-50 rounded-lg border space-y-1">
-                                <span className="text-sm font-semibold text-gray-800">Penguji Sempro : </span>
-                                <span className="text-sm text-gray-600">{item.proposal?.penguji || '-'}</span>
+                                <span className="text-xs font-semibold text-gray-800">Penguji Sempro : </span>
+                                <span className="text-xs text-gray-600">{item.proposal?.penguji || '-'}</span>
                             </div>
                    
                             <div className="p-3 bg-gray-50 rounded-lg border space-y-1">
-                                <span className="text-sm font-semibold text-gray-800">Penguji  Sidang Skripsi 1: </span>
-                                <span className="text-sm text-gray-600">{item.seminar_hasil?.penguji1 || '-'}</span>
+                                <span className="text-xs font-semibold text-gray-800">Penguji  Sidang Skripsi 1: </span>
+                                <span className="text-xs text-gray-600">{item.seminar_hasil?.penguji1 || '-'}</span>
                                 <br/>
-                                <span className="text-sm font-semibold text-gray-800">Penguji Sidang Skripsi 2: </span>
-                                <span className="text-sm text-gray-600">{item.seminar_hasil?.penguji2 || '-'}</span>
+                                <span className="text-xs font-semibold text-gray-800">Penguji Sidang Skripsi 2: </span>
+                                <span className="text-xs text-gray-600">{item.seminar_hasil?.penguji2 || '-'}</span>
                             </div>
                         </div>
                     </div>
 
                     <div className="space-y-2">
-                        <h4 className="text-base font-semibold text-gray-800 flex items-center gap-2">
-                            <FiCalendar className="w-5 h-5 tex--green-800" /> Riwayat Tahapan
+                        <h4 className="text-sm font-semibold text-gray-800 flex items-center gap-2">
+                            <FiCalendar className="w-4 h-4 tex--green-800" /> Riwayat Tahapan
                         </h4>
                         <div className="p-4 bg-gray-50 rounded-lg border">
                             <TimelineStatus steps={steps} />
@@ -258,24 +243,22 @@ const DetailModal: React.FC<{ item: ArsipData | null, onClose: () => void }> = (
     );
 };
 
-const ArsipClient: React.FC<ArsipClientProps> = ({ initialJurusan, isKaprodi }) => {
+const ArsipClient: React.FC<ArsipClientProps> = ({ initialJurusan, initialTahun, initialSemester }) => {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
     const [arsipData, setArsipData] = useState<ArsipData[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const defaultMonth = useMemo(() => {
-        const today = new Date();
-        const year = today.getFullYear();
-        const month = String(today.getMonth() + 1).padStart(2, '0');
-        return `${year}-${month}`;
-    }, []);
+
+    const currentYear = new Date().getFullYear();
+    const yearOptions = Array.from({ length: 6 }, (_, i) => String((initialTahun || currentYear) - i));
 
     const [filters, setFilters] = useState({
-        monthYear: searchParams.get('month') || defaultMonth,
         jurusan: (searchParams.get('jurusan') as Jurusan) || initialJurusan,
         search: searchParams.get('search') || '',
+        tahun: searchParams.get('tahun') || String(initialTahun || currentYear),
+        semester: (searchParams.get('semester') as 'GANJIL' | 'GENAP') || (initialSemester || 'GANJIL'),
     });
     
     const [selectedItem, setSelectedItem] = useState<ArsipData | null>(null);
@@ -286,8 +269,9 @@ const ArsipClient: React.FC<ArsipClientProps> = ({ initialJurusan, isKaprodi }) 
         setError(null);
         try {
             const params = new URLSearchParams({
-                month: filters.monthYear,
                 jurusan: filters.jurusan,
+                tahun: filters.tahun,
+                semester: filters.semester,
             });
             if (filters.search) {
                 params.append('search', filters.search);
@@ -306,12 +290,13 @@ const ArsipClient: React.FC<ArsipClientProps> = ({ initialJurusan, isKaprodi }) 
         } finally {
             setIsLoading(false);
         }
-    }, [filters]); 
+    }, [filters]);
 
     useEffect(() => {
         const newParams = new URLSearchParams(searchParams.toString());
-        newParams.set('month', filters.monthYear);
         newParams.set('jurusan', filters.jurusan);
+        newParams.set('tahun', filters.tahun);
+        newParams.set('semester', filters.semester);
         if (filters.search) {
             newParams.set('search', filters.search);
         } else {
@@ -328,20 +313,7 @@ const ArsipClient: React.FC<ArsipClientProps> = ({ initialJurusan, isKaprodi }) 
         };
     }, [filters, router, pathname, fetchArsip, searchParams]);
 
-    const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        
-        if (name === "month" || name === "year") {
-            const [currentYear, currentMonth] = filters.monthYear.split('-');
-            const newMonthYear = name === "month" 
-                ? `${currentYear}-${value}` 
-                : `${value}-${currentMonth}`;
-            
-            setFilters(prev => ({ ...prev, monthYear: newMonthYear }));
-        } else {
-            setFilters(prev => ({ ...prev, [name]: value }));
-        }
-    };
+
 
     const handleJurusanChange = (newJurusan: Jurusan) => {
         setFilters(prev => ({
@@ -360,91 +332,64 @@ const ArsipClient: React.FC<ArsipClientProps> = ({ initialJurusan, isKaprodi }) 
         setSelectedItem(null);
     };
 
-    const [currentYear, currentMonthNum] = filters.monthYear.split('-');
-    
-    const availableYears = useMemo(() => {
-        const year = new Date().getFullYear();
-        return Array.from({ length: 5 }, (_, i) => year - i);
-    }, []);
+
 
     return (
-              <main className="space-y-4 sm:space-y-6">
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 break-words">Arsip Skripsi Mahasiswa</h1>
-            <p className="text-xs sm:text-sm text-gray-600">Menampilkan seluruh data pengajuan mahasiswa yang telah selesai atau sedang berjalan.</p>
+              <main className="space-y-4 overflow-x-hidden">
+            <div >
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 break-words">Arsip Skripsi Mahasiswa</h1>
+                <p className="text-sm sm:text-base text-gray-600 mt-2">Menampilkan seluruh data pengajuan mahasiswa yang telah selesai atau sedang berjalan.</p>
+            </div>
             
             <div className="bg-white p-6 rounded-lg shadow-md border space-y-4">
 
-                {/* --- 1. BAGIAN FILTER (Style dari DosenStatsClient) --- */}
-                <div className="bg-[#325827] p-4 rounded-lg shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="bg-[#325827] p-3 sm:p-4 rounded-lg shadow-md flex flex-col gap-3 sm:gap-4">
 
-                    {/* Filter Group: Bulan & Tahun (Logika Arsip) */}
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:w-auto">
-                        <div className="flex flex-col">
-                            <label htmlFor="month" className="text-sm font-semibold text-white mb-1">
-                                Bulan Pengajuan judul
-                            </label>
-                            <select
-                                id="month"
-                                name="month"
-                                value={currentMonthNum}
-                                onChange={handleFilterChange}
-                                className="p-2 border border-white/30 rounded-md bg-white/20 text-white focus:ring-2 focus:ring-white/50 transition duration-150 appearance-none min-w-[120px] font-sans w-full sm:w-auto"
-                            >
-                                {BULAN_FILTER.map(bulan => (
-                                    <option key={bulan.value} value={bulan.value} className='text-gray-800'>{bulan.label}</option>
-                                ))}
-                            </select>
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3 sm:gap-4">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 w-full sm:w-auto">
+                            <div className="flex flex-col w-full sm:w-auto">
+                                <label className="text-xs sm:text-sm font-semibold text-white mb-1">Periode Semester</label>
+                                <select
+                                    id="semester"
+                                    name="semester"
+                                    value={filters.semester}
+                                    onChange={(e) => setFilters(prev => ({ ...prev, semester: e.target.value as 'GANJIL' | 'GENAP' }))}
+                                    className="p-2 border border-white/30 rounded-md bg-white/20 text-white focus:ring-2 focus:ring-white/50 transition duration-150 appearance-none min-w-full sm:min-w-[120px] font-sans text-sm"
+                                >
+                                    <option value="GANJIL" className='text-gray-800'>Ganjil</option>
+                                    <option value="GENAP" className='text-gray-800'>Genap</option>
+                                </select>
+                            </div>
+
+                            <div className="flex flex-col w-full sm:w-auto">
+                                <label className="text-xs sm:text-sm font-semibold text-white mb-1">Tahun Akademik</label>
+                                <select
+                                    id="tahun"
+                                    name="tahun"
+                                    value={filters.tahun}
+                                    onChange={(e) => setFilters(prev => ({ ...prev, tahun: e.target.value }))}
+                                    className="p-2 border border-white/30 rounded-md bg-white/20 text-white focus:ring-2 focus:ring-white/50 transition duration-150 appearance-none min-w-full sm:min-w-[100px] font-sans text-sm"
+                                >
+                                    {yearOptions.map(y => (
+                                        <option key={y} value={y} className='text-gray-800'>{y}</option>
+                                    ))}
+                                </select>
+                            </div>
                         </div>
 
-                        <div className="flex flex-col">
-                            <label htmlFor="year" className="text-sm font-semibold text-white mb-1">
-                                Tahun Pengajuan
-                            </label>
-                            <select
-                                id="year"
-                                name="year"
-                                value={currentYear}
-                                onChange={handleFilterChange}
-                                className="p-2 border border-white/30 rounded-md bg-white/20 text-white focus:ring-2 focus:ring-white/50 transition duration-150 appearance-none min-w-[100px] font-sans w-full sm:w-auto"
-                            >
-                                {availableYears.map(year => (
-                                    <option key={year} value={year} className='text-gray-800'>{year}</option>
-                                ))}
-                            </select>
+                        {/* Right side: Search */}
+                        <div className="relative w-full sm:w-auto">
+                            <input
+                                type="text"
+                                placeholder="Cari nama atau NIM..."
+                                value={filters.search}
+                                onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+                                className="w-full sm:w-64 bg-white/30 text-white placeholder-white/70 rounded-full py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-white/50 text-xs sm:text-sm"
+                            />
+                            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-white/70 h-4 w-4 sm:h-5 sm:w-5" />
                         </div>
-                    </div>
-
-                    {/* Kolom Search (Style dari DosenStatsClient) */}
-                    <div className="relative w-full sm:w-auto sm:self-end">
-                        <input
-                            type="text"
-                            name="search"
-                            placeholder="Cari nama atau NIM..."
-                            value={filters.search}
-                            onChange={handleFilterChange}
-                            className="w-full sm:w-64 bg-white/30 text-white placeholder-white/70 rounded-full py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-white/50 font-sans"
-                        />
-                        <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-white/70 h-5 w-5" />
                     </div>
                 </div>
-                {!isKaprodi && (
-                    <div className='flex items-center gap-4 pt-2'>
-                        <label className="text-sm font-medium text-gray-700">Filter Jurusan:</label>
-                        {ALL_JURUSAN.map(j => (
-                            <button
-                                key={j}
-                                onClick={() => handleJurusanChange(j)}
-                                className={`px-4 py-2 text-sm font-semibold rounded-full transition duration-150 ${
-                                    filters.jurusan === j
-                                        ? 'bg-[#325827] text-white shadow-md'
-                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                }`}
-                            >
-                                {j.replace('_', ' ')}
-                            </button>
-                        ))}
-                    </div>
-                )}
             </div>
 
             <div className="bg-white p-6 rounded-lg shadow-md border space-y-4">
@@ -452,6 +397,23 @@ const ArsipClient: React.FC<ArsipClientProps> = ({ initialJurusan, isKaprodi }) 
                     Data ditampilkan untuk Jurusan:{' '}
                     <strong className='text-[#325827]'>{formatJurusan(filters.jurusan)}</strong>
                 </p>
+
+                <div className='flex items-center gap-4 mt-3'>
+                    <label className="text-sm font-medium text-gray-700">Filter Jurusan:</label>
+                    {ALL_JURUSAN.map(j => (
+                        <button
+                            key={j}
+                            onClick={() => handleJurusanChange(j)}
+                            className={`px-4 py-2 text-sm font-semibold rounded-full transition duration-150 ${
+                                filters.jurusan === j
+                                    ? 'bg-[#325827] text-white shadow-md'
+                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            }`}
+                        >
+                            {formatJurusan(j)}
+                        </button>
+                    ))}
+                </div>
 
                 <div className="mt-6">
                     {isLoading ? (
@@ -465,86 +427,100 @@ const ArsipClient: React.FC<ArsipClientProps> = ({ initialJurusan, isKaprodi }) 
                             <p className='font-medium'>Error terjadi saat memuat data: {error}</p>
                         </div>
                     ) : (
-                         <div className="overflow-x-auto -mx-4 sm:mx-0">
+                         <div className="overflow-x-auto">
                             <table className="min-w-full w-full bg-white border divide-y divide-gray-200">
                                 <thead className="bg-slate-50">
                                     <tr>
                                         {/* Header Mahasiswa */}
-                                        <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
-                                            <div className="flex items-center gap-1 sm:gap-2"><FiUsers size={14} className="text-green-800" /><span>Mahasiswa</span></div>
+                                        <th className="px-4 sm:px-6 py-2 sm:py-3 font-bold text-slate-800 text-xs text-left">
+                                            <div className="flex items-center gap-1"><FiUsers size={12} className="text-green-800" /><span>Mahasiswa</span></div>
                                         </th>
-                                        
+
                                         {/* Header Tanggal */}
-                                        <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
-                                            <div className="flex items-center gap-1 sm:gap-2"><FiCalendar size={14} className="text-green-800" /><span>Timeline</span></div>
+                                        <th className="px-4 sm:px-6 py-2 sm:py-3 font-bold text-slate-800 text-xs text-left">
+                                            <div className="flex items-center gap-1"><FiCalendar size={12} className="text-green-800" /><span>Timeline</span></div>
                                         </th>
                                         {/* Header SK Pembimbing */}
-                                        <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-center whitespace-nowrap">
-                                            <div className="flex items-center gap-1 sm:gap-2 justify-center"><FiDownload size={14} className="text-green-800" /><span>SK Pembimbing</span></div>
+                                        <th className="px-4 sm:px-6 py-2 sm:py-3 font-bold text-slate-800 text-xs text-center min-w-[90px]">
+                                            <div className="flex items-center gap-1 justify-center"><FiDownload size={12} className="text-green-800" /><span>SK Pembimbing</span></div>
                                         </th>
                                         {/* Header SK Sempro */}
-                                        <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-center whitespace-nowrap">
-                                            <div className="flex items-center gap-1 sm:gap-2 justify-center"><FiDownload size={14} className="text-green-800" /><span>SK Sempro</span></div>
+                                        <th className="px-4 sm:px-6 py-2 sm:py-3 font-bold text-slate-800 text-xs text-center min-w-[90px]">
+                                            <div className="flex items-center gap-1 justify-center"><FiDownload size={12} className="text-green-800" /><span>SK Sempro</span></div>
                                         </th>
                                         {/* Header SK Sidang */}
-                                        <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-center whitespace-nowrap">
-                                            <div className="flex items-center gap-1 sm:gap-2 justify-center"><FiDownload size={14} className="text-green-800" /><span>SK Sidang</span></div>
+                                        <th className="px-4 sm:px-6 py-2 sm:py-3 font-bold text-slate-800 text-xs text-center min-w-[90px]">
+                                            <div className="flex items-center gap-1 justify-center"><FiDownload size={12} className="text-green-800" /><span>SK Sidang</span></div>
+                                        </th>
+                                        {/* Header Berita Acara Proposal */}
+                                        <th className="px-4 sm:px-6 py-2 sm:py-3 font-bold text-slate-800 text-xs text-center min-w-[120px]">
+                                            <div className="flex items-center gap-1 justify-center"><FiDownload size={12} className="text-green-800" /><span>Berita Acara Proposal</span></div>
+                                        </th>
+                                        {/* Header Berita Acara Sidang Skripsi */}
+                                        <th className="px-4 sm:px-6 py-2 sm:py-3 font-bold text-slate-800 text-xs text-center min-w-[130px]">
+                                            <div className="flex items-center gap-1 justify-center"><FiDownload size={12} className="text-green-800" /><span>Berita Acara Sidang Skripsi</span></div>
                                         </th>
                                         {/* Header Aksi */}
-                                        <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-center whitespace-nowrap">
-                                            <div className="flex items-center gap-1 sm:gap-2 justify-center"><FiSettings size={14} className="text-green-800" /><span>Aksi</span></div>
+                                        <th className="px-4 sm:px-6 py-2 sm:py-3 font-bold text-slate-800 text-xs text-center min-w-[70px]">
+                                            <div className="flex items-center gap-1 justify-center"><FiSettings size={12} className="text-green-800" /><span>Aksi</span></div>
                                         </th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-200">
                                     {arsipData.length === 0 ? (
-                                        <tr><td colSpan={8} className="px-4 sm:px-6 py-8 sm:py-10 text-center text-gray-500 text-sm">Tidak ada data arsip yang ditemukan.</td></tr>
+                                        <tr><td colSpan={10} className="px-4 sm:px-6 py-8 sm:py-10 text-center text-gray-500 text-sm">Tidak ada data arsip yang ditemukan.</td></tr>
                                     ) : (
                                         arsipData.map((item) => {
                                             const { steps } = getTimelineStatus(item);
-                                            
-                                            const skPembimbingUrl = item.sk_pembimbing_number ? `/api/sk/${item.id}` : null;
-                                            const skPengujiProposalUrl = item.proposal?.sk_penguji_file ? `/api/sk_proposal/${item.proposal.id}` : null;
-                                            const skPengujiSidangUrl = item.seminar_hasil?.sk_penguji_file ? `/api/sk_skripsi/${item.seminar_hasil.id}` : null;
+
+                                            const skPembimbingUrl = item.file_sk_pembimbing;
+                                            const skPengujiProposalUrl = item.proposal?.file_sk_proposal || null;
+                                            const skPengujiSidangUrl = item.seminar_hasil?.file_sk_skripsi || null;
 
                                             return (
                                                 <tr key={item.id} className="hover:bg-gray-50 transition-colors">
-                                                 
-                                                    <td className="px-6 py-4 whitespace-nowrap">
-                                                        <div className="flex flex-col gap-1.5">
-                                                            <div className="flex items-center gap-2">
-                                                                <FiUser size={14} className="text-green-800" />
-                                                                <span className="text-sm text-gray-700">
+
+                                                    <td className="px-4 sm:px-6 py-2 sm:py-3">
+                                                        <div className="flex flex-col gap-1">
+                                                            <div className="flex items-center gap-1">
+                                                                <FiUser size={12} className="text-green-800 flex-shrink-0" />
+                                                                <span className="text-xs text-gray-700 break-words">
                                                                     <span className="font-semibold">Nama: </span>
                                                                     {item.nama}
                                                                 </span>
                                                             </div>
-                                                            <div className="flex items-center gap-2">
-                                                                <FiHash size={14} className="text-green-800" />
-                                                                <span className="text-sm text-gray-700">
+                                                            <div className="flex items-center gap-1">
+                                                                <FiHash size={12} className="text-green-800 flex-shrink-0" />
+                                                                <span className="text-xs text-gray-700 break-words">
                                                                     <span className="font-semibold">NIM: </span>
                                                                     {item.nim}
                                                                 </span>
                                                             </div>
                                                         </div>
                                                     </td>
-                                                   
-                                                    <td className="px-6 py-4 text-sm text-gray-700">
+
+                                                    <td className="px-4 sm:px-6 py-2 sm:py-3 text-xs text-gray-700">
                                                         <TimelineStatus steps={steps} />
                                                     </td>
-                                                    <td className="px-6 py-4 text-center whitespace-nowrap">
-                                                        <DownloadStatus url={skPembimbingUrl} nama={item.nama} nim={item.nim} type="pembimbing" />
+                                                    <td className="px-4 sm:px-6 py-2 sm:py-3 text-center">
+                                                        <ViewStatus url={skPembimbingUrl} />
                                                     </td>
-                                                    <td className="px-6 py-4 text-center whitespace-nowrap">
-                                                        <DownloadStatus url={skPengujiProposalUrl} nama={item.nama} nim={item.nim} type="proposal" />
+                                                    <td className="px-4 sm:px-6 py-2 sm:py-3 text-center">
+                                                        <ViewStatus url={skPengujiProposalUrl} />
                                                     </td>
-                                                
-                                                    <td className="px-6 py-4 text-center whitespace-nowrap">
-                                                        <DownloadStatus url={skPengujiSidangUrl} nama={item.nama} nim={item.nim} type="skripsi" />
+
+                                                    <td className="px-4 sm:px-6 py-2 sm:py-3 text-center">
+                                                        <ViewStatus url={skPengujiSidangUrl} />
                                                     </td>
-                                                
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-center">
-                                                        <button 
+                                                    <td className="px-4 sm:px-6 py-2 sm:py-3 text-center">
+                                                        <DownloadBeritaAcara id={item.proposal?.id || null} type="proposal" />
+                                                    </td>
+                                                    <td className="px-4 sm:px-6 py-2 sm:py-3 text-center">
+                                                        <DownloadBeritaAcara id={item.seminar_hasil?.id || null} type="seminar-hasil" />
+                                                    </td>
+
+                                                    <td className="px-4 sm:px-6 py-2 sm:py-3 text-xs font-medium text-center">
+                                                        <button
                                                             onClick={() => openModal(item)}
                                                             className="inline-flex items-center gap-2 text-green-600 hover:text-green-900 font-semibold"
                                                             title="Lihat Detail Lengkap"

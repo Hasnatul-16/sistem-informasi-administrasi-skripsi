@@ -3,11 +3,15 @@ import { writeFile, mkdir } from "fs/promises";
 import { existsSync } from "fs";
 import path from "path";
 import prisma from "@/lib/prisma";
+import type { Prisma } from "@prisma/client";
 
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const jurusan = searchParams.get("jurusan");
+    const tahun = searchParams.get("tahun");
+    const semester = searchParams.get("semester");
+    const month = searchParams.get("month");
 
     if (!jurusan) {
       return NextResponse.json(
@@ -16,8 +20,34 @@ export async function GET(req: Request) {
       );
     }
 
+    // Build date filter based on month OR tahun+semester
+    let dateFilter: { gte: Date; lt: Date } | undefined = undefined;
+    if (month) {
+      // month expected as YYYY-MM
+      const start = new Date(`${month}-01`);
+      const end = new Date(start);
+      end.setMonth(end.getMonth() + 1);
+      dateFilter = { gte: start, lt: end };
+    } else if (tahun && semester) {
+      if (semester === 'GANJIL') {
+        const start = new Date(`${tahun}-07-01`);
+        const end = new Date(`${Number(tahun) + 1}-01-01`);
+        dateFilter = { gte: start, lt: end };
+      } else if (semester === 'GENAP') {
+        const start = new Date(`${tahun}-01-01`);
+        const end = new Date(`${tahun}-07-01`);
+        dateFilter = { gte: start, lt: end };
+      }
+    }
+
+    const whereClause: Prisma.MahasiswaWhereInput = { jurusan: jurusan as "SISTEM_INFORMASI" | "MATEMATIKA" };
+    if (dateFilter) {
+      // only include mahasiswa who have a judul with tanggal in range
+      whereClause.judul = { some: { tanggal: { gte: dateFilter.gte, lt: dateFilter.lt } } };
+    }
+
     const mahasiswaList = await prisma.mahasiswa.findMany({
-      where: { jurusan: jurusan as "SISTEM_INFORMASI" | "MATEMATIKA" },
+      where: whereClause,
       select: {
         id: true,
         nama: true,

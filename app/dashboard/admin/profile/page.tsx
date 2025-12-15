@@ -14,7 +14,7 @@ interface AdminProfile {
 }
 
 export default function AdminProfilePage() {
-  const { data: _session } = useSession();
+  useSession();
   const [profile, setProfile] = useState<AdminProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('personal');
@@ -50,7 +50,7 @@ export default function AdminProfilePage() {
           text: 'gagal memuat profil'
         });
       }
-    } catch (_error) {
+    } catch {
       MySwal.fire({
         icon: 'error',
         title: 'Error',
@@ -87,7 +87,7 @@ export default function AdminProfilePage() {
           text: 'profil gagal diupdate'
         });
       }
-    } catch (_error) {
+    } catch {
       MySwal.fire({
         icon: 'error',
         title: 'Error',
@@ -138,7 +138,7 @@ export default function AdminProfilePage() {
           text: error.message || 'Gagal mengubah password'
         });
       }
-    } catch (_error) {
+    } catch {
       MySwal.fire({
         icon: 'error',
         title: 'Error',
