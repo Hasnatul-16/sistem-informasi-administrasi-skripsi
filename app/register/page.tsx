@@ -83,17 +83,6 @@ const CustomSelect = ({ id, value, onChange, options }: CustomSelectProps) => {
   );
 };
 
-// const FeatureItem = ({ icon: Icon, title, description, colorClass }:
-//   { icon: React.ElementType, title: string, description: string, colorClass: string }) => (
-//   <li className="flex items-start bg-white/20 p-2 rounded-lg text-white backdrop-blur-sm transition duration-300 hover:bg-white/30">
-//     <Icon className={`w-4 h-4 mr-3 mt-1 ${colorClass} flex-shrink-0`} />
-//     <div>
-//       <strong className="text-base">{title}</strong>
-//       <p className="text-xs opacity-90">{description}</p>
-//     </div>
-//   </li>
-// );
-
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
     nama: '',
@@ -102,11 +91,35 @@ export default function RegisterPage() {
     password: '',
     jurusan: 'SISTEM_INFORMASI',
   });
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
+  const validateForm = () => {
+    const newErrors: { [key: string]: string } = {};
+
+    const emailRegex = /^[^\s@]+@(gmail\.com|yahoo\.com|.ac\.id)$/i;
+    if (!emailRegex.test(formData.email)) {
+      newErrors.email = 'Format email tidak valid. Harus berisi @gmail.com /yahoo.com atau domain universitas seperti @uinib.ac.id.';
+    }
+
+    // NIM harus bentuk angka saja
+    const nimRegex = /^\d+$/;
+    if (!nimRegex.test(formData.nim)) {
+      newErrors.nim = 'NIM harus berupa angka saja.';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -199,22 +212,28 @@ export default function RegisterPage() {
                 icon={<FiUser className="h-5 w-5" />}
                 placeholder="Masukkan Nama Lengkap"
               />
-              <CustomInput
-                id="nim"
-                type="text"
-                value={formData.nim}
-                onChange={(e) => setFormData(prev => ({ ...prev, nim: e.target.value }))}
-                icon={<FiBookmark className="h-5 w-5" />}
-                placeholder="Masukkan NIM"
-              />
-              <CustomInput
-                id="email"
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                icon={<FiMail className="h-5 w-5" />}
-                placeholder="Masukkan Email"
-              />
+              <div>
+                <CustomInput
+                  id="nim"
+                  type="text"
+                  value={formData.nim}
+                  onChange={(e) => setFormData(prev => ({ ...prev, nim: e.target.value }))}
+                  icon={<FiBookmark className="h-5 w-5" />}
+                  placeholder="Masukkan NIM"
+                />
+                {errors.nim && <p className="text-red-500 text-xs mt-1">{errors.nim}</p>}
+              </div>
+              <div>
+                <CustomInput
+                  id="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                  icon={<FiMail className="h-5 w-5" />}
+                  placeholder="Masukkan Email"
+                />
+                {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+              </div>
               <CustomInput
                 id="password"
                 type="password"
