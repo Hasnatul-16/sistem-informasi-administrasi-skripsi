@@ -267,100 +267,127 @@ export default function KaprodiHasilTable({ initialSeminarHasil, lecturers }: Ka
 
     return (
         <>
-            <div className="bg-[#325827] p-4 rounded-lg shadow-md flex flex-wrap items-center justify-between gap-4 mb-6">
-                <div className="flex items-center gap-4">
-            
-                    <div className='flex flex-col'>
-                        <label htmlFor="month" className="text-white font-semibold text-sm">Bulan</label>
-                        <select id="month" name="month" value={filters.month} onChange={handleFilterChange}
-                            className="p-2 border border-white/30 rounded-md bg-white/20 text-white focus:ring-2 focus:ring-white/50 min-w-[120px]">
-                            {monthOptions.map(opt => <option key={opt.value} value={opt.value} className="text-black">{opt.label}</option>)}
-                        </select>
+            <div className="bg-[#325827] p-3 sm:p-4 rounded-lg shadow-md flex flex-col gap-3 sm:gap-4 mb-6">
+
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3 sm:gap-4">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 w-full sm:w-auto">
+                        <div className="flex flex-col w-full sm:w-auto">
+                            <label htmlFor="month" className="text-white font-semibold text-xs sm:text-sm">Bulan</label>
+                            <select id="month" name="month" value={filters.month} onChange={handleFilterChange}
+                                className="p-2 border border-white/30 rounded-md bg-white/20 text-white focus:ring-2 focus:ring-white/50 min-w-full sm:min-w-[120px] text-sm">
+                                {monthOptions.map(opt => <option key={opt.value} value={opt.value} className="text-black">{opt.label}</option>)}
+                            </select>
+                        </div>
+
+                        <div className="flex flex-col w-full sm:w-auto">
+                            <label htmlFor="year" className="text-white font-semibold text-xs sm:text-sm">Tahun</label>
+                            <select id="year" name="year" value={filters.year} onChange={handleFilterChange}
+                                className="p-2 border border-white/30 rounded-md bg-white/20 text-white focus:ring-2 focus:ring-white/50 min-w-full sm:min-w-[100px] text-sm">
+                                {yearOptions.map(year => <option key={year} value={year} className="text-black">{year}</option>)}
+                            </select>
+                        </div>
                     </div>
 
-                    <div className='flex flex-col'>
-                        <label htmlFor="year" className="text-white font-semibold text-sm">Tahun</label>
-                        <select id="year" name="year" value={filters.year} onChange={handleFilterChange}
-                            className="p-2 border border-white/30 rounded-md bg-white/20 text-white focus:ring-2 focus:ring-white/50 min-w-[100px]">
-                            {yearOptions.map(year => <option key={year} value={year} className="text-black">{year}</option>)}
-                        </select>
+                    <div className="relative w-full sm:w-auto">
+                        <input
+                            type="text"
+                            placeholder="Cari nama, NIM, atau judul..."
+                            value={searchQuery}
+                            onChange={handleSearchChange}
+                            className="w-full sm:w-64 bg-white/30 text-white placeholder-white/70 rounded-full py-2 pl-8 sm:pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-white/50 text-sm"
+                        />
+                        <FiSearch className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 text-white/70 w-4 h-4" />
                     </div>
-                </div>
-                <div className="relative self-end">
-                    <input
-                        type="text"
-                        placeholder="Cari berdasarkan nama, NIM, atau judul..." 
-                        value={searchQuery}
-                        onChange={handleSearchChange}
-                        className="w-64 bg-white/30 text-white placeholder-white/70 rounded-full py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-white/50"
-                    />
-                    <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-white/70" />
                 </div>
             </div>
 
 
             <div className="overflow-x-auto bg-white rounded-lg shadow-md border">
-                <table className="min-w-full">
-                    <thead className="border-b-2 border-gray-200 bg-gray-50">
+                <table className="min-w-full w-full bg-white border divide-y divide-gray-200">
+                    <thead className="bg-slate-50">
                         <tr>
-                            <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[15%]"><div className="flex items-center gap-2"><FiUser size={16} className="text-green-800" /> <span>Mahasiswa</span></div></th>
-                            <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[10%]"><div className="flex items-center gap-2"><FiCalendar size={16} className="text-green-800" /> <span>Tgl Pengajuan</span></div></th>
-                            <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[20%]"><div className="flex items-center gap-2"><FiBook size={16} className="text-green-800" /> <span>Judul Skripsi</span></div></th>
-                            <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[15%]"><div className="flex items-center gap-2"><FiUsers size={16} className="text-green-800" /> <span>Penguji (Sempro)</span></div></th>
-                            <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[25%]"><div className="flex items-center gap-2"><FiUsers size={16} className="text-green-800" /> <span>Penguji & Jadwal</span></div></th>
-                            <th className="px-6 py-4 font-bold text-slate-800 text-sm text-left w-[10%]"><div className="flex items-center gap-2"><FiCheckCircle size={16} className="text-green-800" /> <span>Aksi</span></div></th>
+                            <th className="px-4 sm:px-6 py-2 sm:py-3 font-bold text-slate-800 text-xs text-left min-w-[150px]">
+                                <div className="flex items-center gap-1"><FiUser size={12} className="text-green-800" /><span>Mahasiswa</span></div>
+                            </th>
+                            <th className="px-4 sm:px-6 py-2 sm:py-3 font-bold text-slate-800 text-xs text-left min-w-[120px]">
+                                <div className="flex items-center gap-1"><FiCalendar size={12} className="text-green-800" /><span>Tgl Pengajuan</span></div>
+                            </th>
+                            <th className="px-4 sm:px-6 py-2 sm:py-3 font-bold text-slate-800 text-xs text-left min-w-[200px]">
+                                <div className="flex items-center gap-1"><FiBook size={12} className="text-green-800" /><span>Judul Skripsi</span></div>
+                            </th>
+                            <th className="px-4 sm:px-6 py-2 sm:py-3 font-bold text-slate-800 text-xs text-left min-w-[150px]">
+                                <div className="flex items-center gap-1"><FiUsers size={12} className="text-green-800" /><span>Penguji (Sempro)</span></div>
+                            </th>
+                            <th className="px-4 sm:px-6 py-2 sm:py-3 font-bold text-slate-800 text-xs text-left min-w-[250px]">
+                                <div className="flex items-center gap-1"><FiUsers size={12} className="text-green-800" /><span>Penguji & Jadwal</span></div>
+                            </th>
+                            <th className="px-4 sm:px-6 py-2 sm:py-3 font-bold text-slate-800 text-xs text-left min-w-[100px]">
+                                <div className="flex items-center gap-1 justify-center"><FiCheckCircle size={12} className="text-green-800" /><span>Aksi</span></div>
+                            </th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100">
+                    <tbody className="divide-y divide-gray-200">
                         {displayData.length === 0 ? (
-                            <tr><td colSpan={6} className="py-10 text-center text-gray-500">Tidak ada pengajuan sidang skripsi yang perlu diproses pada bulan ini.</td></tr>
+                            <tr><td colSpan={6} className="px-4 sm:px-6 py-8 sm:py-10 text-center text-gray-500 text-sm">Tidak ada pengajuan sidang skripsi yang perlu diproses pada bulan ini.</td></tr>
                         ) : (
                             displayData.map(sh => (
-                                <tr key={sh.id} className="hover:bg-gray-50">
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="text-sm font-medium text-gray-900">{sh.judul.mahasiswa.nama}</div>
-                                        <div className="text-sm text-gray-500">{sh.judul.mahasiswa.nim}</div>
+                                <tr key={sh.id} className="hover:bg-gray-50 transition-colors">
+                                    <td className="px-4 sm:px-6 py-2 sm:py-3">
+                                        <div className="flex flex-col gap-1">
+                                            <div className="flex items-center gap-1">
+                                                <FiUser size={12} className="text-green-800 flex-shrink-0" />
+                                                <span className="text-xs text-gray-700 break-words">
+                                                    <span className="font-semibold">Nama: </span>
+                                                    {sh.judul.mahasiswa.nama}
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center gap-1">
+                                                <FiHash size={12} className="text-green-800 flex-shrink-0" />
+                                                <span className="text-xs text-gray-700 break-words">
+                                                    <span className="font-semibold">NIM: </span>
+                                                    {sh.judul.mahasiswa.nim}
+                                                </span>
+                                            </div>
+                                        </div>
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                    <td className="px-4 sm:px-6 py-2 sm:py-3 text-xs text-gray-700">
                                         {new Date(sh.tanggal).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}
                                     </td>
-                                    <td className="px-6 py-4"><p className="text-sm text-gray-800 whitespace-normal">{sh.judul.judul}</p></td>
-
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                    <td className="px-4 sm:px-6 py-2 sm:py-3 text-xs text-gray-700">
+                                        <p className="break-words">{sh.judul.judul}</p>
+                                    </td>
+                                    <td className="px-4 sm:px-6 py-2 sm:py-3 text-xs text-gray-700">
                                         <p className="font-medium">{sh.pengujiSempro || '-'}</p>
                                     </td>
-
-                                    <td className="px-6 py-4 whitespace-nowrap">
+                                    <td className="px-4 sm:px-6 py-2 sm:py-3 text-xs text-gray-700">
                                         {sh.status === 'DISETUJUI' ? (
-                                            <ul className="text-xs text-gray-600 space-y-1">
-                                                <li>Penguji 1: <strong>{sh.penguji1 || '-'}</strong></li>
-                                                <li>Penguji 2: <strong>{sh.penguji2 || '-'}</strong></li>
-                                                <li>Jadwal: <strong>{new Date(sh.jadwal_sidang!).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</strong></li>
-
-                                                 <li>Tempat: <strong>{sh.tempat || '-'}</strong></li>
+                                            <ul className="list-none p-0 m-0 space-y-1 text-xs">
+                                                <li><strong>Penguji 1:</strong> {sh.penguji1 || '-'}</li>
+                                                <li><strong>Penguji 2:</strong> {sh.penguji2 || '-'}</li>
+                                                <li><strong>Jadwal:</strong> {new Date(sh.jadwal_sidang!).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</li>
+                                                <li><strong>Tempat:</strong> {sh.tempat || '-'}</li>
                                             </ul>
                                         ) : (
                                             <StatusBadge status={sh.status} />
                                         )}
                                     </td>
-                                    {/* AKSI */}
-                                    <td className="px-6 py-4">
+                                    <td className="px-4 sm:px-6 py-2 sm:py-3 text-xs font-medium text-center">
                                         {sh.status === 'DIPROSES_KAPRODI' ? (
-                                            <button onClick={() => openModal(sh)} className="text-[#325827]hover:text-green-900 text-sm font-semibold flex items-center gap-1 transition-colors">
-                                                <FiEdit size={14} /> Tetapkan
+                                            <button onClick={() => openModal(sh)} className="inline-flex items-center gap-2 text-green-600 hover:text-green-900 font-semibold">
+                                                <FiEdit className="h-4 w-4" /> Tetapkan
                                             </button>
                                         ) : sh.status === 'DISETUJUI' ? (
                                             <div className="flex flex-col gap-1">
                                                 <button
                                                     onClick={() => openModal(sh)}
-                                                    className="text-green-600 hover:text-green-800 text-sm font-semibold flex items-center gap-1 transition-colors"
+                                                    className="inline-flex items-center gap-2 text-green-600 hover:text-green-900 font-semibold"
                                                 >
-                                                    <FiEdit size={14} /> Edit
+                                                    <FiEdit className="h-4 w-4" /> Edit
                                                 </button>
                                                 <button
                                                     onClick={() => handleDownloadBeritaAcara(sh.id, sh.judul.mahasiswa.nim, sh.judul.mahasiswa.nama)}
                                                     disabled={loadingId === sh.id}
-                                                    className="text-green-800 hover:text-green-950 text-sm font-semibold flex items-center gap-1 transition-colors"
+                                                    className="inline-flex items-center gap-2 text-green-800 hover:text-green-950 font-semibold"
                                                 >
                                                     {loadingId === sh.id ? (
                                                         <>
