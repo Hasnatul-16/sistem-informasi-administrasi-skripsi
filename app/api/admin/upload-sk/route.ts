@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
-import { writeFile, mkdir } from "fs/promises";
-import { existsSync } from "fs";
-import path from "path";
 import prisma from "@/lib/prisma";
 import type { Prisma } from "@prisma/client";
+import { uploadToSupabase } from "@/lib/supabase";
 
 export async function GET(req: Request) {
   try {
@@ -216,39 +214,29 @@ export async function POST(req: Request) {
       }
     }
 
-    const uploadDir = path.join(process.cwd(), "public", "uploads", "sk", type);
-    if (!existsSync(uploadDir)) {
-      await mkdir(uploadDir, { recursive: true });
-    }
-
-    const timestamp = Date.now();
-    const filename = `${type}-${mahasiswa_id}-${submission_id}-${timestamp}.pdf`;
-    const filepath = path.join(uploadDir, filename);
-    const relativePath = `/uploads/sk/${type}/${filename}`;
-
-    const buffer = Buffer.from(await file.arrayBuffer());
-    await writeFile(filepath, buffer);
+    const folder = `sk/${type}`;
+    const publicUrl = await uploadToSupabase(file, folder);
 
     if (type === "judul") {
       await prisma.judul.update({
         where: { id: submission_id },
-        data: { file_sk_pembimbing: relativePath },
+        data: { file_sk_pembimbing: publicUrl  },
       });
     } else if (type === "proposal") {
       await prisma.proposal.update({
         where: { id: submission_id },
-        data: { file_sk_proposal: relativePath },
+        data: { file_sk_proposal: publicUrl  },
       });
     } else if (type === "seminar") {
       await prisma.seminarHasil.update({
         where: { id: submission_id },
-        data: { file_sk_skripsi: relativePath },
+        data: { file_sk_skripsi: publicUrl  },
       });
     }
 
     return NextResponse.json({
       message: "SK uploaded successfully",
-      path: relativePath,
+      path: publicUrl ,
     });
   } catch (err: unknown) {
     const error = err as Error;

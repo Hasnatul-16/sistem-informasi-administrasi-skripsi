@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE `user` ADD COLUMN `jurusan` ENUM('MATEMATIKA', 'SISTEM_INFORMASI') NULL;

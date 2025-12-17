@@ -2,25 +2,7 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/auth';
-import { writeFile, mkdir } from 'fs/promises'; 
-import path from 'path';
-
-const saveFile = async (file: File, subfolder: string) => {
-  const bytes = await file.arrayBuffer();
-  const buffer = Buffer.from(bytes);
-  const filename = `${Date.now()}_${file.name.replace(/\s/g, '_')}`;
-  const uploadDir = path.join(process.cwd(), 'public/uploads', subfolder);
-  const filePath = path.join(uploadDir, filename);
-
-  try {
-    await mkdir(uploadDir, { recursive: true });
-    await writeFile(filePath, buffer);
-    return `/uploads/${subfolder}/${filename}`;
-  } catch (error) {
-    console.error(`Gagal menyimpan file ke ${filePath}:`, error);
-    throw new Error(`Gagal menyimpan file: ${file.name}`);
-  }
-};
+import { uploadToSupabase } from '@/lib/supabase';
 
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
@@ -69,9 +51,9 @@ export async function POST(request: Request) {
     }
 
     const SUBFOLDER = 'pengajuan-judul';
-    const transkrip = await saveFile(transkripFile, SUBFOLDER);
-    const ukt = await saveFile(uktFile, SUBFOLDER);
-    const konsultasi = await saveFile(konsultasiFile, SUBFOLDER);
+    const transkrip = await uploadToSupabase(transkripFile, SUBFOLDER);
+    const ukt = await uploadToSupabase(uktFile, SUBFOLDER);
+    const konsultasi = await uploadToSupabase(konsultasiFile, SUBFOLDER);
 
     const newSubmission = await prisma.judul.create({
       data: {

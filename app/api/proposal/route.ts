@@ -2,25 +2,8 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/auth';
-import { writeFile, mkdir } from 'fs/promises';
-import path from 'path';
+import { uploadToSupabase } from '@/lib/supabase';
 import { Status } from '@prisma/client';
-
-const saveFile = async (file: File, subfolder: string) => {
-  const bytes = await file.arrayBuffer();
-  const buffer = Buffer.from(bytes);
-  const filename = `${Date.now()}_${file.name.replace(/\s/g, '_')}`;
-  const uploadDir = path.join(process.cwd(), 'public/uploads', 'proposal', subfolder);
-  const filePath = path.join(uploadDir, filename);
-  try {
-    await mkdir(uploadDir, { recursive: true });
-    await writeFile(filePath, buffer);
-    return `/uploads/proposal/${subfolder}/${filename}`;
-  } catch (error) {
-    console.error(`Gagal menyimpan file ke ${filePath}:`, error);
-    throw new Error(`Gagal menyimpan file: ${file.name}`);
-  }
-};
 
 export async function POST(request: Request) {
  
@@ -46,7 +29,7 @@ export async function POST(request: Request) {
     if (isNaN(judulId)) {
       return NextResponse.json({ message: 'ID Judul tidak valid.' }, { status: 400 });
     }
-      // Validasi data Judul/Topik baru
+
     if (!newTopik || !newJudul || newTopik.trim() === '' || newJudul.trim() === '') {
       return NextResponse.json({ message: 'Topik dan Judul Skripsi wajib diisi.' }, { status: 400 });
     }
@@ -62,7 +45,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: 'Judul tidak ditemukan, belum disetujui, atau bukan milik Anda.' }, { status: 404 });
     }
 
-    //  Update data Judul di database 
+ 
     await prisma.judul.update({
       where: { id: judulId },
       data: {
@@ -72,7 +55,7 @@ export async function POST(request: Request) {
       },
     });
 
-    // Mencari Proposal yang statusnya BUKAN DITOLAK_ADMIN
+
     const activeProposal = await prisma.proposal.findFirst({
       where: {
         id_judul: judulId,
@@ -89,11 +72,10 @@ export async function POST(request: Request) {
       }, { status: 409 });
     }
 
-    const proposalPath = await saveFile(proposalFile, 'proposals');
-    const persetujuanPath = await saveFile(persetujuanFile, 'persetujuan');
-    const buktiSeminarPath = await saveFile(buktiSeminarFile, 'lampiran_seminar');
-    const transkripPath = await saveFile(transkripFile, 'transkrip_proposal');
-
+    const proposalPath = await uploadToSupabase(proposalFile, 'proposal/proposals');
+    const persetujuanPath = await uploadToSupabase(persetujuanFile, 'proposal/persetujuan');
+    const buktiSeminarPath = await uploadToSupabase(buktiSeminarFile, 'proposal/lampiran_seminar');
+    const transkripPath = await uploadToSupabase(transkripFile, 'proposal/transkrip_proposal');
 
     const newProposal = await prisma.proposal.create({
       data: {

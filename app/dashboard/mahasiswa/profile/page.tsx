@@ -123,7 +123,7 @@ export default function MahasiswaProfilePage() {
       if (response.ok) {
         MySwal.fire({
           icon: 'success',
-          title: 'Berhasi',
+          title: 'Berhasil',
           text: 'Password  Berhasil Diubah',
           timer: 2000,
           showConfirmButton: false,

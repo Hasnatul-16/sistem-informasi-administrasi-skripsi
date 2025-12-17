@@ -2,25 +2,9 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/auth';
-import { writeFile, mkdir } from 'fs/promises';
-import path from 'path';
+import { uploadToSupabase } from '@/lib/supabase';
 import { Status } from '@prisma/client';
 
-const saveFile = async (file: File, subfolder: string) => {
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    const filename = `${Date.now()}_${file.name.replace(/\s/g, '_')}`;
-    const uploadDir = path.join(process.cwd(), 'public/uploads', 'seminar-hasil', subfolder);
-    const filePath = path.join(uploadDir, filename);
-    try {
-        await mkdir(uploadDir, { recursive: true });
-        await writeFile(filePath, buffer);
-        return `/uploads/seminar-hasil/${subfolder}/${filename}`;
-    } catch (error) {
-        console.error(`Gagal menyimpan file ke ${filePath}:`, error);
-        throw new Error(`Gagal menyimpan file: ${file.name}`);
-    }
-};
 
 export async function POST(request: Request) {
     const session = await getServerSession(authOptions);
@@ -90,12 +74,13 @@ export async function POST(request: Request) {
             }, { status: 409 });
         }
 
-        const transkripPath = await saveFile(transkripFile, 'transkrip');
-        const buktiSemproPath = await saveFile(buktiSemproFile, 'bukti_sempro');
-        const drafSkripsiPath = await saveFile(drafSkripsiFile, 'draf_skripsi');
-        const buktiKonsultasiPath = await saveFile(buktiKonsultasiFile, 'bukti_konsultasi');
-        const sertifikatToeflPath = await saveFile(sertifikatToeflFile, 'sertifikat_toefl');
-        const buktiHafalanPath = await saveFile(buktiHafalanFile, 'bukti_hafalan');
+        const transkripPath = await uploadToSupabase(transkripFile, 'seminar-hasil/transkrip');
+        const buktiSemproPath = await uploadToSupabase(buktiSemproFile, 'seminar-hasil/bukti_sempro');
+        const drafSkripsiPath = await uploadToSupabase(drafSkripsiFile, 'seminar-hasil/draf_skripsi');
+        const buktiKonsultasiPath = await uploadToSupabase(buktiKonsultasiFile, 'seminar-hasil/bukti_konsultasi');
+        const sertifikatToeflPath = await uploadToSupabase(sertifikatToeflFile, 'seminar-hasil/sertifikat_toefl');
+        const buktiHafalanPath = await uploadToSupabase(buktiHafalanFile, 'seminar-hasil/bukti_hafalan');
+
 
         const newSeminarHasil = await prisma.seminarHasil.create({
             data: {
