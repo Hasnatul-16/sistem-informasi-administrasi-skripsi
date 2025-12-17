@@ -93,6 +93,14 @@ export async function PUT(request: NextRequest) {
       },
     });
 
+    // Update mahasiswa table if user has mahasiswa relation and nama has changed
+    if (updatedUser.mahasiswa && nama) {
+      await prisma.mahasiswa.update({
+        where: { id_user: userId },
+        data: { nama },
+      });
+    }
+
     if (nim !== undefined && updatedUser.mahasiswa) {
       await prisma.mahasiswa.update({
         where: { id_user: userId },

@@ -139,14 +139,14 @@ export default function MahasiswaProfilePage() {
         MySwal.fire({
           icon: 'error',
           title: 'Error',
-          text: error.message || 'gagal mengubah password'
+          text: error.message || 'pasword saat ini salah'
         });
       }
     } catch {
       MySwal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'gagal mengubah password'
+        text: 'password saat ini salah'
       });
     }
   };

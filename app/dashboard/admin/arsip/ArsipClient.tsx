@@ -293,25 +293,25 @@ const ArsipClient: React.FC<ArsipClientProps> = ({ initialJurusan, initialTahun,
     }, [filters]);
 
     useEffect(() => {
-        const newParams = new URLSearchParams(searchParams.toString());
+        const newParams = new URLSearchParams();
         newParams.set('jurusan', filters.jurusan);
         newParams.set('tahun', filters.tahun);
         newParams.set('semester', filters.semester);
         if (filters.search) {
             newParams.set('search', filters.search);
-        } else {
-            newParams.delete('search');
         }
 
         router.replace(`${pathname}?${newParams.toString()}`);
+    }, [filters, router, pathname]);
 
+    useEffect(() => {
         const handler = setTimeout(() => {
             fetchArsip();
         }, 500);
         return () => {
             clearTimeout(handler);
         };
-    }, [filters, router, pathname, fetchArsip, searchParams]);
+    }, [filters, fetchArsip]);
 
 
 

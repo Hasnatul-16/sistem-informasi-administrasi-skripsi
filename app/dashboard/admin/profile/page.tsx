@@ -135,14 +135,14 @@ export default function AdminProfilePage() {
         MySwal.fire({
           icon: 'error',
           title: 'Error',
-          text: error.message || 'Gagal mengubah password'
+          text: error.message || 'password saat ini salah'
         });
       }
     } catch {
       MySwal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'Gagal mengubah password'
+        text: 'password saat ini salah'
       });
     }
   };

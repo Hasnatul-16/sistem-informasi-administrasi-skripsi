@@ -139,14 +139,14 @@ export default function KaprodiProfilePage() {
         MySwal.fire({
           icon: 'error',
           title: 'Error',
-          text: error.message || 'password gagal diubah'
+          text: error.message || 'password saat ini salah'
         });
       }
     } catch {
       MySwal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'password gagal diubah'
+        text: 'password saat ini salah'
       });
     }
   };

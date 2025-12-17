@@ -231,9 +231,9 @@ export default function DosenStatsClient({
             <h1 className="text-3xl font-bold text-gray-900"> Daftar Dosen Penguji</h1>
             <p className="mt-0 text-gray-600">menampilkan total dosen menjadi penguji pada seminar proposal dan sidang skripsi </p>
             
-            <div className="bg-white p-6 rounded-lg shadow-md border space-y-4">
+            <div className="bg- p-6 rounded-lg shadow-md border space-y-4">
                 
-                <div className="bg-[#325827]p-4 rounded-lg shadow-md flex flex-wrap items-center justify-between gap-4">
+                <div className="bg-[#325827] p-4 rounded-lg shadow-md flex flex-wrap items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
                       
                         <div className="flex flex-col">
@@ -385,7 +385,7 @@ export default function DosenStatsClient({
                                                 <td className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium whitespace-nowrap">
                                                     <button
                                                         onClick={() => handleOpenDetail(dosen)}
-                                                        className="inline-flex items-center gap-1 text-[#325827]hover:text-green-900 font-semibold"
+                                                        className="inline-flex items-center gap-1 text-[#325827] hover:text-green-900 font-semibold"
                                                         title="Lihat Detail Riwayat Penguji"
                                                     >
                                                         <FiEye size={14} /> <span className="hidden sm:inline">Lihat</span>
