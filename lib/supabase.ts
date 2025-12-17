@@ -17,7 +17,7 @@ export async function uploadToSupabase(file: File, folder: string): Promise<stri
   const filename = `${Date.now()}_${file.name.replace(/\s/g, '_')}`
   const filePath = `${folder}/${filename}`
 
-  const { data, error } = await supabaseAdmin.storage
+  const { error } = await supabaseAdmin.storage
     .from('uploads')
     .upload(filePath, buffer, {
       contentType: file.type,
