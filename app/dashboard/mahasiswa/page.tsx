@@ -233,7 +233,7 @@ export default async function MahasiswaDashboardPage() {
             <FiEdit className="mx-auto h-12 w-12 text-gray-400" />
             <h3 className="mt-2 text-lg font-medium text-gray-900">Anda Belum Mengajukan Judul</h3>
             <p className="mt-1 text-sm text-gray-500">Mulai langkah pertama perjalanan skripsi Anda sekarang.</p>
-            <Link href="/dashboard/mahasiswa/pengajuan-judul" className="mt-6 inline-flex items-center gap-2 px-4 py-2 bg[#325827] text-white font-semibold rounded-lg hover:bg-green-800">
+            <Link href="/dashboard/mahasiswa/pengajuan-judul" className="mt-6 inline-flex items-center gap-2 px-4 py-2 bg-[#325827] text-white font-semibold rounded-lg hover:bg-green-800">
               Ajukan Judul Sekarang <FiArrowRight />
             </Link>
           </div>
@@ -283,7 +283,7 @@ export default async function MahasiswaDashboardPage() {
           <div className="text-center py-10">
             <FiClock className="mx-auto h-12 w-12 text-yellow-500" />
             <h3 className="mt-2 text-lg font-medium text-gray-900">Pengajuan Judul Anda Sedang Diproses</h3>
-            <p className="mt-1 text-sm text-gray-500">Lihat detail status di bagian &quot;Pengajuan Sedang Diproses&quot; di atas.</p>
+            <p className="mt-1 text-sm text-gray-500">Silahkan Tunggu Verifikasi Dokumen Anda.</p>
           </div>
         )}
       </div>
