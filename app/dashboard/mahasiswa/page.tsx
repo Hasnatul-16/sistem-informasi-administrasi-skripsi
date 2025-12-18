@@ -158,7 +158,7 @@ export default async function MahasiswaDashboardPage() {
   // const skPengujiUrl = latestProposalSubmission?.sk_penguji;
 
   const tanggalSidang = latestProposalSubmission?.jadwal_sidang
-    ? new Date(latestProposalSubmission.jadwal_sidang).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+    ? new Date(latestProposalSubmission.jadwal_sidang).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' })
     : 'Menunggu Penetapan';
 
   const isSeminarHasilSubmitted = !!latestSeminarHasilSubmission;
@@ -167,7 +167,7 @@ export default async function MahasiswaDashboardPage() {
   const isHasilScheduled = isSeminarHasilApproved && latestSeminarHasilSubmission?.jadwal_sidang && latestSeminarHasilSubmission.penguji1 && latestSeminarHasilSubmission.penguji2;
 
   const tanggalSidangHasil = latestSeminarHasilSubmission?.jadwal_sidang
-    ? new Date(latestSeminarHasilSubmission.jadwal_sidang).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+    ? new Date(latestSeminarHasilSubmission.jadwal_sidang).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' })
     : 'Menunggu Penetapan';
 
 

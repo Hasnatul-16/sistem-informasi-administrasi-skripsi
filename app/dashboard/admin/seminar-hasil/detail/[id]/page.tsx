@@ -103,7 +103,7 @@ export default async function SeminarHasilDetailPage({ params }: { params: Promi
                         {DetailItem("Nama Lengkap", submission.judul.mahasiswa.nama)}
                         {DetailItem("NIM", submission.judul.mahasiswa.nim)}
                         {DetailItem("Jurusan", submission.judul.mahasiswa.jurusan.replace('_', ' '))}
-                        {DetailItem("Tanggal Pengajuan", new Date(submission.tanggal).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }))}
+                        {DetailItem("Tanggal Pengajuan", new Date(submission.tanggal).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric', timeZone: 'Asia/Jakarta' }))}
                     </div>
                 </div>
 

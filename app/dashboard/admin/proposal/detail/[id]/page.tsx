@@ -109,7 +109,7 @@ export default async function ProposalDetailPage({ params }: { params: Promise<{
             {DetailItem("Nama Lengkap", proposal.judul.mahasiswa.nama)}
             {DetailItem("NIM", proposal.judul.mahasiswa.nim)}
             {DetailItem("Jurusan", proposal.judul.mahasiswa.jurusan.replace('_', ' '))}
-            {DetailItem("Tanggal Pengajuan ", new Date(proposal.tanggal).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }))}
+            {DetailItem("Tanggal Pengajuan ", new Date(proposal.tanggal).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric', timeZone: 'Asia/Jakarta' }))}
           </div>
         </div>
         
