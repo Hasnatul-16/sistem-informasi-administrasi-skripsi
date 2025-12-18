@@ -38,7 +38,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
 
   const skDateObj = today;
 
-  const skDate = skDateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+  const skDate = skDateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Jakarta' });
   const skMonth = String(skDateObj.getMonth() + 1).padStart(2, '0');
   const skYear = skDateObj.getFullYear();
   const defaultSkNomor = `B.811/Un.13/FST/PP.00.9/${skMonth}/${skYear}`;

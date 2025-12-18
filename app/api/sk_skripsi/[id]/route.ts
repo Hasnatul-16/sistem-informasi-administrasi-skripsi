@@ -9,7 +9,7 @@ import { NextRequest } from 'next/server';
 
 const getSkDateInfo = (date: Date) => {
 
-  const skDate = date.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+  const skDate = date.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Jakarta' });
   const skMonth = String(date.getMonth() + 1).padStart(2, '0');
   const skYear = date.getFullYear();
   return { skDate, skMonth, skYear };
@@ -257,7 +257,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     month: 'long',
     year: 'numeric'
   };
-  const tanggalPengajuan = tanggal.toLocaleDateString('id-ID', options);
+  const tanggalPengajuan = tanggal.toLocaleDateString('id-ID', { ...options, timeZone: 'Asia/Jakarta' });
 
   const seminarJadwal = skripsiRecord.jadwal_sidang;
   let seminarHariTgl = 'Hari / Tanggal Munaqasah';
@@ -266,11 +266,11 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
 
   if (seminarJadwal) {
-    const day = seminarJadwal.toLocaleDateString('id-ID', { weekday: 'long' });
-    const date = seminarJadwal.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+    const day = seminarJadwal.toLocaleDateString('id-ID', { weekday: 'long', timeZone: 'Asia/Jakarta' });
+    const date = seminarJadwal.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Jakarta' });
     seminarHariTgl = `${day} / ${date}`;
 
-    const startTime = seminarJadwal.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false });
+    const startTime = seminarJadwal.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Jakarta' });
     const startHour = parseInt(startTime.substring(0, 2));
     const endHour = (startHour % 24) + 2;
     const endTime = String(endHour).padStart(2, '0') + '.00';
