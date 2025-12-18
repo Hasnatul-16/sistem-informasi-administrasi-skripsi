@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import fs from 'fs';
 import path from 'path';
-import puppeteer, { Browser } from 'puppeteer';
+import { getBrowser } from '@/lib/puppeteer';
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -749,12 +749,10 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     </body>
   </html>`;
 
-  let browser: Browser | null = null;
+  let browser: any = null;
   try {
-    browser = await puppeteer.launch({
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      headless: true
-    });
+    browser = await getBrowser();
+    if (!browser) throw new Error("Gagal membuka browser untuk generate PDF");
 
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: 'networkidle0' });

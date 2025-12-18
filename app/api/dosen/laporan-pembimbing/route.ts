@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import puppeteer, { Browser } from 'puppeteer';
+import { getBrowser } from '@/lib/puppeteer';
 import { Jurusan, Status } from '@prisma/client';
 import fs from 'fs';
 import path from 'path';
@@ -267,12 +267,10 @@ export async function GET(req: Request) {
       </html>
     `;
 
-    let browser: Browser | null = null;
+    let browser: any = null;
     try {
-      browser = await puppeteer.launch({
-        args: ['--no-sandbox', '--disable-setuid-sandbox'],
-        headless: true
-      });
+      browser = await getBrowser();
+      if (!browser) throw new Error("Gagal membuka browser untuk generate PDF");
       const page = await browser.newPage();
       await page.setContent(html, { waitUntil: 'domcontentloaded' });
 

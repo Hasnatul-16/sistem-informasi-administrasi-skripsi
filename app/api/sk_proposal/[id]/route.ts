@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import fs from 'fs';
 import path from 'path';
-import puppeteer, { Browser } from 'puppeteer';
+import { getBrowser } from '@/lib/puppeteer';
 import { Jurusan } from '@prisma/client';
 
 const getSkDateInfo = (date: Date) => {
@@ -111,13 +111,13 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   } catch (err) {
     console.error('Failed to load logo for PDF generation:', err);
   }
- 
-  const pengajuanProposal = proposal.tanggal ;
+
+  const pengajuanProposal = proposal.tanggal;
   const tanggalProposal = new Date(pengajuanProposal);
   const options: Intl.DateTimeFormatOptions = {
-    day: 'numeric',   
-    month: 'long',   
-    year: 'numeric'   
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
   };
   const tanggalPengajuan = tanggalProposal.toLocaleDateString('id-ID', options);
 
@@ -135,7 +135,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     }
   }
 
-   if (proposal.jadwal_sidang) {
+  if (proposal.jadwal_sidang) {
     skDateObj = getSkDateFromSeminarSchedule(proposal.jadwal_sidang);
   }
 
@@ -208,7 +208,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 
   const suratDate = skDate;
 
- try {
+  try {
     await prisma.proposal.update({
       where: { id: proposal.id },
       data: {
@@ -221,8 +221,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   }
 
   const penguji1Name = proposal.penguji || 'Nama Penguji 1 (Ketua)';
-  const penguji2Name = submission.pembimbing1 || 'Nama Penguji 2';  
-  const penguji3Name = submission.pembimbing2 || 'Nama Penguji 3'; 
+  const penguji2Name = submission.pembimbing1 || 'Nama Penguji 2';
+  const penguji3Name = submission.pembimbing2 || 'Nama Penguji 3';
 
   const penguji1Dosen = await prisma.dosen.findFirst({ where: { nama: penguji1Name } });
   const penguji2Dosen = await prisma.dosen.findFirst({ where: { nama: penguji2Name } });
@@ -976,12 +976,10 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     </body>
     </html>`;
 
-  let browser: Browser | null = null;
+  let browser: any = null;
   try {
-    browser = await puppeteer.launch({
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      headless: true
-    });
+    browser = await getBrowser();
+    if (!browser) throw new Error("Gagal membuka browser untuk generate PDF");
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: 'domcontentloaded' });
 
