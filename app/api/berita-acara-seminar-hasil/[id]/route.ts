@@ -171,7 +171,10 @@ const generateHTML = (templateData: TemplateData, studentJurusan: string): strin
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
-    @page { size: A4; margin: 25mm 25mm 25mm 30mm; }
+    @page { 
+      size: 215mm 330mm; 
+      margin: 25mm 20mm;
+    }
     @font-face {
       font-family: 'Arial MT';
       src: local('Arial MT'), local('Arial');
@@ -719,13 +722,14 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
       await page.setContent(html, { waitUntil: 'domcontentloaded' });
 
       const pdfBuffer = await page.pdf({
-        format: 'A4',
+        width: '215mm',
+        height: '330mm',
         printBackground: true,
         margin: {
           top: '25mm',
           right: '25mm',
           bottom: '25mm',
-          left: '30mm',
+          left: '25mm',
         },
       });
 

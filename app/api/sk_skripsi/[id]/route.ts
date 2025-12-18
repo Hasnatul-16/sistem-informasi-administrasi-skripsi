@@ -318,8 +318,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       <meta charset="utf-8" />
       <meta name="viewport" content="width=device-width,initial-scale=1" />
       <style>
-    
-        @page { size: A4; }
+        @page { 
+          size: 215mm 330mm; 
+          margin: 25mm 20mm;
+        }
 
         @font-face {
           font-family: 'Arial MT';
@@ -461,7 +463,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         table.lampiran-table td {
           border: 1px solid black;
         }
-       table.lampiran th {
+        table.lampiran-table th {
           text-align: center;
           font-weight: bold;
           background-color: rgba(0, 0, 0, 0.1); 
@@ -470,7 +472,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         }
 
 
-        table.lampira td {
+        table.lampiran-table td {
           padding: 6px;
           vertical-align: middle;
           line-height: 1.2;
@@ -482,11 +484,11 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
            width: 30px;
            text-align: center;
         }
-          table.lampiran td.nip {
+        table.lampiran-table td.nip {
           width: 150px; 
           text-align: center;
         }
-         table.lampiran-table td.jabatan {
+        table.lampiran-table td.jabatan {
           width: 150px; 
           text-align: center;
         }
@@ -1244,13 +1246,14 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     await page.setContent(html, { waitUntil: 'domcontentloaded' });
 
     const pdfBuffer = await page.pdf({
-      format: 'A4',
+      width: '215mm',
+      height: '330mm',
       printBackground: true,
       margin: {
-        top: '20mm',
-        right: '20mm',
-        bottom: '20mm',
-        left: '20mm',
+        top: '25mm',
+        right: '25mm',
+        bottom: '25mm',
+        left: '25mm',
       },
     });
 
@@ -1260,7 +1263,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename="SK_Penguji_Proposal_${student.nim}.pdf"`,
+        'Content-Disposition': `attachment; filename="SK_Seminar_Hasil_${student.nim}.pdf"`,
       },
     });
   } catch (error) {

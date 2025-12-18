@@ -115,7 +115,10 @@ export async function GET(req: Request) {
           <meta charset="utf-8" />
           <meta name="viewport" content="width=device-width,initial-scale=1" />
           <style>
-            @page { size: A4; margin: 20mm; }
+            @page { 
+              size: 215mm 330mm; 
+              margin: 25mm 20mm;
+            }
             html, body {
               margin: 0;
               padding: 0;
@@ -298,13 +301,14 @@ export async function GET(req: Request) {
       await page.setContent(html, { waitUntil: 'domcontentloaded' });
 
       const pdfBuffer = await page.pdf({
-        format: 'A4',
+        width: '215mm',
+        height: '330mm',
         printBackground: true,
         margin: {
-          top: '20mm',
-          right: '20mm',
-          bottom: '20mm',
-          left: '20mm',
+          top: '25mm',
+          right: '25mm',
+          bottom: '25mm',
+          left: '25mm',
         },
       });
 

@@ -107,7 +107,10 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
       <meta name="viewport" content="width=device-width,initial-scale=1" />
       <style>
         /* Hapus margin dari @page agar puppeteer bisa mengontrol penuh */
-        @page { size: A4; }
+        @page { 
+          size: 215mm 330mm; 
+          margin: 25mm 20mm;
+        }
 
         @font-face {
           font-family: 'Arial MT';
@@ -758,13 +761,14 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     await page.setContent(html, { waitUntil: 'networkidle0' });
 
     const pdfBuffer = await page.pdf({
-      format: 'A4',
+      width: '215mm',
+      height: '330mm',
       printBackground: true,
       margin: {
-        top: '1.83cm',
-        right: '2cm',
-        bottom: '1.83cm',
-        left: '2cm',
+        top: '25mm',
+        right: '25mm',
+        bottom: '25mm',
+        left: '25mm',
       },
     });
 

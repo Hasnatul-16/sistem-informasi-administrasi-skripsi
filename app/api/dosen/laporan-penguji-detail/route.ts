@@ -351,13 +351,14 @@ export async function GET(req: Request) {
       await page.setContent(html, { waitUntil: 'domcontentloaded' });
 
       const pdfBuffer = await page.pdf({
-        format: 'A4',
+        width: '215mm',
+        height: '330mm',
         printBackground: true,
         margin: {
-          top: '20mm',
-          right: '20mm',
-          bottom: '20mm',
-          left: '20mm',
+          top: '25mm',
+          right: '25mm',
+          bottom: '25mm',
+          left: '25mm',
         },
       });
 
