@@ -18,6 +18,7 @@ import {
   SidebarMenuButton,
   SidebarMenuSub,
   SidebarMenuSubButton,
+  useSidebar,
 } from "@/components/ui/sidebar";
 
 interface AppSidebarProps {
@@ -28,13 +29,21 @@ export function AppSidebar({ role }: AppSidebarProps) {
   const pathname = usePathname();
   const { data: session } = useSession();
   const menuItems: MenuItem[] = menuItemsByRole[role] || [];
-  
+
+  const { isMobile, setOpenMobile } = useSidebar();
+
   const [openMenu, setOpenMenu] = useState<string | null>(() => {
     const activeParent = menuItems.find(item => 
       item.subItems?.some(sub => pathname.startsWith(sub.url))
     );
     return activeParent?.title || null;
   });
+
+  const handleLinkClick = () => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  };
 
   return (
     <Sidebar>
@@ -68,7 +77,7 @@ export function AppSidebar({ role }: AppSidebarProps) {
                   {openMenu === item.title && (
                     <SidebarMenuSub>
                       {item.subItems.map(subItem => (
-                        <Link href={subItem.url} key={subItem.title} className="block">
+                        <Link href={subItem.url} key={subItem.title} className="block"onClick={handleLinkClick}>
                           <SidebarMenuSubButton 
                             className={cn(
                               pathname === subItem.url && "bg-green-100 text-[#325827] font-bold"
@@ -86,7 +95,7 @@ export function AppSidebar({ role }: AppSidebarProps) {
 
             return (
               <SidebarMenuItem key={item.title}>
-                <Link href={item.url || "#"}>
+                <Link href={item.url || "#"}  onClick={handleLinkClick}>
                   <SidebarMenuButton 
                     className={cn(
                       "font-semibold",
