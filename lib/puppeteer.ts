@@ -1,14 +1,17 @@
 import puppeteerCore from 'puppeteer-core';
-import chromium from '@sparticuz/chromium';
+import chromium from '@sparticuz/chromium-min';
 
 export async function getBrowser() {
     if (process.env.NODE_ENV === 'production' || process.env.VERCEL) {
         // Vercel / Production environment
+        // Using a remote pack URL to avoid Vercel storage limits and ensure the binary is always found
+        const remotePackUrl = 'https://github.com/Sparticuz/chromium/releases/download/v133.0.0/chromium-v133.0.0-pack.tar';
+
         return await puppeteerCore.launch({
-            args: (chromium as any).args,
-            defaultViewport: (chromium as any).defaultViewport,
-            executablePath: await (chromium as any).executablePath(),
-            headless: (chromium as any).headless,
+            args: chromium.args,
+            defaultViewport: chromium.defaultViewport,
+            executablePath: await chromium.executablePath(remotePackUrl),
+            headless: chromium.headless as any,
         });
     } else {
         // Local development environment
