@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import puppeteer, { Browser } from 'puppeteer';
+import puppeteer, { Browser } from 'puppeteer-core';
+import chromium from '@sparticuz/chromium';
 import { Jurusan, Status } from '@prisma/client';
 import fs from 'fs';
 import path from 'path';
@@ -26,7 +27,7 @@ export async function GET(req: Request) {
   const tahun = searchParams.get('tahun');
   const semester = searchParams.get('semester') as 'GANJIL' | 'GENAP';
   const jurusan = searchParams.get('jurusan') as Jurusan;
-  const role = searchParams.get('role'); 
+  const role = searchParams.get('role');
 
   if (!nip || !tahun || !semester || !jurusan || !role) {
     return NextResponse.json({
@@ -40,10 +41,10 @@ export async function GET(req: Request) {
     let endDate: Date;
 
     if (semester === 'GANJIL') {
-      startDate = new Date(parseInt(tahun), 7, 1); 
+      startDate = new Date(parseInt(tahun), 7, 1);
       endDate = new Date(parseInt(tahun) + 1, 1, 28, 23, 59, 59);
     } else {
-      startDate = new Date(parseInt(tahun), 2, 1); 
+      startDate = new Date(parseInt(tahun), 2, 1);
       endDate = new Date(parseInt(tahun), 6, 31, 23, 59, 59);
     }
 
@@ -59,7 +60,7 @@ export async function GET(req: Request) {
     let riwayatData: RiwayatItem[] = [];
 
     if (role === 'penguji') {
-     
+
       const seminarProposal = await prisma.proposal.findMany({
         where: {
           judul: {
@@ -132,7 +133,7 @@ export async function GET(req: Request) {
         nim: s.judul.mahasiswa.nim,
         judul: s.judul.judul,
         tanggal: s.tanggal,
-        
+
         jenis: 'Seminar Hasil'
       }));
 
@@ -345,10 +346,9 @@ export async function GET(req: Request) {
 
     let browser: Browser | null = null;
     try {
-      browser = await puppeteer.launch({
-        args: ['--no-sandbox', '--disable-setuid-sandbox'],
-        headless: true
-      });
+      // Dynamic import to support both local and serverless
+      const { launchBrowser } = await import('@/lib/puppeteer');
+      browser = await launchBrowser();
       const page = await browser.newPage();
       await page.setContent(html, { waitUntil: 'domcontentloaded' });
 

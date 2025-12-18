@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import fs from 'fs';
 import path from 'path';
-import puppeteer, { Browser } from 'puppeteer';
+import puppeteer, { Browser } from 'puppeteer-core';
+import chromium from '@sparticuz/chromium';
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -32,8 +33,8 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   }
 
   const student = submission.mahasiswa;
-  const pembimbing1 =  submission.pembimbing1 || '';
-  const pembimbing2 =  submission.pembimbing2 || '';
+  const pembimbing1 = submission.pembimbing1 || '';
+  const pembimbing2 = submission.pembimbing2 || '';
   const today = new Date();
 
   const skDateObj = today;
@@ -42,7 +43,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   const skMonth = String(skDateObj.getMonth() + 1).padStart(2, '0');
   const skYear = skDateObj.getFullYear();
   const defaultSkNomor = `B.811/Un.13/FST/PP.00.9/${skMonth}/${skYear}`;
-  const skNomor = submission.  sk_pembimbing   || defaultSkNomor;
+  const skNomor = submission.sk_pembimbing || defaultSkNomor;
 
   console.log('SK Date:', {
 
@@ -50,7 +51,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     formatted: skDate
   });
   console.log('SK Number:', {
-    raw: submission.  sk_pembimbing  ,
+    raw: submission.sk_pembimbing,
     fallback: defaultSkNomor,
     final: skNomor
   });
@@ -60,18 +61,18 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
 
   try {
     const skNomorParts = skNomor.split('/');
-    const basePart = skNomorParts[0]; 
+    const basePart = skNomorParts[0];
     const match = basePart.match(/^([A-Za-z]+\.?)([\d]+)$/);
 
     if (match) {
-      const prefix = match[1]; 
+      const prefix = match[1];
       const numberStr = match[2];
       const parsedInt = parseInt(numberStr);
 
       if (!isNaN(parsedInt)) {
         const nextInt = parsedInt + 1; // 812
         const remainingParts = skNomorParts.slice(1).join('/');
-        suratNomor = `${prefix}${nextInt}/${remainingParts}`; 
+        suratNomor = `${prefix}${nextInt}/${remainingParts}`;
       } else {
         suratNomor = `B.${811 + 1}/${skNomorParts.slice(1).join('/')}`;
       }
@@ -88,7 +89,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
 
   const suratDate = skDate;
   console.log('Surat Number:', suratNomor);
- 
+
   try {
     await prisma.judul.update({
       where: { id: submissionId },
@@ -752,7 +753,9 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   let browser: Browser | null = null;
   try {
     try {
-      browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
+      // Dynamic import to support both local and serverless
+      const { launchBrowser } = await import('@/lib/puppeteer');
+      browser = await launchBrowser();
     } catch (launchErr) {
       console.warn('Puppeteer default launch failed, attempting local Chrome executable...', String(launchErr));
       const chromePath = process.env.CHROME_PATH || 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';

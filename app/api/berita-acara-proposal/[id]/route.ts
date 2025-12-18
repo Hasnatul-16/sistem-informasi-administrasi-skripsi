@@ -2,173 +2,174 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import fs from 'fs';
 import path from 'path';
-import puppeteer, { Browser } from 'puppeteer';
+import puppeteer, { Browser } from 'puppeteer-core';
+import chromium from '@sparticuz/chromium';
 import { Jurusan, Proposal } from '@prisma/client';
 
 interface ProposalWithIncludes extends Proposal {
-    judul: {
-        judul: string;
-        mahasiswa: {
-            nama: string;
-            nim: string;
-            jurusan: Jurusan;
-        };
-        pembimbing1: string | null;
-        pembimbing2: string | null;
-    } | null;
+  judul: {
+    judul: string;
+    mahasiswa: {
+      nama: string;
+      nim: string;
+      jurusan: Jurusan;
+    };
+    pembimbing1: string | null;
+    pembimbing2: string | null;
+  } | null;
 }
 
 interface TemplateData {
-    logoDataUri: string;
-    studentName: string;
-    studentNIM: string;
-    judul: string;
-    seminarHari: string;
-    seminarTanggal: string;
-    seminarWaktu: string;
-    seminarTempat: string;
-    penguji1Name: string;
-    penguji2Name: string;
-    penguji3Name: string;
-    penguji1NIP: string;
-    penguji2NIP: string;
-    penguji3NIP: string;
-    skDate: string;
-    studentJurusan: string;
-  
-    penguji4Name: string;
-    penguji4NIP: string;
+  logoDataUri: string;
+  studentName: string;
+  studentNIM: string;
+  judul: string;
+  seminarHari: string;
+  seminarTanggal: string;
+  seminarWaktu: string;
+  seminarTempat: string;
+  penguji1Name: string;
+  penguji2Name: string;
+  penguji3Name: string;
+  penguji1NIP: string;
+  penguji2NIP: string;
+  penguji3NIP: string;
+  skDate: string;
+  studentJurusan: string;
+
+  penguji4Name: string;
+  penguji4NIP: string;
 }
 
 const getSkDateInfo = (date: Date) => {
-    const skDate = date.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-    const skMonth = String(date.getMonth() + 1).padStart(2, '0');
-    const skYear = date.getFullYear();
-    return { skDate, skMonth, skYear };
+  const skDate = date.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+  const skMonth = String(date.getMonth() + 1).padStart(2, '0');
+  const skYear = date.getFullYear();
+  return { skDate, skMonth, skYear };
 };
 
 const formatJurusanToProdi = (jurusanEnum: Jurusan): string => {
-    return jurusanEnum.toString().split('_').map(word =>
-        word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-    ).join(' ');
+  return jurusanEnum.toString().split('_').map(word =>
+    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+  ).join(' ');
 };
 
 const loadLogo = (): string => {
-    try {
-        const logoPath = path.join(process.cwd(), 'public', 'Logo_UIN_Imam_Bonjol.png');
-        if (fs.existsSync(logoPath)) {
-            const buffer = fs.readFileSync(logoPath);
-            const base64 = buffer.toString('base64');
-            return `data:image/png;base64,${base64}`;
-        }
-    } catch (err) {
-        console.error('Failed to load logo for PDF generation:', err);
+  try {
+    const logoPath = path.join(process.cwd(), 'public', 'Logo_UIN_Imam_Bonjol.png');
+    if (fs.existsSync(logoPath)) {
+      const buffer = fs.readFileSync(logoPath);
+      const base64 = buffer.toString('base64');
+      return `data:image/png;base64,${base64}`;
     }
-    return '';
+  } catch (err) {
+    console.error('Failed to load logo for PDF generation:', err);
+  }
+  return '';
 };
 
 const fetchProposalData = async (proposalId: number) => {
-    const proposal = await prisma.proposal.findUnique({
-        where: { id: proposalId },
-        include: {
-            judul: {
-                include: { mahasiswa: true },
-            },
-        },
-    });
+  const proposal = await prisma.proposal.findUnique({
+    where: { id: proposalId },
+    include: {
+      judul: {
+        include: { mahasiswa: true },
+      },
+    },
+  });
 
-    if (!proposal || proposal.status !== 'DISETUJUI' || !proposal.judul) {
-        throw new Error('Proposal tidak ditemukan atau belum disetujui.');
-    }
+  if (!proposal || proposal.status !== 'DISETUJUI' || !proposal.judul) {
+    throw new Error('Proposal tidak ditemukan atau belum disetujui.');
+  }
 
-    return proposal;
+  return proposal;
 };
 
 const prepareTemplateData = async (proposal: ProposalWithIncludes) => {
-    
-    const judul = proposal.judul!;
-    const student = judul.mahasiswa;
-    const studentJurusan = formatJurusanToProdi(student.jurusan);
-    const logoDataUri = loadLogo();
 
-    let skDateObj = new Date();
-    if (proposal.tanggal) {
-        try {
-            const tempDate = new Date(proposal.tanggal);
-            if (!isNaN(tempDate.getTime())) {
-                skDateObj = tempDate;
-            }
-        } catch (e) {
-            console.error('Error parsing Proposal tanggal:', e);
-        }
+  const judul = proposal.judul!;
+  const student = judul.mahasiswa;
+  const studentJurusan = formatJurusanToProdi(student.jurusan);
+  const logoDataUri = loadLogo();
+
+  let skDateObj = new Date();
+  if (proposal.tanggal) {
+    try {
+      const tempDate = new Date(proposal.tanggal);
+      if (!isNaN(tempDate.getTime())) {
+        skDateObj = tempDate;
+      }
+    } catch (e) {
+      console.error('Error parsing Proposal tanggal:', e);
     }
+  }
 
-    const { skDate } = getSkDateInfo(skDateObj);
+  const { skDate } = getSkDateInfo(skDateObj);
 
-    const penguji1Name = proposal.penguji || 'Nama Penguji 1 (Ketua)';
-    const penguji2Name = judul.pembimbing1 || 'Nama Penguji 2';
-    const penguji3Name = judul.pembimbing2 || 'Nama Penguji 3';
+  const penguji1Name = proposal.penguji || 'Nama Penguji 1 (Ketua)';
+  const penguji2Name = judul.pembimbing1 || 'Nama Penguji 2';
+  const penguji3Name = judul.pembimbing2 || 'Nama Penguji 3';
 
-    const penguji1Dosen = await prisma.dosen.findFirst({ where: { nama: penguji1Name } });
-    const penguji2Dosen = await prisma.dosen.findFirst({ where: { nama: penguji2Name } });
-    const penguji3Dosen = await prisma.dosen.findFirst({ where: { nama: penguji3Name } });
+  const penguji1Dosen = await prisma.dosen.findFirst({ where: { nama: penguji1Name } });
+  const penguji2Dosen = await prisma.dosen.findFirst({ where: { nama: penguji2Name } });
+  const penguji3Dosen = await prisma.dosen.findFirst({ where: { nama: penguji3Name } });
 
-    const penguji1NIP = penguji1Dosen?.nip || '';
-    const penguji2NIP = penguji2Dosen?.nip || '';
-    const penguji3NIP = penguji3Dosen?.nip || '';
+  const penguji1NIP = penguji1Dosen?.nip || '';
+  const penguji2NIP = penguji2Dosen?.nip || '';
+  const penguji3NIP = penguji3Dosen?.nip || '';
 
-    const seminarJadwal = proposal.jadwal_sidang;
-    let seminarHari = 'Hari Seminar';
-    let seminarTanggal = 'Tanggal Seminar';
-    let seminarWaktu = 'Waktu Seminar WIB';
-    let seminarTempat = 'Tempat Seminar';
+  const seminarJadwal = proposal.jadwal_sidang;
+  let seminarHari = 'Hari Seminar';
+  let seminarTanggal = 'Tanggal Seminar';
+  let seminarWaktu = 'Waktu Seminar WIB';
+  let seminarTempat = 'Tempat Seminar';
 
-    if (seminarJadwal) {
-        seminarHari = seminarJadwal.toLocaleDateString('id-ID', { weekday: 'long' });
-        seminarTanggal = seminarJadwal.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+  if (seminarJadwal) {
+    seminarHari = seminarJadwal.toLocaleDateString('id-ID', { weekday: 'long' });
+    seminarTanggal = seminarJadwal.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
 
-        const startTime = seminarJadwal.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false });
-        const startHour = parseInt(startTime.substring(0, 2));
-        const endHour = (startHour % 24) + 1;
-        const endTime = String(endHour).padStart(2, '0') + '.00';
+    const startTime = seminarJadwal.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false });
+    const startHour = parseInt(startTime.substring(0, 2));
+    const endHour = (startHour % 24) + 1;
+    const endTime = String(endHour).padStart(2, '0') + '.00';
 
-        seminarWaktu = `${startTime} s.d ${endTime} WIB`;
-    }
+    seminarWaktu = `${startTime} s.d ${endTime} WIB`;
+  }
 
-    if (proposal.catatan) {
-        seminarTempat = proposal.catatan;
-    }
+  if (proposal.catatan) {
+    seminarTempat = proposal.catatan;
+  }
 
-    const penguji4Name = 'H. Teguh B. M.T.I';
+  const penguji4Name = 'H. Teguh B. M.T.I';
 
-    const penguji4Dosen = await prisma.dosen.findFirst({ where: { nama: penguji4Name } });
-    const penguji4NIP = penguji4Dosen?.nip || 'NIP Penguji 4';
+  const penguji4Dosen = await prisma.dosen.findFirst({ where: { nama: penguji4Name } });
+  const penguji4NIP = penguji4Dosen?.nip || 'NIP Penguji 4';
 
-    return {
-        logoDataUri,
-        studentName: student.nama,
-        studentNIM: student.nim,
-        judul: judul.judul,
-        seminarHari,
-        seminarTanggal,
-        seminarWaktu,
-        seminarTempat,
-        penguji1Name,
-        penguji2Name,
-        penguji3Name,
-        penguji1NIP,
-        penguji2NIP,
-        penguji3NIP,
-        skDate,
-        studentJurusan,
-       
-        penguji4Name,
-        penguji4NIP,
-    };
+  return {
+    logoDataUri,
+    studentName: student.nama,
+    studentNIM: student.nim,
+    judul: judul.judul,
+    seminarHari,
+    seminarTanggal,
+    seminarWaktu,
+    seminarTempat,
+    penguji1Name,
+    penguji2Name,
+    penguji3Name,
+    penguji1NIP,
+    penguji2NIP,
+    penguji3NIP,
+    skDate,
+    studentJurusan,
+
+    penguji4Name,
+    penguji4NIP,
+  };
 };
 
 const generateHTML = (templateData: TemplateData): string => {
-    return `<!doctype html>
+  return `<!doctype html>
 <html>
 <head>
   <meta charset="utf-8" />
@@ -699,55 +700,56 @@ const generateHTML = (templateData: TemplateData): string => {
 };
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const { id } = await params;
+    if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 });
+
+    const proposalId = Number(id);
+    if (isNaN(proposalId)) return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
+
+    const proposal = await fetchProposalData(proposalId);
+    const templateData = await prepareTemplateData(proposal);
+    const html = generateHTML(templateData);
+
+    let browser: Browser | null = null;
     try {
-        const { id } = await params;
-        if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 });
+      browser = await puppeteer.launch({
+        args: chromium.args,
+        executablePath: await chromium.executablePath(),
+        headless: true
+      });
+      const page = await browser.newPage();
+      await page.setContent(html, { waitUntil: 'domcontentloaded' });
 
-        const proposalId = Number(id);
-        if (isNaN(proposalId)) return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
+      const pdfBuffer = await page.pdf({
+        format: 'A4',
+        printBackground: true,
+        margin: {
+          top: '25mm',
+          right: '25mm',
+          bottom: '25mm',
+          left: '30mm',
+        },
+      });
 
-        const proposal = await fetchProposalData(proposalId);
-        const templateData = await prepareTemplateData(proposal);
-        const html = generateHTML(templateData);
+      await browser.close();
 
-        let browser: Browser | null = null;
-        try {
-            browser = await puppeteer.launch({
-                args: ['--no-sandbox', '--disable-setuid-sandbox'],
-                headless: true
-            });
-            const page = await browser.newPage();
-            await page.setContent(html, { waitUntil: 'domcontentloaded' });
-
-            const pdfBuffer = await page.pdf({
-                format: 'A4',
-                printBackground: true,
-                margin: {
-                    top: '25mm',
-                    right: '25mm',
-                    bottom: '25mm',
-                    left: '30mm',
-                },
-            });
-
-            await browser.close();
-
-            return new NextResponse(new Uint8Array(pdfBuffer), {
-                status: 200,
-                headers: {
-                    'Content-Type': 'application/pdf',
-                    'Content-Disposition': `attachment; filename="Berita_Acara_Proposal_${templateData.studentNIM}.pdf"`,
-                },
-            });
-        } catch (error) {
-            console.error('PDF Generation Error:', error);
-            if (browser) await browser.close();
-            return NextResponse.json({
-                error: 'Failed to generate PDF.',
-                details: (error as Error).message
-            }, { status: 500 });
-        }
+      return new NextResponse(new Uint8Array(pdfBuffer), {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/pdf',
+          'Content-Disposition': `attachment; filename="Berita_Acara_Proposal_${templateData.studentNIM}.pdf"`,
+        },
+      });
     } catch (error) {
-        return NextResponse.json({ error: (error as Error).message }, { status: 404 });
+      console.error('PDF Generation Error:', error);
+      if (browser) await browser.close();
+      return NextResponse.json({
+        error: 'Failed to generate PDF.',
+        details: (error as Error).message
+      }, { status: 500 });
     }
+  } catch (error) {
+    return NextResponse.json({ error: (error as Error).message }, { status: 404 });
+  }
 }
