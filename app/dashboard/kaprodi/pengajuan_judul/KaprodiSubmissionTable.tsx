@@ -5,7 +5,8 @@ import { useSearchParams } from 'next/navigation';
 import type { Judul, Mahasiswa, User, Dosen, Status } from '@prisma/client';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
-import { FiX, FiClock, FiCheckCircle, FiFileText, FiUsers, FiBook, FiTag, FiSettings, FiCalendar, FiUser, FiHash, FiSearch, FiSave  } from 'react-icons/fi';
+import { FiX, FiClock, FiCheckCircle, FiFileText, FiUsers, FiBook, FiTag, FiSettings, FiCalendar, FiUser, FiHash, FiSearch, FiSave } from 'react-icons/fi';
+import { Pagination } from '@/components/ui/pagination';
 
 const MySwal = withReactContent(Swal);
 
@@ -54,11 +55,16 @@ export default function KaprodiSubmissionTable({ initialSubmissions, lecturers }
 
   const [searchTerm, setSearchTerm] = useState('');
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(20);
+
   const monthOptions = Array.from({ length: 12 }, (_, i) => ({ value: i + 1, label: new Date(0, i).toLocaleString('id-ID', { month: 'long' }) }));
   const yearOptions = [currentYear, currentYear - 1, currentYear - 2];
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setFilters(prev => ({ ...prev, [e.target.name]: parseInt(e.target.value) }));
+    setCurrentPage(1); // Reset page on filter
   };
 
   const displayData = useMemo(() => {
@@ -69,7 +75,7 @@ export default function KaprodiSubmissionTable({ initialSubmissions, lecturers }
 
     const lowerSearchTerm = searchTerm.toLowerCase();
     if (lowerSearchTerm === '') {
-      return dateFiltered; 
+      return dateFiltered;
     }
 
     return dateFiltered.filter(sub =>
@@ -78,7 +84,25 @@ export default function KaprodiSubmissionTable({ initialSubmissions, lecturers }
       sub.judul.toLowerCase().includes(lowerSearchTerm) ||
       sub.topik.toLowerCase().includes(lowerSearchTerm)
     );
-  }, [submissions, filters, searchTerm]); 
+  }, [submissions, filters, searchTerm]);
+
+  // Paginate data
+  const totalItems = displayData.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const paginatedData = displayData.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleItemsPerPageChange = (newItemsPerPage: number) => {
+    setItemsPerPage(newItemsPerPage);
+    setCurrentPage(1);
+  };
 
 
   useEffect(() => {
@@ -199,10 +223,10 @@ export default function KaprodiSubmissionTable({ initialSubmissions, lecturers }
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {displayData.length === 0 ? (
+            {paginatedData.length === 0 ? (
               <tr><td colSpan={7} className="px-4 sm:px-6 py-8 sm:py-10 text-center text-gray-500 text-sm">Tidak ada pengajuan yang cocok dengan filter atau pencarian.</td></tr>
             ) : (
-              displayData.map(sub => (
+              paginatedData.map(sub => (
                 <tr key={sub.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-4 sm:px-6 py-2 sm:py-3">
                     <div className="flex flex-col gap-1">
@@ -262,6 +286,15 @@ export default function KaprodiSubmissionTable({ initialSubmissions, lecturers }
             )}
           </tbody>
         </table>
+
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          itemsPerPage={itemsPerPage}
+          onItemsPerPageChange={handleItemsPerPageChange}
+          totalItems={totalItems}
+        />
       </div>
 
       {isModalOpen && selectedSubmission && (

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import type { SeminarHasil, Judul, Mahasiswa, Status } from '@prisma/client'; 
+import type { SeminarHasil, Judul, Mahasiswa, Status } from '@prisma/client';
 import {
     FiClock,
     FiCheckCircle,
@@ -18,6 +18,7 @@ import {
     FiUser,
     FiHash
 } from 'react-icons/fi';
+import { Pagination } from '@/components/ui/pagination';
 
 type SeminarHasilWithDetails = SeminarHasil & {
     judul: Judul & {
@@ -63,10 +64,31 @@ export default function SeminarHasilTable({ initialSeminarHasils }: SeminarHasil
 
     const [loadingId, setLoadingId] = useState<number | null>(null);
 
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(20);
+
+    const totalItems = seminarHasils.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const paginatedData = seminarHasils.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    const handleItemsPerPageChange = (newItemsPerPage: number) => {
+        setItemsPerPage(newItemsPerPage);
+        setCurrentPage(1);
+    };
+
     const handleDownloadSK = async (seminarHasilId: number, nim: string, nama: string) => {
         setLoadingId(seminarHasilId);
         try {
-            const res = await fetch(`/api/sk_skripsi/${seminarHasilId}`); 
+            const res = await fetch(`/api/sk_skripsi/${seminarHasilId}`);
 
             if (!res.ok) {
                 const json = await res.json().catch(() => ({}));
@@ -79,7 +101,7 @@ export default function SeminarHasilTable({ initialSeminarHasils }: SeminarHasil
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `SK-Skripsi-${nama}-${nim}.pdf`; 
+            a.download = `SK-Skripsi-${nama}-${nim}.pdf`;
             document.body.appendChild(a);
             a.click();
 
@@ -95,23 +117,23 @@ export default function SeminarHasilTable({ initialSeminarHasils }: SeminarHasil
     };
 
     return (
-         <div className="overflow-x-auto -mx-4 sm:mx-0">
+        <div className="overflow-x-auto -mx-4 sm:mx-0">
             <table className="min-w-full w-full bg-white border divide-y divide-gray-200">
                 <thead className="bg-slate-50">
                     <tr>
-                       <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
+                        <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
                             <div className="flex items-center gap-1 sm:gap-2"><FiUsers size={14} className="text-green-800" /><span>Mahasiswa</span></div>
                         </th>
                         <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
                             <div className="flex items-center gap-1 sm:gap-2"><FiCalendar size={14} className="text-green-800" /><span>Tanggal Pengajuan</span></div>
                         </th>
-                         <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
+                        <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
                             <div className="flex items-center gap-1 sm:gap-2"><FiTag size={14} className="text-green-800" /><span>Topik</span></div>
                         </th>
                         <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left">
                             <div className="flex items-center gap-1 sm:gap-2"><FiFileText size={14} className="text-green-800" /> <span>Judul Skripsi</span></div>
                         </th>
-                         <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
+                        <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
                             <div className="flex items-center gap-1 sm:gap-2"><FiActivity size={14} className="text-green-800" /> <span>Status</span></div>
                         </th>
                         <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
@@ -120,10 +142,10 @@ export default function SeminarHasilTable({ initialSeminarHasils }: SeminarHasil
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                    {seminarHasils.length === 0 ? (
-                       <tr><td colSpan={6} className="px-4 sm:px-6 py-8 sm:py-10 text-center text-gray-500 text-sm">Tidak ada pengajuan pada periode yang dipilih.</td></tr>
+                    {paginatedData.length === 0 ? (
+                        <tr><td colSpan={6} className="px-4 sm:px-6 py-8 sm:py-10 text-center text-gray-500 text-sm">Tidak ada pengajuan pada periode yang dipilih.</td></tr>
                     ) : (
-                        seminarHasils.map(sub => ( 
+                        paginatedData.map(sub => (
                             <tr key={sub.id} className="hover:bg-gray-50 transition-colors">
                                 <td className="px-4 sm:px-6 py-3 sm:py-4">
                                     <div className="flex flex-col gap-1">
@@ -145,33 +167,33 @@ export default function SeminarHasilTable({ initialSeminarHasils }: SeminarHasil
                                 </td>
                                 <td className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-600 whitespace-nowrap">
 
-                                    {new Date(sub.tanggal).toLocaleDateString('id-ID', { 
+                                    {new Date(sub.tanggal).toLocaleDateString('id-ID', {
                                         day: '2-digit', month: 'long', year: 'numeric'
                                     })}
                                 </td>
 
-                               <td className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-600 max-w-[100px] truncate">{sub.judul.topik || '-'}</td>
+                                <td className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-600 max-w-[100px] truncate">{sub.judul.topik || '-'}</td>
                                 <td className="px-4 sm:px-6 py-3 sm:py-4">
                                     <p className="text-xs sm:text-sm text-gray-800 line-clamp-2">{sub.judul.judul}</p>
                                 </td>
-                               <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                                    <StatusBadge status={sub.status} /> 
+                                <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                                    <StatusBadge status={sub.status} />
                                 </td>
-                                 <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm font-medium">
-                                    {sub.status === 'TERKIRIM' && ( 
+                                <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm font-medium">
+                                    {sub.status === 'TERKIRIM' && (
                                         <Link
-                                            href={`/dashboard/admin/seminar-hasil/detail/${sub.id}`} 
+                                            href={`/dashboard/admin/seminar-hasil/detail/${sub.id}`}
                                             className="inline-flex items-center gap-1 text-[#7a1c10] hover:text-red-900 font-semibold"
                                         >
-                                           <span className="hidden sm:inline">Verifikasi</span> <FiArrowRight size={14} />
+                                            <span className="hidden sm:inline">Verifikasi</span> <FiArrowRight size={14} />
                                         </Link>
                                     )}
 
                                     {sub.status === 'DISETUJUI' && (
                                         <button
                                             onClick={() => handleDownloadSK(
-                                                sub.id, 
-                                                sub.judul.mahasiswa.nim, 
+                                                sub.id,
+                                                sub.judul.mahasiswa.nim,
                                                 sub.judul.mahasiswa.nama
                                             )}
                                             disabled={loadingId === sub.id}
@@ -189,15 +211,24 @@ export default function SeminarHasilTable({ initialSeminarHasils }: SeminarHasil
                                         </button>
                                     )}
 
-                                   {sub.status === 'DITOLAK_ADMIN' && (<span className="text-gray-400">Selesai</span>)}
+                                    {sub.status === 'DITOLAK_ADMIN' && (<span className="text-gray-400">Selesai</span>)}
 
-                                     {sub.status !== 'TERKIRIM' && sub.status !== 'DISETUJUI' && sub.status !== 'DITOLAK_ADMIN' && (<span className="text-gray-400">Dalam Proses</span>)}
+                                    {sub.status !== 'TERKIRIM' && sub.status !== 'DISETUJUI' && sub.status !== 'DITOLAK_ADMIN' && (<span className="text-gray-400">Dalam Proses</span>)}
                                 </td>
                             </tr>
                         ))
                     )}
                 </tbody>
             </table>
+
+            <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+                itemsPerPage={itemsPerPage}
+                onItemsPerPageChange={handleItemsPerPageChange}
+                totalItems={totalItems}
+            />
         </div>
     );
 }

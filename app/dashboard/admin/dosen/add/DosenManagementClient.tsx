@@ -9,6 +9,7 @@ import {
 } from 'react-icons/fi';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
+import { Pagination } from '@/components/ui/pagination';
 
 const MySwal = withReactContent(Swal);
 
@@ -38,6 +39,10 @@ export default function DosenManagementClient() {
     nip: '',
     jurusan: 'SISTEM_INFORMASI' as Jurusan,
   });
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(20);
 
   const fetchDosen = useCallback(async () => {
     setIsLoading(true);
@@ -175,8 +180,26 @@ export default function DosenManagementClient() {
     dosen.nip.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Calculate paginated data
+  const totalItems = filteredDosen.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const paginatedData = filteredDosen.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleItemsPerPageChange = (newItemsPerPage: number) => {
+    setItemsPerPage(newItemsPerPage);
+    setCurrentPage(1);
+  };
+
   return (
-   <main className="space-y-4 sm:space-y-6">
+    <main className="space-y-4 sm:space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 break-words">Manajemen Dosen</h1>
       </div>
@@ -202,12 +225,14 @@ export default function DosenManagementClient() {
                   {ALL_JURUSAN.map(j => (
                     <button
                       key={j}
-                      onClick={() => setSelectedJurusan(j)}
-                      className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold rounded-full transition duration-150 whitespace-nowrap ${
-                        selectedJurusan === j
-                          ? 'bg-white text-[#325827] shadow-md'
-                          : 'bg-white/20 text-white hover:bg-white/30'
-                      }`}
+                      onClick={() => {
+                        setSelectedJurusan(j);
+                        setCurrentPage(1); // Reset page on filter change
+                      }}
+                      className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold rounded-full transition duration-150 whitespace-nowrap ${selectedJurusan === j
+                        ? 'bg-white text-[#325827] shadow-md'
+                        : 'bg-white/20 text-white hover:bg-white/30'
+                        }`}
                     >
                       {j.replace('_', ' ')}
                     </button>
@@ -262,79 +287,90 @@ export default function DosenManagementClient() {
               <p className='font-medium'>Error: {error}</p>
             </div>
           ) : (
-            <div className="overflow-x-auto -mx-4 sm:mx-0">
-              <table className="min-w-full w-full bg-white border divide-y divide-gray-200">
-                <thead className="bg-slate-50">
-                  <tr>
-                    {/* Header Dosen */}
-                    <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left">
-                      <div className="flex items-center gap-1 sm:gap-2"><FiUsers size={14} className="text-green-800" /><span>Dosen</span></div>
-                    </th>
-                    {/* Header NIP */}
-                    <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
-                      <div className="flex items-center gap-1 sm:gap-2"><FiHash size={14} className="text-green-800" /><span>NIP</span></div>
-                    </th>
-                    {/* Header Jurusan */}
-                    <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
-                      <div className="flex items-center gap-1 sm:gap-2"><FiCheckCircle size={14} className="text-green-800" /><span>Jurusan</span></div>
-                    </th>
-                    {/* Header Aksi */}
-                    <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
-                      <div className="flex items-center gap-1 sm:gap-2"><FiSettings size={14} className="text-green-800" /><span>Aksi</span></div>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {filteredDosen.length === 0 ? (
-                    <tr><td colSpan={4} className="px-4 sm:px-6 py-8 sm:py-10 text-center text-gray-500 text-sm">Tidak ada data dosen ditemukan.</td></tr>
-                  ) : (
-                    filteredDosen.map((dosen) => (
-                      <tr key={dosen.id} className="hover:bg-gray-50 transition-colors">
-                      
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex flex-col gap-1.5">
-                            <div className="flex items-center gap-2">
-                              <FiUser size={14} className="text-green-800" />
-                              <span className="text-sm text-gray-700">
-                                <span className="font-semibold">Nama: </span>
-                                {dosen.nama || 'Nama tidak tersedia'}
-                              </span>
+            <>
+              <div className="overflow-x-auto -mx-4 sm:mx-0">
+                <table className="min-w-full w-full bg-white border divide-y divide-gray-200">
+                  <thead className="bg-slate-50">
+                    <tr>
+                      {/* Header Dosen */}
+                      <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left">
+                        <div className="flex items-center gap-1 sm:gap-2"><FiUsers size={14} className="text-green-800" /><span>Dosen</span></div>
+                      </th>
+                      {/* Header NIP */}
+                      <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
+                        <div className="flex items-center gap-1 sm:gap-2"><FiHash size={14} className="text-green-800" /><span>NIP</span></div>
+                      </th>
+                      {/* Header Jurusan */}
+                      <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
+                        <div className="flex items-center gap-1 sm:gap-2"><FiCheckCircle size={14} className="text-green-800" /><span>Jurusan</span></div>
+                      </th>
+                      {/* Header Aksi */}
+                      <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
+                        <div className="flex items-center gap-1 sm:gap-2"><FiSettings size={14} className="text-green-800" /><span>Aksi</span></div>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {paginatedData.length === 0 ? (
+                      <tr><td colSpan={4} className="px-4 sm:px-6 py-8 sm:py-10 text-center text-gray-500 text-sm">Tidak ada data dosen ditemukan.</td></tr>
+                    ) : (
+                      paginatedData.map((dosen) => (
+                        <tr key={dosen.id} className="hover:bg-gray-50 transition-colors">
+
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex flex-col gap-1.5">
+                              <div className="flex items-center gap-2">
+                                <FiUser size={14} className="text-green-800" />
+                                <span className="text-sm text-gray-700">
+                                  <span className="font-semibold">Nama: </span>
+                                  {dosen.nama || 'Nama tidak tersedia'}
+                                </span>
+                              </div>
                             </div>
-                          </div>
-                        </td>
-                       
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-medium">
-                          {dosen.nip}
-                        </td>
-                      
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                          <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
-                            {dosen.jurusan.replace('_', ' ')}
-                          </span>
-                        </td>
-                     
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => openEditModal(dosen)}
-                               className="inline-flex items-center gap-2 text-green-600 hover:text-green-900 font-semibold disabled:text-gray-400 disabled:cursor-wait"
-                            >
-                              <FiEdit className="h-4 w-4" />Edit
-                            </button>
-                            <button
-                              onClick={() => handleDelete(dosen)}
-                               className="inline-flex items-center gap-2 text-red-600 hover:text-red-900 font-semibold disabled:text-gray-400 disabled:cursor-wait"
-                            >
-                              <FiTrash2 className="h-4 w-4" /> Hapus
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
+                          </td>
+
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-medium">
+                            {dosen.nip}
+                          </td>
+
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
+                              {dosen.jurusan.replace('_', ' ')}
+                            </span>
+                          </td>
+
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => openEditModal(dosen)}
+                                className="inline-flex items-center gap-2 text-green-600 hover:text-green-900 font-semibold disabled:text-gray-400 disabled:cursor-wait"
+                              >
+                                <FiEdit className="h-4 w-4" />Edit
+                              </button>
+                              <button
+                                onClick={() => handleDelete(dosen)}
+                                className="inline-flex items-center gap-2 text-red-600 hover:text-red-900 font-semibold disabled:text-gray-400 disabled:cursor-wait"
+                              >
+                                <FiTrash2 className="h-4 w-4" /> Hapus
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+                itemsPerPage={itemsPerPage}
+                onItemsPerPageChange={handleItemsPerPageChange}
+                totalItems={totalItems}
+              />
+            </>
           )}
         </div>
       </div>
@@ -343,7 +379,7 @@ export default function DosenManagementClient() {
         <div className="fixed inset-0 z-50 overflow-y-auto bg-gray-900/50 backdrop-blur-sm flex justify-center items-center p-4">
           <div className="bg-white rounded-lg shadow-xl w-full max-w-lg m-4 transform transition-all animate-fade-in-scale">
 
-          
+
             <div className="p-4 border-b flex justify-between items-center">
               <h2 className="text-xl font-bold text-gray-800">
                 {isEditModalOpen ? 'Edit Dosen' : 'Tambah Dosen Baru'}
@@ -354,9 +390,9 @@ export default function DosenManagementClient() {
             </div>
 
             <form onSubmit={handleSubmit} className="p-8 space-y-6">
-             
+
               <div className="space-y-2">
-                <label htmlFor="nama"  className="flex text-xs sm:text-sm font-semibold text-gray-700 items-center gap-2">
+                <label htmlFor="nama" className="flex text-xs sm:text-sm font-semibold text-gray-700 items-center gap-2">
                   <FiUser className="h-4 w-4 text-green-800" />
                   Nama Lengkap
                 </label>
@@ -392,7 +428,7 @@ export default function DosenManagementClient() {
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="jurusan"  className="flex text-xs sm:text-sm font-semibold text-gray-700 items-center gap-2" >
+                <label htmlFor="jurusan" className="flex text-xs sm:text-sm font-semibold text-gray-700 items-center gap-2" >
                   <FiBookOpen className="h-4 w-4 text-green-800" />
                   Jurusan
                 </label>
@@ -414,7 +450,7 @@ export default function DosenManagementClient() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex justify-end gap-4 pt-6 border-t border-gray-100">
                 <button
                   type="button"

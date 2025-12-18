@@ -5,17 +5,18 @@ import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import type { SeminarHasil, Judul, Mahasiswa, User, Dosen, Status } from '@prisma/client';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
-import { FiX, FiCheckCircle, FiCalendar, FiUser, FiBook, FiUsers, FiHash, FiEdit,  FiSearch, FiDownload, FiClock} from 'react-icons/fi';
+import { FiX, FiCheckCircle, FiCalendar, FiUser, FiBook, FiUsers, FiHash, FiEdit, FiSearch, FiDownload, FiClock } from 'react-icons/fi';
+import { Pagination } from '@/components/ui/pagination';
 
 const MySwal = withReactContent(Swal);
 
 type SeminarHasilWithDetails = SeminarHasil & {
     judul: Judul & {
         mahasiswa: Mahasiswa & { user: User };
-        pembimbing1: string | null; 
+        pembimbing1: string | null;
         pembimbing2: string | null;
     };
-    pengujiSempro: string | null; 
+    pengujiSempro: string | null;
 };
 
 interface KaprodiHasilTableProps {
@@ -70,6 +71,10 @@ export default function KaprodiHasilTable({ initialSeminarHasil, lecturers }: Ka
     const currentYear = new Date().getFullYear();
     const [filters, setFilters] = useState({ month: currentMonth, year: currentYear });
     const [searchQuery, setSearchQuery] = useState('');
+
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(20);
     const monthOptions = Array.from({ length: 12 }, (_, i) => ({ value: i + 1, label: new Date(0, i).toLocaleString('id-ID', { month: 'long' }) }));
     const yearOptions = [currentYear, currentYear - 1, currentYear - 2];
 
@@ -93,10 +98,12 @@ export default function KaprodiHasilTable({ initialSeminarHasil, lecturers }: Ka
         params.set('month', newFilters.month.toString());
         params.set('year', newFilters.year.toString());
         router.push(`${pathname}?${params.toString()}`);
+        setCurrentPage(1); // Reset page on filter
     };
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchQuery(e.target.value);
+        setCurrentPage(1); // Reset page on search
     };
 
     const handleActionChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -115,7 +122,7 @@ export default function KaprodiHasilTable({ initialSeminarHasil, lecturers }: Ka
         if (!searchQuery) {
             return dateFiltered;
         }
-        
+
         const searchLower = searchQuery.toLowerCase();
         return dateFiltered.filter(sh =>
             sh.judul.mahasiswa.nama.toLowerCase().includes(searchLower) ||
@@ -124,6 +131,24 @@ export default function KaprodiHasilTable({ initialSeminarHasil, lecturers }: Ka
             sh.judul.topik.toLowerCase().includes(searchLower)
         );
     }, [seminarHasil, filters, searchQuery]);
+
+    // Paginate data
+    const totalItems = displayData.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const paginatedData = displayData.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    const handleItemsPerPageChange = (newItemsPerPage: number) => {
+        setItemsPerPage(newItemsPerPage);
+        setCurrentPage(1);
+    };
 
 
     const resetActionData = useCallback(() => {
@@ -146,8 +171,8 @@ export default function KaprodiHasilTable({ initialSeminarHasil, lecturers }: Ka
 
         const initialJadwal = sh.jadwal_sidang ? formatDateToLocalInput(sh.jadwal_sidang) : '';
 
-        const initialPenguji1 = sh.penguji1 || sh.pengujiSempro || ''; 
-        const initialPenguji2 = sh.penguji2 || ''; 
+        const initialPenguji1 = sh.penguji1 || sh.pengujiSempro || '';
+        const initialPenguji2 = sh.penguji2 || '';
         const initialTempat = sh.tempat || '';
 
         setActionData({
@@ -166,11 +191,11 @@ export default function KaprodiHasilTable({ initialSeminarHasil, lecturers }: Ka
         const tempat = actionData.tempat.trim();
 
         if (!selectedSeminarHasil || !p1 || !p2 || !jadwal || !tempat) {
-            MySwal.fire({ 
-                icon: 'warning', 
-                title: 'Belum Lengkap', 
+            MySwal.fire({
+                icon: 'warning',
+                title: 'Belum Lengkap',
                 text: 'Dosen Penguji 1, Dosen Penguji 2, Jadwal dan Tempat Sidang wajib diisi.',
-                confirmButtonText: 'OK' 
+                confirmButtonText: 'OK'
             });
             return;
         }
@@ -193,14 +218,14 @@ export default function KaprodiHasilTable({ initialSeminarHasil, lecturers }: Ka
         const actionTitle = selectedSeminarHasil.status === 'DIPROSES_KAPRODI' ? 'Penetapan' : 'Pembaruan';
 
         try {
-            const localDate = new Date(jadwal); 
+            const localDate = new Date(jadwal);
             const isoStringForDB = localDate.toISOString();
             const response = await fetch(`/api/seminar-hasil/kaprodi/${selectedSeminarHasil.id}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     penguji1: p1,
-                    penguji2: p2, 
+                    penguji2: p2,
                     jadwalSidang: isoStringForDB,
                     tempat: tempat,
                     status: newStatus
@@ -226,7 +251,7 @@ export default function KaprodiHasilTable({ initialSeminarHasil, lecturers }: Ka
             );
 
             closeModal();
-        }  catch (error: unknown) {
+        } catch (error: unknown) {
             const message = error instanceof Error ? error.message : 'Terjadi kesalahan pada server.';
             MySwal.fire({ icon: 'error', title: 'Oops...', text: message });
 
@@ -235,7 +260,7 @@ export default function KaprodiHasilTable({ initialSeminarHasil, lecturers }: Ka
         }
     }, [selectedSeminarHasil, actionData, closeModal]);
 
-     const handleDownloadBeritaAcara = async (seminarHasilId: number, nim: string, nama: string) => {
+    const handleDownloadBeritaAcara = async (seminarHasilId: number, nim: string, nama: string) => {
         setLoadingId(seminarHasilId);
         try {
             const response = await fetch(`/api/berita-acara-seminar-hasil/${seminarHasilId}`);
@@ -327,10 +352,10 @@ export default function KaprodiHasilTable({ initialSeminarHasil, lecturers }: Ka
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
-                        {displayData.length === 0 ? (
+                        {paginatedData.length === 0 ? (
                             <tr><td colSpan={6} className="px-4 sm:px-6 py-8 sm:py-10 text-center text-gray-500 text-sm">Tidak ada pengajuan sidang skripsi yang perlu diproses pada bulan ini.</td></tr>
                         ) : (
-                            displayData.map(sh => (
+                            paginatedData.map(sh => (
                                 <tr key={sh.id} className="hover:bg-gray-50 transition-colors">
                                     <td className="px-4 sm:px-6 py-2 sm:py-3">
                                         <div className="flex flex-col gap-1">
@@ -409,6 +434,15 @@ export default function KaprodiHasilTable({ initialSeminarHasil, lecturers }: Ka
                         )}
                     </tbody>
                 </table>
+
+                <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={handlePageChange}
+                    itemsPerPage={itemsPerPage}
+                    onItemsPerPageChange={handleItemsPerPageChange}
+                    totalItems={totalItems}
+                />
             </div>
 
 
@@ -420,13 +454,13 @@ export default function KaprodiHasilTable({ initialSeminarHasil, lecturers }: Ka
                                 <h2 className="text-xl font-bold text-gray-800">
                                     {selectedSeminarHasil.status === 'DISETUJUI' ? 'Edit' : 'Tetapkan'} Penguji & Jadwal Sidang skripsi
                                 </h2>
-                               
+
                             </div>
                             <button onClick={closeModal} className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full">
                                 <FiX size={20} />
                             </button>
                         </div>
-                        
+
                         <h3 className="text-lg font-semibold text-gray-700 mb-3">Detail Pengajuan</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 pb-4 border-b">
                             <div className='space-y-2'>
@@ -468,7 +502,7 @@ export default function KaprodiHasilTable({ initialSeminarHasil, lecturers }: Ka
                             </div>
                         </div>
 
-                       
+
                         <div className='mb-6'>
                             <h3 className="text-lg font-semibold text-[#325827] mb-3">Update Penguji & Jadwal Sidang skripsi </h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -484,9 +518,9 @@ export default function KaprodiHasilTable({ initialSeminarHasil, lecturers }: Ka
                                     >
                                         <option value="" disabled>-- Pilih Dosen Penguji 1 --</option>
                                         {lecturers.map(dosen => (
-                                
+
                                             (dosen.nama !== selectedSeminarHasil?.judul.pembimbing1 &&
-                                            dosen.nama !== selectedSeminarHasil?.judul.pembimbing2) && (
+                                                dosen.nama !== selectedSeminarHasil?.judul.pembimbing2) && (
                                                 <option key={dosen.id} value={dosen.nama ?? ''}>{dosen.nama}</option>
                                             )
                                         ))}
@@ -494,7 +528,7 @@ export default function KaprodiHasilTable({ initialSeminarHasil, lecturers }: Ka
                                     <p className='text-xs text-green-800 mt-1'> dapat diubah.</p>
                                 </div>
 
-                           
+
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Pilih Dosen Penguji 2</label>
                                     <select
@@ -507,8 +541,8 @@ export default function KaprodiHasilTable({ initialSeminarHasil, lecturers }: Ka
                                         <option value="" disabled>-- Pilih Dosen Penguji 2 --</option>
                                         {lecturers.map(dosen => (
                                             // Pastikan bukan Pembimbing
-                                            (dosen.nama !== selectedSeminarHasil?.judul.pembimbing1 && 
-                                            dosen.nama !== selectedSeminarHasil?.judul.pembimbing2) && (
+                                            (dosen.nama !== selectedSeminarHasil?.judul.pembimbing1 &&
+                                                dosen.nama !== selectedSeminarHasil?.judul.pembimbing2) && (
                                                 <option key={dosen.id} value={dosen.nama ?? ''}>{dosen.nama}</option>
                                             )
                                         ))}
@@ -527,7 +561,7 @@ export default function KaprodiHasilTable({ initialSeminarHasil, lecturers }: Ka
                                     />
                                 </div>
 
-                                  <div>
+                                <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Tempat Sidang</label>
                                     <input
                                         type="text"
@@ -545,9 +579,9 @@ export default function KaprodiHasilTable({ initialSeminarHasil, lecturers }: Ka
 
                         <div className="mt-8 flex justify-end space-x-3 border-t pt-4">
                             <button onClick={closeModal} className="px-4 py-2 bg-gray-100 text-gray-700 font-semibold rounded-md hover:bg-gray-200 transition-colors text-sm">Batal</button>
-                            <button 
-                                onClick={handleAssign} 
-                                disabled={isLoading} 
+                            <button
+                                onClick={handleAssign}
+                                disabled={isLoading}
                                 className="px-4 py-2 bg-[#325827] text-white font-semibold rounded-md shadow-lg hover:bg-green-800 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                             >
                                 {isLoading ? 'Menyimpan...' : (selectedSeminarHasil.status === 'DISETUJUI' ? 'Simpan Perubahan' : 'Simpan & Tetapkan Jadwal')}

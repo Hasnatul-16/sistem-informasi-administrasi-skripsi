@@ -7,6 +7,7 @@ import {
     FiEye, FiX, FiUsers, FiActivity, FiLoader,
     FiSearch, FiAlertTriangle, FiUser, FiSettings
 } from 'react-icons/fi';
+import { Pagination } from '@/components/ui/pagination';
 
 type DosenStat = {
     nama: string;
@@ -46,7 +47,7 @@ export default function PembimbingStatsClient({
     initialSemester,
     initialJurusan
 }: DosenStatsClientProps) {
-    
+
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
@@ -57,11 +58,15 @@ export default function PembimbingStatsClient({
         jurusan: (searchParams.get('jurusan') as Jurusan) || initialJurusan,
         search: searchParams.get('search') || '',
     });
-    
+
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(20);
+
     const [dosenStats, setDosenStats] = useState<DosenStat[]>([]);
     const [isTableLoading, setIsTableLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalData, setModalData] = useState<DosenPembimbingHistory | null>(null);
     const [isModalLoading, setIsModalLoading] = useState(false);
@@ -72,19 +77,20 @@ export default function PembimbingStatsClient({
 
     const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        
+
         const params = new URLSearchParams(searchParams.toString());
         params.set(name, value);
-  
+
         if (name === 'search' && value === '') {
             params.delete('search');
         }
         router.push(`${pathname}?${params.toString()}`);
-  
+
         setFilters(prev => ({
             ...prev,
             [name]: value
         }));
+        setCurrentPage(1); // Reset page on filter
     };
 
     const fetchTableData = useCallback(async () => {
@@ -120,23 +126,41 @@ export default function PembimbingStatsClient({
         }
     }, [filters]);
 
+    // Paginate data
+    const totalItems = dosenStats.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const paginatedData = dosenStats.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    const handleItemsPerPageChange = (newItemsPerPage: number) => {
+        setItemsPerPage(newItemsPerPage);
+        setCurrentPage(1);
+    };
+
     const handleOpenDetail = async (dosen: DosenStat) => {
         setIsModalOpen(true);
         setIsModalLoading(true);
         setSelectedDosen(dosen);
         setModalData(null);
-        
+
         try {
             const params = new URLSearchParams({
                 nip: dosen.nip,
                 tahun: filters.tahun,
                 semester: filters.semester,
                 jurusan: filters.jurusan,
-                role: 'pembimbing' 
+                role: 'pembimbing'
             });
 
             const res = await fetch(`/api/dosen/riwayat?${params.toString()}`);
-            
+
             if (!res.ok) {
                 const errorData = await res.json();
                 throw new Error(errorData.details || errorData.message || 'Gagal memuat detail riwayat dosen.');
@@ -151,7 +175,7 @@ export default function PembimbingStatsClient({
                 namaDosen: `Error Dosen (${dosen.nip})`,
                 nip: dosen.nip,
                 totalBimbingan: 0, totalPembimbing1: 0, totalPembimbing2: 0,
-                riwayat: [{mahasiswa: 'Error', nim: 'N/A', judul: `Gagal memuat: ${err instanceof Error ? err.message : 'Unknown error'}`, tanggal: new Date(), role: 'Error'}]
+                riwayat: [{ mahasiswa: 'Error', nim: 'N/A', judul: `Gagal memuat: ${err instanceof Error ? err.message : 'Unknown error'}`, tanggal: new Date(), role: 'Error' }]
             });
         } finally {
             setIsModalLoading(false);
@@ -188,7 +212,7 @@ export default function PembimbingStatsClient({
             <h3 className="text-3xl font-bold mt-1">{value}</h3>
         </div>
     );
-    
+
     const RoleBadge = ({ role }: { role: string }) => {
         let color = 'bg-gray-100 text-gray-800';
         if (role.toLowerCase().includes('penguji')) {
@@ -210,9 +234,9 @@ export default function PembimbingStatsClient({
         <main className="space-y-4 sm:space-y-6">
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Daftar Dosen Pembimbing</h1>
             <p className="mt-0 text-sm sm:text-base text-gray-600">Menampilkan total dosen menjadi pembimbing skripsi.</p>
-            
+
             <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md border space-y-3 sm:space-y-4">
-  
+
                 <div className="bg-[#325827] p-3 sm:p-4 rounded-lg shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 w-full sm:w-auto">
                         <div className="flex flex-col w-full sm:w-auto">
@@ -260,10 +284,10 @@ export default function PembimbingStatsClient({
                     </div>
                 </div>
 
-                
 
 
-                
+
+
                 <div className="mt-4 sm:mt-6">
                     {isTableLoading ? (
                         <div className="text-center py-10 text-[#325827] flex flex-col items-center">
@@ -280,33 +304,33 @@ export default function PembimbingStatsClient({
                             <table className="min-w-full w-full bg-white border divide-y divide-gray-200">
                                 <thead className="bg-slate-50">
                                     <tr>
-                                  
+
                                         <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left">
                                             <div className="flex items-center gap-1 sm:gap-2"><FiUsers size={14} className="text-green-800" /><span>Dosen</span></div>
                                         </th>
-                                       
+
                                         <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
                                             <div className="flex items-center gap-1 sm:gap-2"><FiUser size={14} className="text-green-800" /><span>Pembimbing 1</span></div>
                                         </th>
-                                        
+
                                         <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
                                             <div className="flex items-center gap-1 sm:gap-2"><FiUser size={14} className="text-green-800" /><span>Pembimbing 2</span></div>
                                         </th>
-                                        
+
                                         <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
                                             <div className="flex items-center gap-1 sm:gap-2"><FiActivity size={14} className="text-green-800" /><span>Total Bimbingan</span></div>
                                         </th>
-                                      
+
                                         <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
                                             <div className="flex items-center gap-1 sm:gap-2"><FiSettings size={14} className="text-green-800" /><span>Aksi</span></div>
                                         </th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-200">
-                                    {dosenStats.length === 0 ? (
+                                    {paginatedData.length === 0 ? (
                                         <tr><td colSpan={5} className="px-4 sm:px-6 py-8 sm:py-10 text-center text-gray-500 text-sm">Tidak ada data dosen yang ditemukan pada periode ini.</td></tr>
                                     ) : (
-                                        dosenStats.map((dosen) => (
+                                        paginatedData.map((dosen) => (
                                             <tr key={dosen.nip} className="hover:bg-gray-50 transition-colors">
                                                 <td className="px-4 sm:px-6 py-3 sm:py-4">
                                                     <div className="flex flex-col gap-1">
@@ -320,19 +344,19 @@ export default function PembimbingStatsClient({
                                                         </div>
                                                     </div>
                                                 </td>
-                                               
+
                                                 <td className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-600 font-medium whitespace-nowrap">
                                                     {dosen.totalPembimbing1}
                                                 </td>
-                                                
+
                                                 <td className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-600 font-medium whitespace-nowrap">
                                                     {dosen.totalPembimbing2}
                                                 </td>
-                                                
+
                                                 <td className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-900 font-bold whitespace-nowrap">
                                                     {dosen.totalPembimbing1 + dosen.totalPembimbing2}
                                                 </td>
-                                                
+
                                                 <td className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium whitespace-nowrap">
                                                     <button
                                                         onClick={() => handleOpenDetail(dosen)}
@@ -347,15 +371,24 @@ export default function PembimbingStatsClient({
                                     )}
                                 </tbody>
                             </table>
+
+                            <Pagination
+                                currentPage={currentPage}
+                                totalPages={totalPages}
+                                onPageChange={handlePageChange}
+                                itemsPerPage={itemsPerPage}
+                                onItemsPerPageChange={handleItemsPerPageChange}
+                                totalItems={totalItems}
+                            />
                         </div>
                     )}
                 </div>
-            </div> 
+            </div>
 
             {isModalOpen && (
                 <div className="fixed inset-0 z-50 overflow-y-auto bg-gray-900/50 backdrop-blur-sm flex justify-center items-center p-4">
                     <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl m-4 transform transition-all animate-fade-in-scale">
-                        
+
                         <div className="p-4 border-b flex justify-between items-center">
                             <h2 className="text-xl font-bold text-gray-800">
                                 Riwayat Pembimbing - {selectedDosen?.nama || 'Memuat...'}
@@ -373,7 +406,7 @@ export default function PembimbingStatsClient({
                                 </div>
                             ) : (
                                 <>
-                                   
+
                                     <div className="grid grid-cols-3 gap-4">
                                         {renderSummaryCard('Total Bimbingan', modalData.totalBimbingan, 'bg-red-100 text-[#7a1c10]')}
                                         {renderSummaryCard('Total Pembimbing 1', modalData.totalPembimbing1, 'bg-green-100 text-[#325827]')}
@@ -383,8 +416,8 @@ export default function PembimbingStatsClient({
                                     <p className="text-sm font-semibold text-gray-600 pt-2">
                                         Riwayat di Periode Aktif: <span className='font-bold text-[#325827]'>{periodeSaatIni}</span> ({modalData.riwayat.length} entri)
                                     </p>
-                                    
-                              
+
+
                                     <div className="overflow-x-auto -mx-4 sm:mx-0 border rounded-lg">
                                         <table className="min-w-full divide-y divide-gray-200">
                                             <thead className="bg-gray-50 sticky top-0">

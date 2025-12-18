@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react'; 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import type { Proposal, Judul, Mahasiswa, Status } from '@prisma/client';
 import {
@@ -18,6 +18,7 @@ import {
     FiUser,
     FiHash
 } from 'react-icons/fi';
+import { Pagination } from '@/components/ui/pagination';
 
 type ProposalWithDetails = Proposal & {
     judul: Judul & {
@@ -58,9 +59,30 @@ export default function ProposalTable({ initialProposals }: ProposalTableProps) 
 
     useEffect(() => {
         setProposals(initialProposals);
-    }, [initialProposals]); 
+    }, [initialProposals]);
 
     const [loadingId, setLoadingId] = useState<number | null>(null);
+
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(20);
+
+    const totalItems = proposals.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const paginatedData = proposals.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    const handleItemsPerPageChange = (newItemsPerPage: number) => {
+        setItemsPerPage(newItemsPerPage);
+        setCurrentPage(1);
+    };
 
     const handleDownloadSK = async (proposalId: number, nim: string, nama: string) => {
         setLoadingId(proposalId);
@@ -78,7 +100,7 @@ export default function ProposalTable({ initialProposals }: ProposalTableProps) 
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `SK-Proposal-${nama}-${nim}.pdf`; 
+            a.download = `SK-Proposal-${nama}-${nim}.pdf`;
             document.body.appendChild(a);
             a.click();
 
@@ -101,10 +123,10 @@ export default function ProposalTable({ initialProposals }: ProposalTableProps) 
                         <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left">
                             <div className="flex items-center gap-1 sm:gap-2"><FiUsers size={14} className="text-green-800" /><span>Mahasiswa</span></div>
                         </th>
-                         <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
+                        <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
                             <div className="flex items-center gap-1 sm:gap-2"><FiCalendar size={14} className="text-green-800" /><span>Tanggal Pengajuan</span></div>
                         </th>
-                          <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
+                        <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
                             <div className="flex items-center gap-1 sm:gap-2"><FiTag size={14} className="text-green-800" /><span>Topik</span></div>
                         </th>
                         <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left">
@@ -119,12 +141,12 @@ export default function ProposalTable({ initialProposals }: ProposalTableProps) 
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                    {proposals.length === 0 ? (
+                    {paginatedData.length === 0 ? (
                         <tr><td colSpan={6} className="px-4 sm:px-6 py-8 sm:py-10 text-center text-gray-500 text-sm">Tidak ada pengajuan pada periode yang dipilih.</td></tr>
                     ) : (
-                        proposals.map(prop => (
+                        paginatedData.map(prop => (
                             <tr key={prop.id} className="hover:bg-gray-50 transition-colors">
-                                 <td className="px-4 sm:px-6 py-3 sm:py-4">
+                                <td className="px-4 sm:px-6 py-3 sm:py-4">
                                     <div className="flex flex-col gap-1">
                                         <div className="flex items-center gap-2">
                                             <FiUser size={14} className="text-green-800" />
@@ -162,7 +184,7 @@ export default function ProposalTable({ initialProposals }: ProposalTableProps) 
                                             href={`/dashboard/admin/proposal/detail/${prop.id}`}
                                             className="inline-flex items-center gap-2 text-[#7a1c10] hover:text-red-900 font-semibold"
                                         >
-                                             <FiArrowRight className="h-4 w-4" /> <span className="hidden sm:inline">Verifikasi</span>
+                                            <FiArrowRight className="h-4 w-4" /> <span className="hidden sm:inline">Verifikasi</span>
                                         </Link>
                                     )}
 
@@ -181,24 +203,33 @@ export default function ProposalTable({ initialProposals }: ProposalTableProps) 
                                                 </>
                                             ) : (
                                                 <>
-                                                     <FiDownload /> <span className="hidden sm:inline">Unduh SK</span>
+                                                    <FiDownload /> <span className="hidden sm:inline">Unduh SK</span>
                                                 </>
                                             )}
                                         </button>
                                     )}
 
-                                     {prop.status === 'DITOLAK_ADMIN' && (<span className="text-gray-400 text-xs sm:text-sm">Selesai</span>)}
+                                    {prop.status === 'DITOLAK_ADMIN' && (<span className="text-gray-400 text-xs sm:text-sm">Selesai</span>)}
 
-                                    {prop.status !== 'TERKIRIM' && prop.status !== 'DISETUJUI'&& prop.status !== 'DITOLAK_ADMIN' && (<span className="text-gray-400 text-xs sm:text-sm">Dalam Proses</span>)}
-                                    
+                                    {prop.status !== 'TERKIRIM' && prop.status !== 'DISETUJUI' && prop.status !== 'DITOLAK_ADMIN' && (<span className="text-gray-400 text-xs sm:text-sm">Dalam Proses</span>)}
 
-                
+
+
                                 </td>
                             </tr>
                         ))
                     )}
                 </tbody>
             </table>
+
+            <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+                itemsPerPage={itemsPerPage}
+                onItemsPerPageChange={handleItemsPerPageChange}
+                totalItems={totalItems}
+            />
         </div>
     );
 }

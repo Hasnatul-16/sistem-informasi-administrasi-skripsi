@@ -7,6 +7,7 @@ import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 
 import { FiX, FiCheckCircle, FiCalendar, FiUser, FiBook, FiUsers, FiHash, FiSearch, FiEdit, FiSave, FiDownload, FiClock } from 'react-icons/fi';
+import { Pagination } from '@/components/ui/pagination';
 
 const MySwal = withReactContent(Swal);
 
@@ -37,7 +38,7 @@ const StatusBadge = ({ status }: { status: Status }) => {
 
 const formatDateToLocalInput = (dateString: string | Date): string => {
     if (!dateString) return '';
-    
+
     const date = new Date(dateString);
 
     const year = date.getFullYear();
@@ -76,15 +77,21 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
 
     const [searchQuery, setSearchQuery] = useState('');
 
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(20);
+
     const monthOptions = Array.from({ length: 12 }, (_, i) => ({ value: i + 1, label: new Date(0, i).toLocaleString('id-ID', { month: 'long' }) }));
     const yearOptions = [currentYear, currentYear - 1, currentYear - 2];
 
     const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         setFilters(prev => ({ ...prev, [e.target.name]: parseInt(e.target.value) }));
+        setCurrentPage(1); // Reset page on filter
     };
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchQuery(e.target.value);
+        setCurrentPage(1); // Reset page on search
     };
 
     useEffect(() => {
@@ -106,16 +113,34 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
             p.judul.mahasiswa.nama.toLowerCase().includes(searchLower) ||
             p.judul.mahasiswa.nim.toLowerCase().includes(searchLower) ||
             p.judul.judul.toLowerCase().includes(searchLower) ||
-            p.judul.topik.toLowerCase().includes(searchLower) 
+            p.judul.topik.toLowerCase().includes(searchLower)
         );
-    }, [proposals, filters, searchQuery]); 
+    }, [proposals, filters, searchQuery]);
+
+    // Paginate data
+    const totalItems = displayData.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const paginatedData = displayData.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    const handleItemsPerPageChange = (newItemsPerPage: number) => {
+        setItemsPerPage(newItemsPerPage);
+        setCurrentPage(1);
+    };
 
 
     const resetActionData = useCallback(() => {
         setActionData({
             penguji: '',
             jadwalSidang: '',
-             tempat: '',
+            tempat: '',
         });
     }, []);
 
@@ -129,9 +154,9 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
         setSelectedProposal(proposal);
 
         let initialJadwal = '';
-        
+
         if (proposal.jadwal_sidang) {
-            initialJadwal = formatDateToLocalInput(proposal.jadwal_sidang); 
+            initialJadwal = formatDateToLocalInput(proposal.jadwal_sidang);
         }
 
         setActionData({
@@ -164,16 +189,16 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
 
         try {
             const localDate = new Date(actionData.jadwalSidang);
-            const isoStringForDB = localDate.toISOString(); 
+            const isoStringForDB = localDate.toISOString();
 
             const response = await fetch(`/api/proposal/kaprodi/${selectedProposal.id}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     penguji: actionData.penguji,
-                    jadwalSidang: isoStringForDB, 
+                    jadwalSidang: isoStringForDB,
                     tempat: actionData.tempat,
-                    status: newStatus 
+                    status: newStatus
                 }),
             });
 
@@ -204,7 +229,7 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
         }
     }, [selectedProposal, actionData, closeModal]);
 
-     const handleDownloadBeritaAcara = async (proposalId: number, nim: string, nama: string) => {
+    const handleDownloadBeritaAcara = async (proposalId: number, nim: string, nama: string) => {
         setLoadingId(proposalId);
         try {
             const response = await fetch(`/api/berita-acara-proposal/${proposalId}`);
@@ -257,7 +282,7 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
                 <div className="relative self-end">
                     <input
                         type="text"
-                        placeholder="Cari berdasarkan nama, NIM, atau judul..." 
+                        placeholder="Cari berdasarkan nama, NIM, atau judul..."
                         value={searchQuery}
                         onChange={handleSearchChange}
                         className="w-64 bg-white/30 text-white placeholder-white/70 rounded-full py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-white/50"
@@ -279,10 +304,10 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
-                        {displayData.length === 0 ? (
+                        {paginatedData.length === 0 ? (
                             <tr><td colSpan={5} className="py-10 text-center text-gray-500">Tidak ada pengajuan proposal yang perlu diproses pada bulan ini.</td></tr>
                         ) : (
-                            displayData.map(p => (
+                            paginatedData.map(p => (
                                 <tr key={p.id} className="hover:bg-gray-50">
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="text-sm font-medium text-gray-900">{p.judul.mahasiswa.nama}</div>
@@ -305,8 +330,8 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
                                             <StatusBadge status={p.status} />
                                         )}
                                     </td>
-                             <td className="px-6 py-4">
-                                    {p.status === 'DIPROSES_KAPRODI' ? (
+                                    <td className="px-6 py-4">
+                                        {p.status === 'DIPROSES_KAPRODI' ? (
                                             <button onClick={() => openModal(p)} className="text-[#325827]hover:text-green-900 text-sm font-semibold flex items-center gap-1 transition-colors">
                                                 <FiSave size={14} /> Tetapkan
                                             </button>
@@ -321,11 +346,11 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
                                                 <button
                                                     onClick={() => handleDownloadBeritaAcara(p.id, p.judul.mahasiswa.nim, p.judul.mahasiswa.nama)}
                                                     disabled={loadingId === p.id}
-                                                  className="text-green-800 hover:text-green-950 text-sm font-semibold flex items-center gap-1 transition-colors"
+                                                    className="text-green-800 hover:text-green-950 text-sm font-semibold flex items-center gap-1 transition-colors"
                                                 >
                                                     {loadingId === p.id ? (
                                                         <>
-                                                            <FiClock className="animate-spin h-4 w-4"  /> Mengunduh...
+                                                            <FiClock className="animate-spin h-4 w-4" /> Mengunduh...
                                                         </>
                                                     ) : (
                                                         <>
@@ -343,12 +368,21 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
                         )}
                     </tbody>
                 </table>
+
+                <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={handlePageChange}
+                    itemsPerPage={itemsPerPage}
+                    onItemsPerPageChange={handleItemsPerPageChange}
+                    totalItems={totalItems}
+                />
             </div>
 
 
             {isModalOpen && selectedProposal && (
                 <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm flex justify-center items-center z-50 p-4">
-                   <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto animate-fade-in-scale">
+                    <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto animate-fade-in-scale">
                         <div className="flex justify-between items-start mb-4 pb-4 border-b">
                             <div>
                                 <h2 className="text-xl font-bold text-gray-800">
@@ -433,7 +467,7 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
                                         <option value="" disabled>-- Pilih Dosen Penguji --</option>
                                         {lecturers.map(dosen => (
                                             (dosen.nama !== selectedProposal?.judul.pembimbing1 &&
-                                            dosen.nama !== selectedProposal?.judul.pembimbing2) && (
+                                                dosen.nama !== selectedProposal?.judul.pembimbing2) && (
                                                 <option key={dosen.id} value={dosen.nama ?? ''}>{dosen.nama}</option>
                                             )
                                         ))}
@@ -452,7 +486,7 @@ export default function KaprodiProposalTable({ initialProposals, lecturers }: Ka
                                         required
                                     />
                                 </div>
-                                 <div>
+                                <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Tempat Sidang</label>
                                     <input
                                         type="text"

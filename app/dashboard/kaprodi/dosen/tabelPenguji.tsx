@@ -8,14 +8,15 @@ import {
     FiSearch, FiAlertTriangle, FiSettings
 } from 'react-icons/fi';
 import React from 'react';
+import { Pagination } from '@/components/ui/pagination';
 
 type DosenStat = {
     nama: string;
     nip: string;
     totalPengujiSempro: number;
     totalPengujiSemhas: number;
-    totalPembimbing1: number; 
-    totalPembimbing2: number; 
+    totalPembimbing1: number;
+    totalPembimbing2: number;
     totalBeban: number;
 };
 
@@ -46,13 +47,13 @@ interface DosenStatsClientProps {
 const ALL_JURUSAN: Jurusan[] = ['SISTEM_INFORMASI', 'MATEMATIKA'];
 
 
-export default function DosenStatsClient({ 
-    isKaprodi, 
-    initialTahun, 
-    initialSemester, 
-    initialJurusan 
+export default function DosenStatsClient({
+    isKaprodi,
+    initialTahun,
+    initialSemester,
+    initialJurusan
 }: DosenStatsClientProps) {
-    
+
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
@@ -63,11 +64,15 @@ export default function DosenStatsClient({
         jurusan: (searchParams.get('jurusan') as Jurusan) || initialJurusan,
         search: searchParams.get('search') || '',
     });
-    
+
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(20);
+
     const [dosenStats, setDosenStats] = useState<DosenStat[]>([]);
     const [isTableLoading, setIsTableLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalData, setModalData] = useState<DosenHistory | null>(null);
     const [isModalLoading, setIsModalLoading] = useState(false);
@@ -78,23 +83,24 @@ export default function DosenStatsClient({
 
     const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        
+
         const params = new URLSearchParams(searchParams.toString());
         params.set(name, value);
-      
+
         if (name === 'search' && value === '') {
             params.delete('search');
         }
         router.push(`${pathname}?${params.toString()}`);
-        
+
         setFilters(prev => ({
             ...prev,
             [name]: value
         }));
+        setCurrentPage(1); // Reset page on filter
     };
 
     const handleJurusanChange = (newJurusan: Jurusan) => {
-        
+
         const params = new URLSearchParams(searchParams.toString());
         params.set('jurusan', newJurusan);
         router.push(`${pathname}?${params.toString()}`);
@@ -103,6 +109,7 @@ export default function DosenStatsClient({
             ...prev,
             jurusan: newJurusan
         }));
+        setCurrentPage(1); // Reset page on filter
     };
 
     const fetchTableData = useCallback(async () => {
@@ -139,23 +146,41 @@ export default function DosenStatsClient({
         }
     }, [filters]);
 
+    // Paginate data
+    const totalItems = dosenStats.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const paginatedData = dosenStats.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    const handleItemsPerPageChange = (newItemsPerPage: number) => {
+        setItemsPerPage(newItemsPerPage);
+        setCurrentPage(1);
+    };
+
     const handleOpenDetail = async (dosen: DosenStat) => {
         setIsModalOpen(true);
         setIsModalLoading(true);
         setSelectedDosen(dosen);
         setModalData(null);
-        
+
         try {
             const params = new URLSearchParams({
                 nip: dosen.nip,
                 tahun: filters.tahun,
                 semester: filters.semester,
                 jurusan: filters.jurusan,
-                role: 'penguji' 
+                role: 'penguji'
             });
 
             const res = await fetch(`/api/dosen/riwayat?${params.toString()}`);
-            
+
             if (!res.ok) {
                 const errorData = await res.json();
                 throw new Error(errorData.details || errorData.message || 'Gagal memuat detail riwayat dosen.');
@@ -166,13 +191,13 @@ export default function DosenStatsClient({
 
         } catch (err: unknown) {
             console.error("Error fetching detail:", err);
-        
+
             const errorMessage = err instanceof Error ? err.message : 'Gagal memuat detail riwayat dosen.';
             setModalData({
                 namaDosen: `Error Dosen (${dosen.nip})`,
                 nip: dosen.nip,
                 totalMenguji: 0, totalPengujiSempro: 0, totalPengujiSemhas: 0,
-                riwayat: [{mahasiswa: 'Error', nim: 'N/A', judul: `Gagal memuat: ${errorMessage}`, tanggal: new Date(), role: 'Error'}]
+                riwayat: [{ mahasiswa: 'Error', nim: 'N/A', judul: `Gagal memuat: ${errorMessage}`, tanggal: new Date(), role: 'Error' }]
             });
         } finally {
             setIsModalLoading(false);
@@ -210,7 +235,7 @@ export default function DosenStatsClient({
             <h3 className="text-3xl font-bold mt-1">{value}</h3>
         </div>
     );
-    
+
     const RoleBadge = ({ role }: { role: string }) => {
         let color = 'bg-gray-100 text-gray-800';
         if (role.toLowerCase().includes('penguji')) {
@@ -230,12 +255,12 @@ export default function DosenStatsClient({
         <main className="space-y-6">
             <h1 className="text-3xl font-bold text-gray-900"> Daftar Dosen Penguji</h1>
             <p className="mt-0 text-gray-600">menampilkan total dosen menjadi penguji pada seminar proposal dan sidang skripsi </p>
-            
+
             <div className="bg- p-6 rounded-lg shadow-md border space-y-4">
-                
+
                 <div className="bg-[#325827] p-4 rounded-lg shadow-md flex flex-wrap items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
-                      
+
                         <div className="flex flex-col">
                             <label htmlFor="semester" className="text-sm font-semibold text-white mb-1">
                                 Periode Semester
@@ -251,8 +276,8 @@ export default function DosenStatsClient({
                                 <option value="GENAP" className='text-gray-800'>Genap</option>
                             </select>
                         </div>
-                        
-                       
+
+
                         <div className="flex flex-col">
                             <label htmlFor="tahun" className="text-sm font-semibold text-white mb-1">
                                 Tahun Akademik
@@ -291,7 +316,7 @@ export default function DosenStatsClient({
                     Data ditampilkan untuk Jurusan:{' '}
                     <strong className='text-[#325827]'>{filters.jurusan.replace('_', ' ')}</strong>
                 </p>
-                
+
                 {!isKaprodi && (
                     <div className='flex items-center gap-4'>
                         <label className="text-sm font-medium text-gray-700">Filter Jurusan:</label>
@@ -299,11 +324,10 @@ export default function DosenStatsClient({
                             <button
                                 key={j}
                                 onClick={() => handleJurusanChange(j)}
-                                className={`px-4 py-2 text-sm font-semibold rounded-full transition duration-150 ${
-                                    filters.jurusan === j
+                                className={`px-4 py-2 text-sm font-semibold rounded-full transition duration-150 ${filters.jurusan === j
                                         ? 'bg-[#325827] text-white shadow-md'
                                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                }`}
+                                    }`}
                             >
                                 {j.replace('_', ' ')}
                             </button>
@@ -311,7 +335,7 @@ export default function DosenStatsClient({
                     </div>
                 )}
 
-                
+
                 <div className="mt-6">
                     {isTableLoading ? (
                         <div className="text-center py-10 text-[#325827] flex flex-col items-center">
@@ -328,7 +352,7 @@ export default function DosenStatsClient({
                             <table className="min-w-full w-full bg-white border divide-y divide-gray-200">
                                 <thead className="bg-slate-50">
                                     <tr>
-                                       
+
                                         <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left">
                                             <div className="flex items-center gap-1 sm:gap-2"><FiUsers size={14} className="text-green-800" /><span>Dosen</span></div>
                                         </th>
@@ -351,12 +375,12 @@ export default function DosenStatsClient({
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-200">
-                                    {dosenStats.length === 0 ? (
+                                    {paginatedData.length === 0 ? (
                                         <tr><td colSpan={5} className="px-4 sm:px-6 py-8 sm:py-10 text-center text-gray-500 text-sm">Tidak ada data dosen yang ditemukan pada periode ini.</td></tr>
                                     ) : (
-                                        dosenStats.map((dosen) => (
+                                        paginatedData.map((dosen) => (
                                             <tr key={dosen.nip} className="hover:bg-gray-50 transition-colors">
-                                               
+
                                                 <td className="px-4 sm:px-6 py-3 sm:py-4">
                                                     <div className="flex flex-col gap-1">
                                                         <div className="flex flex-col">
@@ -369,19 +393,19 @@ export default function DosenStatsClient({
                                                         </div>
                                                     </div>
                                                 </td>
-                                               
+
                                                 <td className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-600 font-medium whitespace-nowrap">
                                                     {dosen.totalPengujiSempro}
                                                 </td>
-                                                
+
                                                 <td className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-600 font-medium whitespace-nowrap">
                                                     {dosen.totalPengujiSemhas}
                                                 </td>
-                                                
+
                                                 <td className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-900 font-bold whitespace-nowrap">
                                                     {dosen.totalPengujiSempro + dosen.totalPengujiSemhas}
                                                 </td>
-                                                
+
                                                 <td className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium whitespace-nowrap">
                                                     <button
                                                         onClick={() => handleOpenDetail(dosen)}
@@ -396,10 +420,19 @@ export default function DosenStatsClient({
                                     )}
                                 </tbody>
                             </table>
+
+                            <Pagination
+                                currentPage={currentPage}
+                                totalPages={totalPages}
+                                onPageChange={handlePageChange}
+                                itemsPerPage={itemsPerPage}
+                                onItemsPerPageChange={handleItemsPerPageChange}
+                                totalItems={totalItems}
+                            />
                         </div>
                     )}
                 </div>
-            </div> 
+            </div>
 
 
             {isModalOpen && (
@@ -422,7 +455,7 @@ export default function DosenStatsClient({
                                 </div>
                             ) : (
                                 <>
-                                    
+
                                     <div className="grid grid-cols-3 gap-4">
                                         {renderSummaryCard('Total Keseluruhan Menguji', modalData.totalMenguji, 'bg-red-100 text-[#7a1c10]')}
                                         {renderSummaryCard('Total Penguji Sempro', modalData.totalPengujiSempro, 'bg-green-100 text-[#325827]')}
@@ -432,8 +465,8 @@ export default function DosenStatsClient({
                                     <p className="text-sm font-semibold text-gray-600 pt-2">
                                         Riwayat di Periode Aktif: <span className='font-bold text-green-800'>{periodeSaatIni}</span> ({modalData.riwayat.length} entri)
                                     </p>
-                                    
-                                 
+
+
                                     <div className="overflow-x-auto border rounded-lg">
                                         <table className="min-w-full divide-y divide-gray-200">
                                             <thead className="bg-gray-50 sticky top-0">

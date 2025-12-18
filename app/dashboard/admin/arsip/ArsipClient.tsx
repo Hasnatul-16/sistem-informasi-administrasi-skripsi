@@ -1,5 +1,5 @@
 "use client";
- 
+
 import { useState, useEffect, useCallback } from 'react';
 import type { Jurusan } from '@prisma/client';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
@@ -10,6 +10,7 @@ import {
 } from 'react-icons/fi';
 import React from 'react';
 import { ArsipData } from '@/app/api/arsip/route';
+import { Pagination } from '@/components/ui/pagination';
 
 interface ArsipClientProps {
     initialJurusan: Jurusan;
@@ -50,7 +51,7 @@ const getTimelineStatus = (item: ArsipData) => {
         if (step.isDone) {
             const currentDate = step.date ? (step.date instanceof Date ? step.date : new Date(step.date)) : null;
             if (currentDate) {
-                 latestDate = currentDate;
+                latestDate = currentDate;
             }
             latestLabel = step.label;
             break;
@@ -150,13 +151,13 @@ const DownloadBeritaAcara: React.FC<{ id: number | null, type: 'proposal' | 'sem
 
 const DetailModal: React.FC<{ item: ArsipData | null, onClose: () => void }> = ({ item, onClose }) => {
     if (!item) return null;
-    
+
     const { steps } = getTimelineStatus(item);
 
     return (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-gray-900/50 backdrop-blur-sm flex justify-center items-center p-4">
             <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl m-4 transform transition-all animate-fade-in-scale">
-                
+
                 <div className="p-4 border-b flex justify-between items-center">
                     <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
                         <FiBookOpen /> Detail Arsip - {item.nama}
@@ -167,9 +168,9 @@ const DetailModal: React.FC<{ item: ArsipData | null, onClose: () => void }> = (
                 </div>
 
                 <div className="p-6 space-y-6 max-h-[80vh] overflow-y-auto">
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  
+
                         <div className="space-y-2">
                             <h4 className="text-sm font-semibold text-gray-800 flex items-center gap-2">
                                 <FiUser className="w-4 h-4 text-green-800" /> Info Mahasiswa
@@ -207,22 +208,22 @@ const DetailModal: React.FC<{ item: ArsipData | null, onClose: () => void }> = (
                             </div>
                         </div>
                     </div>
-                    
+
                     <div className="space-y-2">
                         <h4 className="text-sm font-semibold text-gray-800 flex items-center gap-2">
                             <FiCode className="w-4 h-4 text-green-800" /> Dosen Penguji
                         </h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                         
+
                             <div className="p-3 bg-gray-50 rounded-lg border space-y-1">
                                 <span className="text-xs font-semibold text-gray-800">Penguji Sempro : </span>
                                 <span className="text-xs text-gray-600">{item.proposal?.penguji || '-'}</span>
                             </div>
-                   
+
                             <div className="p-3 bg-gray-50 rounded-lg border space-y-1">
                                 <span className="text-xs font-semibold text-gray-800">Penguji  Sidang Skripsi 1: </span>
                                 <span className="text-xs text-gray-600">{item.seminar_hasil?.penguji1 || '-'}</span>
-                                <br/>
+                                <br />
                                 <span className="text-xs font-semibold text-gray-800">Penguji Sidang Skripsi 2: </span>
                                 <span className="text-xs text-gray-600">{item.seminar_hasil?.penguji2 || '-'}</span>
                             </div>
@@ -260,9 +261,13 @@ const ArsipClient: React.FC<ArsipClientProps> = ({ initialJurusan, initialTahun,
         tahun: searchParams.get('tahun') || String(initialTahun || currentYear),
         semester: (searchParams.get('semester') as 'GANJIL' | 'GENAP') || (initialSemester || 'GANJIL'),
     });
-    
+
     const [selectedItem, setSelectedItem] = useState<ArsipData | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(20);
 
     const fetchArsip = useCallback(async () => {
         setIsLoading(true);
@@ -320,6 +325,7 @@ const ArsipClient: React.FC<ArsipClientProps> = ({ initialJurusan, initialTahun,
             ...prev,
             jurusan: newJurusan
         }));
+        setCurrentPage(1); // Reset page on filter change
     };
 
     const openModal = (item: ArsipData) => {
@@ -332,15 +338,33 @@ const ArsipClient: React.FC<ArsipClientProps> = ({ initialJurusan, initialTahun,
         setSelectedItem(null);
     };
 
+    // Calculate paginated data
+    const totalItems = arsipData.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const paginatedData = arsipData.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    const handleItemsPerPageChange = (newItemsPerPage: number) => {
+        setItemsPerPage(newItemsPerPage);
+        setCurrentPage(1);
+    };
+
 
 
     return (
-              <main className="space-y-4 overflow-x-hidden">
+        <main className="space-y-4 overflow-x-hidden">
             <div >
                 <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 break-words">Arsip Skripsi Mahasiswa</h1>
                 <p className="text-sm sm:text-base text-gray-600 mt-2">Menampilkan seluruh data pengajuan mahasiswa yang telah selesai atau sedang berjalan.</p>
             </div>
-            
+
             <div className="bg-white p-6 rounded-lg shadow-md border space-y-4">
 
                 <div className="bg-[#325827] p-3 sm:p-4 rounded-lg shadow-md flex flex-col gap-3 sm:gap-4">
@@ -404,11 +428,10 @@ const ArsipClient: React.FC<ArsipClientProps> = ({ initialJurusan, initialTahun,
                         <button
                             key={j}
                             onClick={() => handleJurusanChange(j)}
-                            className={`px-4 py-2 text-sm font-semibold rounded-full transition duration-150 ${
-                                filters.jurusan === j
-                                    ? 'bg-[#325827] text-white shadow-md'
-                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                            }`}
+                            className={`px-4 py-2 text-sm font-semibold rounded-full transition duration-150 ${filters.jurusan === j
+                                ? 'bg-[#325827] text-white shadow-md'
+                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                }`}
                         >
                             {formatJurusan(j)}
                         </button>
@@ -427,7 +450,7 @@ const ArsipClient: React.FC<ArsipClientProps> = ({ initialJurusan, initialTahun,
                             <p className='font-medium'>Error terjadi saat memuat data: {error}</p>
                         </div>
                     ) : (
-                         <div className="overflow-x-auto">
+                        <div className="overflow-x-auto">
                             <table className="min-w-full w-full bg-white border divide-y divide-gray-200">
                                 <thead className="bg-slate-50">
                                     <tr>
@@ -467,10 +490,10 @@ const ArsipClient: React.FC<ArsipClientProps> = ({ initialJurusan, initialTahun,
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-200">
-                                    {arsipData.length === 0 ? (
+                                    {paginatedData.length === 0 ? (
                                         <tr><td colSpan={10} className="px-4 sm:px-6 py-8 sm:py-10 text-center text-gray-500 text-sm">Tidak ada data arsip yang ditemukan.</td></tr>
                                     ) : (
-                                        arsipData.map((item) => {
+                                        paginatedData.map((item) => {
                                             const { steps } = getTimelineStatus(item);
 
                                             const skPembimbingUrl = item.file_sk_pembimbing;
@@ -537,9 +560,18 @@ const ArsipClient: React.FC<ArsipClientProps> = ({ initialJurusan, initialTahun,
                         </div>
                     )}
                 </div>
+
+                <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={handlePageChange}
+                    itemsPerPage={itemsPerPage}
+                    onItemsPerPageChange={handleItemsPerPageChange}
+                    totalItems={totalItems}
+                />
             </div>
-            
-           
+
+
             {isModalOpen && <DetailModal item={selectedItem} onClose={closeModal} />}
         </main>
     );

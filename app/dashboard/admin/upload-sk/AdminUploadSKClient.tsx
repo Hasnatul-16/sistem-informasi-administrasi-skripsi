@@ -14,6 +14,7 @@ import {
 } from "react-icons/fi";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
+import { Pagination } from "@/components/ui/pagination";
 
 const MySwal = withReactContent(Swal);
 
@@ -98,6 +99,10 @@ export default function AdminUploadSKClient() {
   const [selectedSemester, setSelectedSemester] = useState<'GANJIL' | 'GENAP'>('GANJIL');
   const [selectedTahun, setSelectedTahun] = useState<string>(String(currentYear));
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(20);
+
   const [uploadModal, setUploadModal] = useState<{
     isOpen: boolean;
     mahasiswa: MahasiswaUploadData | null;
@@ -139,6 +144,24 @@ export default function AdminUploadSKClient() {
         ),
     [data, searchTerm]
   );
+
+  // Paginate data
+  const totalItems = filtered.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const paginatedData = filtered.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleItemsPerPageChange = (newItemsPerPage: number) => {
+    setItemsPerPage(newItemsPerPage);
+    setCurrentPage(1);
+  };
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -189,11 +212,11 @@ export default function AdminUploadSKClient() {
 
   return (
     <div className="space-y-4 sm:space-y-6">
-    
+
       <div className="bg-white p-3 sm:p-6 rounded-lg shadow-md border">
         <div className="bg-[#325827] p-3 sm:p-4 rounded-lg shadow-md flex flex-col gap-3 sm:gap-4">
 
-         
+
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3 sm:gap-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 w-full sm:w-auto">
               <div className="flex flex-col w-full sm:w-auto">
@@ -254,12 +277,14 @@ export default function AdminUploadSKClient() {
             {ALL_JURUSAN.map(j => (
               <button
                 key={j}
-                onClick={() => setSelectedJurusan(j)}
-                className={`px-4 py-2 text-sm font-semibold rounded-full transition duration-150 ${
-                  selectedJurusan === j
+                onClick={() => {
+                  setSelectedJurusan(j);
+                  setCurrentPage(1); // Reset page on filter
+                }}
+                className={`px-4 py-2 text-sm font-semibold rounded-full transition duration-150 ${selectedJurusan === j
                     ? 'bg-[#325827] text-white shadow-md'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
+                  }`}
               >
                 {formatJurusan(j)}
               </button>
@@ -276,7 +301,7 @@ export default function AdminUploadSKClient() {
             <FiAlertTriangle className="h-5 w-5" />
             <p className="font-medium">Error: {error}</p>
           </div>
-          ) : (
+        ) : (
           <div className="overflow-x-auto -mx-4 sm:mx-0 mt-4">
             <table className="min-w-full w-full bg-white border divide-y divide-gray-200">
               <thead className="bg-slate-50">
@@ -306,14 +331,14 @@ export default function AdminUploadSKClient() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {filtered.length === 0 ? (
+                {paginatedData.length === 0 ? (
                   <tr>
                     <td colSpan={5} className="px-4 sm:px-6 py-8 sm:py-10 text-center text-gray-500 text-sm">
                       Tidak ada mahasiswa ditemukan.
                     </td>
                   </tr>
                 ) : (
-                  filtered.map((mhs) => (
+                  paginatedData.map((mhs) => (
                     <tr key={mhs.id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-semibold text-gray-800 line-clamp-2">
                         {mhs.nama}
@@ -383,6 +408,14 @@ export default function AdminUploadSKClient() {
                 )}
               </tbody>
             </table>
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+              itemsPerPage={itemsPerPage}
+              onItemsPerPageChange={handleItemsPerPageChange}
+              totalItems={totalItems}
+            />
           </div>
         )}
       </div>
