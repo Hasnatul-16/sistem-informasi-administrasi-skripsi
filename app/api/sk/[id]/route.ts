@@ -2,8 +2,7 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import fs from 'fs';
 import path from 'path';
-import puppeteer, { Browser } from 'puppeteer-core';
-import chromium from '@sparticuz/chromium';
+import puppeteer, { Browser } from 'puppeteer';
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -752,20 +751,10 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
 
   let browser: Browser | null = null;
   try {
-    try {
-      // Dynamic import to support both local and serverless
-      const { launchBrowser } = await import('@/lib/puppeteer');
-      browser = await launchBrowser();
-    } catch (launchErr) {
-      console.warn('Puppeteer default launch failed, attempting local Chrome executable...', String(launchErr));
-      const chromePath = process.env.CHROME_PATH || 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
-      try {
-        browser = await puppeteer.launch({ executablePath: chromePath, args: ['--no-sandbox', '--disable-setuid-sandbox'] });
-      } catch (localErr) {
-        console.error('Failed to launch local Chrome as fallback:', String(localErr));
-        throw launchErr;
-      }
-    }
+    browser = await puppeteer.launch({
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      headless: true
+    });
 
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: 'networkidle0' });

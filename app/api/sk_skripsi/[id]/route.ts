@@ -2,10 +2,9 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import fs from 'fs';
 import path from 'path';
-import puppeteer, { Browser } from 'puppeteer-core';
-import chromium from '@sparticuz/chromium';
+import puppeteer, { Browser } from 'puppeteer';
 import { Jurusan } from '@prisma/client';
-import { NextRequest } from 'next/server';
+import { NextRequest } from 'next/server'; 
 
 const getSkDateInfo = (date: Date) => {
 
@@ -68,17 +67,17 @@ const formatJurusanToProdi = (jurusanEnum: Jurusan): string => {
 };
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+  const { id } = await params; 
   if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 });
 
-  const seminarHasilId = Number(id);
+  const seminarHasilId = Number(id); 
   if (isNaN(seminarHasilId)) return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
 
   const { searchParams } = new URL(req.url);
   const manualSkNumber = searchParams.get('sk_number')
   const skripsiRecord = await prisma.seminarHasil.findUnique({
     where: { id: seminarHasilId },
-
+  
     select: {
       id: true,
       status: true,
@@ -89,10 +88,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       jadwal_sidang: true,
       sk_penguji: true,
       undangan_penguji: true,
-      undangan_munaqasah: true,
-      penguji1: true,
-      penguji2: true,
-      tempat: true,
+      undangan_munaqasah: true, 
+      penguji1: true, 
+      penguji2: true, 
+      tempat: true, 
     },
   });
 
@@ -129,7 +128,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   const today = new Date();
 
   let skDateObj = today;
-
+ 
   if (skripsiRecord.tanggal) {
     try {
       const tempDate = new Date(skripsiRecord.tanggal);
@@ -141,7 +140,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     }
   }
 
-  if (skripsiRecord.jadwal_sidang) {
+   if (skripsiRecord.jadwal_sidang) {
     skDateObj = getSkDateFromSeminarSchedule(skripsiRecord.jadwal_sidang);
   }
 
@@ -203,15 +202,15 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
   let undanganPengujiNomor: string;
   if (parsedSkNumber !== null && !isNaN(parsedSkNumber)) {
-    const nextInt = parsedSkNumber + 1;
-    undanganPengujiNomor = `${skPrefix}${nextInt}/${skBaseParts}/${skMonth}/${skYear}`;
+    const nextInt = parsedSkNumber + 1; 
+      undanganPengujiNomor = `${skPrefix}${nextInt}/${skBaseParts}/${skMonth}/${skYear}`;
   } else {
     undanganPengujiNomor = `B.${baseNumberInt + 1}/Un.13/FST/PP.00.9/${skMonth}/${skYear}`;
   }
 
   let undanganMunaqasahNomor: string;
   if (parsedSkNumber !== null && !isNaN(parsedSkNumber)) {
-    const nextNextInt = parsedSkNumber + 2;
+    const nextNextInt = parsedSkNumber + 2; 
     undanganMunaqasahNomor = `${skPrefix}${nextNextInt}/${skBaseParts}/${skMonth}/${skYear}`;
   } else {
     undanganMunaqasahNomor = `B.${baseNumberInt + 2}/Un.13/FST/PP.00.9/${skMonth}/${skYear}`;
@@ -222,12 +221,12 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
   if (!skripsiRecord.sk_penguji || !skripsiRecord.undangan_penguji || !skripsiRecord.undangan_munaqasah) {
     try {
-      await prisma.seminarHasil.update({
+      await prisma.seminarHasil.update({ 
         where: { id: skripsiRecord.id },
         data: {
-          sk_penguji: skSkripsiNomor,
-          undangan_penguji: undanganPengujiNomor,
-          undangan_munaqasah: undanganMunaqasahNomor
+          sk_penguji: skSkripsiNomor, 
+          undangan_penguji: undanganPengujiNomor, 
+          undangan_munaqasah: undanganMunaqasahNomor 
         },
       });
     } catch (dbError) {
@@ -235,7 +234,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     }
   }
 
-  const penguji1Name = skripsiRecord.penguji1 || 'Nama Penguji 1 (Ketua)';
+  const penguji1Name = skripsiRecord.penguji1 || 'Nama Penguji 1 (Ketua)'; 
   const penguji2Name = skripsiRecord.penguji2 || 'Nama Penguji 2';
   const penguji3Name = submission.pembimbing1 || 'Nama Pembimbing 1';
   const penguji4Name = submission.pembimbing2 || 'Nama Pembimbing 2';
@@ -253,9 +252,9 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   const pengajuan = skripsiRecord.tanggal;
   const tanggal = new Date(pengajuan);
   const options: Intl.DateTimeFormatOptions = {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric'
+    day: 'numeric',  
+    month: 'long',   
+    year: 'numeric'   
   };
   const tanggalPengajuan = tanggal.toLocaleDateString('id-ID', options);
 
@@ -263,7 +262,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   let seminarHariTgl = 'Hari / Tanggal Munaqasah';
   let seminarWaktu = 'Waktu Munaqasah WIB';
   let seminarTempat = 'Tempat Munaqasah';
-
+  
 
   if (seminarJadwal) {
     const day = seminarJadwal.toLocaleDateString('id-ID', { weekday: 'long' });
@@ -286,7 +285,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
   const templateData = {
     logoDataUri,
-    skPengujiNomor: skSkripsiNomor,
+    skPengujiNomor: skSkripsiNomor, 
     suratUndanganNomor,
     undanganMunaqasahNomor,
 
@@ -298,18 +297,18 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     penguji1NIP,
     penguji2Name,
     penguji2NIP,
-    penguji3Name,
+    penguji3Name, 
     penguji3NIP,
-    penguji4Name,
+    penguji4Name, 
     penguji4NIP,
 
     seminarHariTgl,
     seminarWaktu,
     seminarTempat,
     suratDate,
+    
 
-
-
+  
   };
 
   const html = `<!doctype html>
@@ -1238,9 +1237,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
   let browser: Browser | null = null;
   try {
-    // Dynamic import to support both local and serverless
-    const { launchBrowser } = await import('@/lib/puppeteer');
-    browser = await launchBrowser();
+    browser = await puppeteer.launch({
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      headless: true
+    });
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: 'domcontentloaded' });
 
