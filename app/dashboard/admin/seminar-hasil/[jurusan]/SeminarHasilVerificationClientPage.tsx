@@ -110,6 +110,12 @@ export default function SeminarHasilVerificationClientPage({ initialSeminarHasil
                     </div>
                 </div>
 
+                  <div className="flex flex-wrap gap-4 text-sm mb-4">
+                    <span className="px-3 py-1 bg-gray-100 rounded-full">
+                        Total: <strong>{filteredSeminarHasil.length}</strong> mahasiswa
+                    </span>
+                  </div>
+
                 {filteredSeminarHasil.length === 0 ? ( 
                     <div className="flex flex-col items-center justify-center text-center text-gray-500 py-16">
                         <FiInbox className="w-16 h-16 text-gray-300 mb-4" />

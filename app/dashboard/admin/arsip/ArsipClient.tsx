@@ -417,10 +417,7 @@ const ArsipClient: React.FC<ArsipClientProps> = ({ initialJurusan, initialTahun,
             </div>
 
             <div className="bg-white p-6 rounded-lg shadow-md border space-y-4">
-                <p className="mt-1 text-gray-600">
-                    Data ditampilkan untuk Jurusan:{' '}
-                    <strong className='text-[#325827]'>{formatJurusan(filters.jurusan)}</strong>
-                </p>
+               
 
                 <div className='flex items-center gap-4 mt-3'>
                     <label className="text-sm font-medium text-gray-700">Filter Jurusan:</label>
@@ -436,6 +433,12 @@ const ArsipClient: React.FC<ArsipClientProps> = ({ initialJurusan, initialTahun,
                             {formatJurusan(j)}
                         </button>
                     ))}
+                </div>
+
+                  <div className="flex flex-wrap gap-4 text-sm">
+                    <span className="px-3 py-1 bg-gray-100 rounded-full">
+                        Total: <strong>{totalItems}</strong> mahasiswa
+                    </span>
                 </div>
 
                 <div className="mt-6">
@@ -454,36 +457,36 @@ const ArsipClient: React.FC<ArsipClientProps> = ({ initialJurusan, initialTahun,
                             <table className="min-w-full w-full bg-white border divide-y divide-gray-200">
                                 <thead className="bg-slate-50">
                                     <tr>
-                                        {/* Header Mahasiswa */}
+                                      
                                         <th className="px-4 sm:px-6 py-2 sm:py-3 font-bold text-slate-800 text-xs text-left">
                                             <div className="flex items-center gap-1"><FiUsers size={12} className="text-green-800" /><span>Mahasiswa</span></div>
                                         </th>
 
-                                        {/* Header Tanggal */}
+                                       
                                         <th className="px-4 sm:px-6 py-2 sm:py-3 font-bold text-slate-800 text-xs text-left">
                                             <div className="flex items-center gap-1"><FiCalendar size={12} className="text-green-800" /><span>Timeline</span></div>
                                         </th>
-                                        {/* Header SK Pembimbing */}
+                                      
                                         <th className="px-4 sm:px-6 py-2 sm:py-3 font-bold text-slate-800 text-xs text-center min-w-[90px]">
                                             <div className="flex items-center gap-1 justify-center"><FiDownload size={12} className="text-green-800" /><span>SK Pembimbing</span></div>
                                         </th>
-                                        {/* Header SK Sempro */}
+                                      
                                         <th className="px-4 sm:px-6 py-2 sm:py-3 font-bold text-slate-800 text-xs text-center min-w-[90px]">
                                             <div className="flex items-center gap-1 justify-center"><FiDownload size={12} className="text-green-800" /><span>SK Sempro</span></div>
                                         </th>
-                                        {/* Header SK Sidang */}
+                                      
                                         <th className="px-4 sm:px-6 py-2 sm:py-3 font-bold text-slate-800 text-xs text-center min-w-[90px]">
                                             <div className="flex items-center gap-1 justify-center"><FiDownload size={12} className="text-green-800" /><span>SK Sidang</span></div>
                                         </th>
-                                        {/* Header Berita Acara Proposal */}
+                                       
                                         <th className="px-4 sm:px-6 py-2 sm:py-3 font-bold text-slate-800 text-xs text-center min-w-[120px]">
                                             <div className="flex items-center gap-1 justify-center"><FiDownload size={12} className="text-green-800" /><span>Berita Acara Proposal</span></div>
                                         </th>
-                                        {/* Header Berita Acara Sidang Skripsi */}
+                                      
                                         <th className="px-4 sm:px-6 py-2 sm:py-3 font-bold text-slate-800 text-xs text-center min-w-[130px]">
                                             <div className="flex items-center gap-1 justify-center"><FiDownload size={12} className="text-green-800" /><span>Berita Acara Sidang Skripsi</span></div>
                                         </th>
-                                        {/* Header Aksi */}
+                                       
                                         <th className="px-4 sm:px-6 py-2 sm:py-3 font-bold text-slate-800 text-xs text-center min-w-[70px]">
                                             <div className="flex items-center gap-1 justify-center"><FiSettings size={12} className="text-green-800" /><span>Aksi</span></div>
                                         </th>

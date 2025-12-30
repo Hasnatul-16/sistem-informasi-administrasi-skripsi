@@ -266,14 +266,14 @@ export default function DosenManagementClient() {
 
       </div>
       <div className="bg-white p-6 rounded-lg shadow-md border space-y-4">
-        {/* --- AKHIR BAGIAN FILTER --- */}
-
-
-        {/* --- 2. BAGIAN TABEL (STYLING DIPERBARUI) --- */}
-        <p className="mt-1 text-gray-600">
-          Data ditampilkan untuk Jurusan:{' '}
-          <strong className='text-[#325827]'>{selectedJurusan.replace('_', ' ')}</strong>
-        </p>
+         <div className="flex flex-wrap gap-4 text-sm">
+          <span className="px-3 py-1 bg-gray-100 rounded-full">
+            Total: <strong>{totalItems}</strong> dosen
+          </span>
+          <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full">
+            Jurusan: <strong>{selectedJurusan.replace('_', ' ')}</strong>
+          </span>
+        </div> 
 
         <div className="mt-6">
           {isLoading ? (
@@ -292,19 +292,19 @@ export default function DosenManagementClient() {
                 <table className="min-w-full w-full bg-white border divide-y divide-gray-200">
                   <thead className="bg-slate-50">
                     <tr>
-                      {/* Header Dosen */}
+                
                       <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left">
                         <div className="flex items-center gap-1 sm:gap-2"><FiUsers size={14} className="text-green-800" /><span>Dosen</span></div>
                       </th>
-                      {/* Header NIP */}
+                  
                       <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
                         <div className="flex items-center gap-1 sm:gap-2"><FiHash size={14} className="text-green-800" /><span>NIP</span></div>
                       </th>
-                      {/* Header Jurusan */}
+                   
                       <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
                         <div className="flex items-center gap-1 sm:gap-2"><FiCheckCircle size={14} className="text-green-800" /><span>Jurusan</span></div>
                       </th>
-                      {/* Header Aksi */}
+                 
                       <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-slate-800 text-xs sm:text-sm text-left whitespace-nowrap">
                         <div className="flex items-center gap-1 sm:gap-2"><FiSettings size={14} className="text-green-800" /><span>Aksi</span></div>
                       </th>

@@ -120,6 +120,11 @@ export default function ProposalVerificationClientPage({ initialProposals, jurus
             </div>
         </div>
         
+        <div className="flex flex-wrap gap-4 text-sm mb-4">
+          <span className="px-3 py-1 bg-gray-100 rounded-full">
+            Total: <strong>{filteredProposals.length}</strong> mahasiswa
+          </span>
+        </div>
         
         {filteredProposals.length === 0 ? (
           <div className="flex flex-col items-center justify-center text-center text-gray-500 py-16">

@@ -97,7 +97,7 @@ export default function VerificationClientPage({ initialSubmissions, jurusanName
                 </div>
             </div>
 
-            {/* Kolom Pencarian */}
+      
             <div className="relative self-end">
                 <input 
                     type="text"
@@ -108,6 +108,12 @@ export default function VerificationClientPage({ initialSubmissions, jurusanName
                 />
                 <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-white/70"/>
             </div>
+        </div>
+        
+         <div className="flex flex-wrap gap-4 text-sm mb-4">
+          <span className="px-3 py-1 bg-gray-100 rounded-full">
+            Total: <strong>{filteredSubmissions.length}</strong> mahasiswa
+          </span>
         </div>
         
         <SubmissionTable initialSubmissions={filteredSubmissions} />
