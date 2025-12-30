@@ -1,6 +1,6 @@
 import {
     Home, Layers, User, Archive,
-    ClipboardCheck, Layers2, Upload, UserPlus, UserCheck
+    ClipboardCheck, Layers2, Upload, UserPlus, UserCheck, Users
 } from "lucide-react";
 
 export type SubMenuItem = {
@@ -57,6 +57,7 @@ export const menuItemsByRole: { [key: string]: MenuItem[] } = {
     },
     { title: "Arsip ", url: "/dashboard/admin/arsip", icon: Archive },
     { title: "Manajemen Dosen", url: "/dashboard/admin/dosen/add", icon: UserPlus },
+    { title: "Manajemen Pengguna", url: "/dashboard/admin/users", icon: Users },
      { title: "Upload SK", url: "/dashboard/admin/upload-sk", icon: Upload },
     { 
       title: "Tabel Dosen", 
