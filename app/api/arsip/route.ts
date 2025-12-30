@@ -52,7 +52,6 @@ export async function GET(request: Request) {
 
         let dateFilter: { tanggal?: { gte: Date; lt: Date } } = {};
 
-        // Priority: explicit month filter (month=YYYY-MM) -> then tahun+semester -> otherwise no date filter
         if (selectedMonth) {
             const [yearStr, monthStr] = selectedMonth.split('-');
             const year = parseInt(yearStr);
@@ -71,17 +70,15 @@ export async function GET(request: Request) {
         } else if (selectedTahun && selectedSemester) {
             const year = parseInt(selectedTahun);
             if (!isNaN(year)) {
-                // Academic semester mapping:
-                // GANJIL: July 1st of year to December 31st of year
-                // GENAP: January 1st of year to June 30th of year
+              
                 let startDate: Date;
                 let endDate: Date;
                 if (selectedSemester === 'GANJIL') {
-                    startDate = new Date(year, 6, 1); // July 1
-                    endDate = new Date(year, 12, 1); // Jan 1 next year (exclusive)
+                    startDate = new Date(year, 6, 1); 
+                    endDate = new Date(year, 12, 1); 
                 } else {
-                    startDate = new Date(year, 0, 1); // Jan 1
-                    endDate = new Date(year, 6, 1); // July 1 (exclusive)
+                    startDate = new Date(year, 0, 1); 
+                    endDate = new Date(year, 6, 1); 
                 }
                 dateFilter = {
                     tanggal: {
@@ -91,8 +88,6 @@ export async function GET(request: Request) {
                 };
             }
         }
-        // No default month filter - show all data
-
         const jurusanFilter = selectedJurusan ? { jurusan: selectedJurusan } : {};
 
         const whereClause: Prisma.JudulWhereInput = {
@@ -108,8 +103,8 @@ export async function GET(request: Request) {
             ...(searchTerm && searchTerm.trim() !== '' ? {
                 mahasiswa: {
                     OR: [
-                        { nama: { contains: searchTerm } },
-                        { nim: { contains: searchTerm } },
+                        { nama: { contains: searchTerm, mode: 'insensitive' } },
+                        { nim: { contains: searchTerm, mode: 'insensitive' } },
                     ]
                 }
             } : {})

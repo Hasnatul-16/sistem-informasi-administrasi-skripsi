@@ -20,6 +20,7 @@ async function calculateDosenWorkload(jurusan: Jurusan, tahun: number, semester:
             jurusan,
             nama: {
                 contains: search,
+                mode: 'insensitive',
             }
          },
         select: { nama: true, nip: true },

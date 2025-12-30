@@ -25,8 +25,8 @@ export async function GET(request: Request) {
       where: {
         jurusan,
         OR: [
-          { nama: { contains: search } },
-          { nip: { contains: search } }
+          { nama: { contains: search, mode: 'insensitive' } },
+          { nip: { contains: search, mode: 'insensitive' } }
         ]
       },
       orderBy: { nama: 'asc' }
@@ -64,7 +64,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: 'Jurusan tidak valid.' }, { status: 400 });
     }
 
-    // Check if NIP already exists
+
     const existingDosen = await prisma.dosen.findUnique({
       where: { nip }
     });
